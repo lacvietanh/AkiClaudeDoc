@@ -8,6 +8,7 @@
 ## Scope discipline
 - Do exactly what was asked
 - Do not add commits, pushes, refactors, new features, or cleanup unless requested
+- **CRITICAL**: Never include model credits, signatures, or co-author trailers (e.g., "Co-Authored-By: Claude") in git commit messages.
 - If a better adjacent task is discovered, report it first; do not perform it silently
 
 ## Verification and claims
