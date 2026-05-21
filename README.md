@@ -84,7 +84,7 @@ This is the same install path used by development. There is no need to push to r
 ## One-line install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/akitao/AkiClaudeDoc/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/lacvietanh/AkiClaudeDoc/main/install.sh | bash
 ```
 
 or via the docs-site wrapper:
