@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//~/.aki/claudedoc/**)"
+    ],
+    "additionalDirectories": [
+      "~/.aki/claudedoc"
+    ]
+  },
+  "skillOverrides": {
+    "akidoc-rules": "on",
+    "akidoc-flow-audit": "on",
+    "akidoc-techbiz-optimizer": "on"
+  }
+}

@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+.cache/
+tmp/
+temp/
+
+# Local/editor state
+.vscode/
+.idea/
+
+# Large reference corpus is intentionally not part of the default package
+ref-ECC/
+**/ref-ECC/
+
+# Local install/test output
+.local-test/
