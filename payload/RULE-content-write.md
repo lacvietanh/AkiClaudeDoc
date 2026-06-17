@@ -1,6 +1,10 @@
 # Core Content Rules
 
-## UI text
+## Scope
+
+These rules apply to all product content: interface text, meta titles/descriptions, FAQ answers, JSON-LD text fields, article copy, and empty states. All of these are "content" — the channel (visible UI, SERP snippet, schema bot) does not change the authoring principles.
+
+## Interface text
 - Use the current UI language
 - Small local strings may stay inline
 - Shared or repeated strings should use i18n keys
@@ -10,7 +14,7 @@
 - Avoid synonyms for the same action unless the context truly differs
 - Keep labels stable so users, translators, tests, and LLMs can map concepts reliably
 
-## UI copy patterns
+## Interface text patterns
 - Action buttons should usually start with verbs
 - Field labels and setting names should usually be noun-based
 - Error messages should state the problem first, then the next action if needed
@@ -18,7 +22,7 @@
 
 ## Writing style
 - Prefer clear, concrete wording
-- Keep UI copy concise
+- Keep content concise
 - Avoid filler and vague marketing language unless the project explicitly wants it
 - Keep headings short and literal
 
@@ -27,6 +31,7 @@
 - Use stable labels for repeated concepts
 - Avoid unnecessary abbreviations in user-facing text
 - Make important entity definitions obvious near the start of a page or section
+- FAQ answers: answer directly in the first sentence — no "Đây là...", "According to..." preamble
 
 ## Separation
 - Do not mix chat wording into product content
