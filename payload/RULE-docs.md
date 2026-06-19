@@ -25,7 +25,7 @@ Do not create new top-level doc topics unless the existing set clearly fails.
 - Use `done`, not `archived`, for completed plans
 
 ## Documentation behavior
-- Keep docs synchronized with code
+- Keep docs synchronized with code. Code does not auto-generate docs unless complex/requested; when editing code derived from `feat|arch` docs, proactively sync the doc or comment the reference path.
 - Prefer one clear canonical doc over multiple overlapping docs
 - Use Markdown
 - Default: no Mermaid

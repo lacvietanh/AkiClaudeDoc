@@ -8,6 +8,7 @@ Nuxt 4 · Vue 3 · Tailwind v4 · @nuxtjs/i18n · @nuxtjs/seo · SweetAlert2 · 
 - Use `fetch()` for outbound requests
 - Use `crypto.subtle`, not Node native crypto
 - Do not enable `nodejs_compat` in `wrangler.toml` unless upstream issues are confirmed fixed
+- Must strictly use `trailingSlash: true` consistently for Cloudflare Pages (applies to routing, canonical, og:url, sitemap, schema.org)
 
 ## Preset and output
 - Use `cloudflare_pages`, not `cloudflare_module`
@@ -18,7 +19,9 @@ Nuxt 4 · Vue 3 · Tailwind v4 · @nuxtjs/i18n · @nuxtjs/seo · SweetAlert2 · 
 - Public pages: prerender/SSG when suitable
 - Dynamic content: SSR
 - Private admin routes: SPA/no-index when suitable
+- NEVER index `/admin` or `/admin/**` in robots/sitemap
 - Use `aki-info-detect` to separate bot and real-browser behavior when needed
+- For `aki-info-detect`: Import manually only where needed. Absolutely DO NOT integrate into Nuxt plugins. WARNING: Do not auto-run the `getIP` feature unless explicitly requested.
 
 ## Vue/Nuxt patterns
 - Use SSR guards only at entry points
@@ -28,6 +31,7 @@ Nuxt 4 · Vue 3 · Tailwind v4 · @nuxtjs/i18n · @nuxtjs/seo · SweetAlert2 · 
 - `v-if` for conditional rendering; `v-show` for frequent toggles
 - Internal links: `NuxtLink`
 - External links: `<a target="_blank" rel="noopener noreferrer">`
+- Dialogs: ONLY use `useSwal()`. Strictly forbidden to use `window.alert()` or `window.confirm()`.
 
 ## Template attribute order
 `id` → `v-for :key` → `v-if/show` → `v-model` → `@events` → `:bindings` → `class/static`
@@ -41,7 +45,8 @@ Nuxt 4 · Vue 3 · Tailwind v4 · @nuxtjs/i18n · @nuxtjs/seo · SweetAlert2 · 
 ## UI
 - Desktop-first, but responsive across narrow to wide screens
 - Scale spacing by breakpoint instead of hardcoding large values
-- Use FontAwesome Free
+- UI rules: Use a scientific z-index system (`--z-index` variables) and standard border-radius dimensions (`radius-sm`, `md`, `lg`, `xl`, `pill`)
+- Use FontAwesome Free. DO NOT write anything for FontAwesome in `.npmrc` (the free version does not need config).
 - Add `aria-label` to icon-only controls
 - Use focus trap for modals when needed
 
@@ -49,3 +54,5 @@ Nuxt 4 · Vue 3 · Tailwind v4 · @nuxtjs/i18n · @nuxtjs/seo · SweetAlert2 · 
 - Every page should use the project SEO helpers and schema setup
 - Prefer SSR/prerendered critical content
 - Keep OG images and metadata explicit
+- Single source of truth: Define a single variable (e.g., `const title`) and use it across meta tags, OG, Twitter, and JSON-LD to avoid duplicate values
+- Limits: Title < 60 characters, Description < 155 characters

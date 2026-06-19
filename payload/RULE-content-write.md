@@ -7,7 +7,7 @@ These rules apply to all product content: interface text, meta titles/descriptio
 ## Interface text
 - Use the current UI language
 - Small local strings may stay inline
-- Shared or repeated strings should use i18n keys
+- Shared or repeated strings should use i18n keys. Exception: Text content that is exactly the same in both EN/VI should be directly hardcoded in the UI.
 
 ## Semantic stability
 - Use one canonical term for one concept across the product
@@ -25,6 +25,7 @@ These rules apply to all product content: interface text, meta titles/descriptio
 - Keep content concise
 - Avoid filler and vague marketing language unless the project explicitly wants it
 - Keep headings short and literal
+- Punctuation: Strictly limit the use of em dash (—) and en dash (–)
 
 ## Human + LLM readability
 - Prefer explicit nouns over clever wording

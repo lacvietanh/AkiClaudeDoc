@@ -7,14 +7,18 @@ Aki-RULE provides reusable rules for agent behavior, coding, content, docs, and 
 Project `CLAUDE.md` files bind these shared rules to a specific project.
 
 ## Rule sets
-Core rule sets:
+Core rule sets (always loaded):
 1. `RULE-agent-behavior.md`
 2. `RULE-coding.md`
+
+On-signal rule sets (loaded by the `akirule` smart router when task signals match):
 3. `RULE-content-write.md`
 4. `RULE-docs.md`
+5. `RULE-stack-akiNuxtCf.md`
 
-Stack rule sets:
-- `RULE-stack-akiNuxtCf.md`
+Method files (loaded by the `akirule` smart router for analytical tasks):
+- `METHOD-flow-audit.md` — flow integrity audit method
+- `METHOD-techbiz-optimizer.md` — first-principles scope and value optimizer
 
 Keep the number of files small. Split only when a rule group has a different lifecycle or applies to a different set of projects.
 
