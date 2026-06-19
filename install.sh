@@ -12,12 +12,84 @@ backup() {
   fi
 }
 
+inspect_status() {
+  echo -e "\033[1;36m=== KIỂM TRA TRẠNG THÁI HỆ THỐNG TRƯỚC KHI CÀI ĐẶT ===\033[0m"
+  
+  if [ -d "$INSTALL_ROOT" ]; then
+    echo -e "📦 Payload rules: Sẽ \033[1;33mCẬP NHẬT đè\033[0m lên $INSTALL_ROOT"
+  else
+    echo -e "📦 Payload rules: Sẽ \033[1;32mTẠO MỚI\033[0m tại $INSTALL_ROOT"
+  fi
+
+  if [ -f "$CLAUDE_DIR/CLAUDE.md" ]; then
+    echo -e "📝 Global CLAUDE.md: Sẽ \033[1;33mGHI ĐÈ\033[0m $CLAUDE_DIR/CLAUDE.md (có backup)"
+  else
+    echo -e "📝 Global CLAUDE.md: Sẽ \033[1;32mTẠO MỚI\033[0m $CLAUDE_DIR/CLAUDE.md"
+  fi
+
+  if [ -f "$CLAUDE_DIR/skills/akirule/SKILL.md" ]; then
+    echo -e "🔧 Skill akirule: Sẽ \033[1;33mCẬP NHẬT đè\033[0m $CLAUDE_DIR/skills/akirule/SKILL.md"
+  else
+    echo -e "🔧 Skill akirule: Sẽ \033[1;32mTẠO MỚI\033[0m $CLAUDE_DIR/skills/akirule/SKILL.md"
+  fi
+
+  local old_skills=()
+  for s in akidoc-rules akidoc-flow-audit akidoc-techbiz-optimizer; do
+    [ -d "$CLAUDE_DIR/skills/$s" ] && old_skills+=("$s")
+  done
+  if [ ${#old_skills[@]} -gt 0 ]; then
+    echo -e "🗑️  Skill cũ sẽ bị XÓA: \033[1;31m${old_skills[*]}\033[0m"
+  fi
+
+  echo -e "⚙️  settings.json: Khám quyền đọc và skill overrides..."
+  if [ -f "$CLAUDE_DIR/settings.json" ]; then
+    python3 - "$CLAUDE_DIR/settings.json" "$INSTALL_ROOT" <<'INSPECT_PY'
+import json, pathlib, sys
+target = pathlib.Path(sys.argv[1])
+install_root = sys.argv[2]
+OLD_SKILLS = ['akidoc-rules', 'akidoc-flow-audit', 'akidoc-techbiz-optimizer']
+try:
+    data = json.loads(target.read_text())
+    read_rule = f'Read(//{install_root.lstrip("/")}/**)'
+    allow = data.get('permissions', {}).get('allow', [])
+    if read_rule in allow:
+        print("  ✅ Đã có quyền Read cho thư mục payload.")
+    else:
+        print("  ⚠️  CHƯA CÓ quyền Read. Sẽ bổ sung tự động.")
+    overrides = data.get('skillOverrides', {})
+    if overrides.get('akirule') == 'on':
+        print("  ✅ Skill akirule đã được bật (on).")
+    else:
+        print("  ⚠️  Sẽ tự động bật skill: akirule")
+    stale = [s for s in OLD_SKILLS if s in overrides]
+    if stale:
+        print(f"  🗑️  skillOverrides cũ sẽ bị XÓA: {', '.join(stale)}")
+except Exception as e:
+    print(f"  ❌ Lỗi đọc settings.json: {e}")
+INSPECT_PY
+  else
+    echo -e "  ⚠️  Chưa có settings.json. Sẽ TẠO MỚI."
+  fi
+  echo -e "\033[1;36m====================================================\033[0m"
+}
+
+inspect_status
+
+read -p "Bạn có chắc chắn muốn cài đặt/cập nhật với các thay đổi trên? (y/n): " confirm
+if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+    echo "Đã hủy cài đặt."
+    exit 1
+fi
+echo "Đang tiến hành cài đặt..."
+
 mkdir -p "$INSTALL_ROOT" "$CLAUDE_DIR/skills"
 rsync -a --delete --exclude 'ref-ECC/' --exclude '.DS_Store' "$REPO_ROOT/payload/" "$INSTALL_ROOT/"
 
-for skill in akidoc-rules akidoc-flow-audit akidoc-techbiz-optimizer; do
-    mkdir -p "$CLAUDE_DIR/skills/$skill"
-  cp "$REPO_ROOT/claude/skills/$skill/SKILL.md" "$CLAUDE_DIR/skills/$skill/SKILL.md"
+mkdir -p "$CLAUDE_DIR/skills/akirule"
+cp "$REPO_ROOT/claude/skills/akirule/SKILL.md" "$CLAUDE_DIR/skills/akirule/SKILL.md"
+
+for old_skill in akidoc-rules akidoc-flow-audit akidoc-techbiz-optimizer; do
+  rm -rf "$CLAUDE_DIR/skills/$old_skill"
 done
 
 mkdir -p "$CLAUDE_DIR"
@@ -29,29 +101,32 @@ if [ ! -f "$CLAUDE_DIR/settings.json" ]; then
 fi
 backup "$CLAUDE_DIR/settings.json"
 python3 - "$CLAUDE_DIR/settings.json" "$INSTALL_ROOT" <<'PY'
-import json
-import pathlib
-import sys
+import json, pathlib, sys
 
 target = pathlib.Path(sys.argv[1])
 install_root = sys.argv[2]
 data = json.loads(target.read_text())
 
-data.setdefault('permissions', {})
-data['permissions'].setdefault('allow', [])
-data['permissions'].setdefault('additionalDirectories', [])
+if not isinstance(data.get('permissions'), dict):
+    data['permissions'] = {}
+perms = data['permissions']
+if not isinstance(perms.get('allow'), list):
+    perms['allow'] = []
+if not isinstance(perms.get('additionalDirectories'), list):
+    perms['additionalDirectories'] = []
 
 read_rule = f'Read(//{install_root.lstrip("/")}/**)'
-data['permissions']['allow'] = [item for item in data['permissions']['allow'] if item != f'Read(//{install_root}/**)']
-if read_rule not in data['permissions']['allow']:
-    data['permissions']['allow'].append(read_rule)
+perms['allow'] = [item for item in perms['allow'] if item != read_rule]
+perms['allow'].append(read_rule)
 
-if install_root not in data['permissions']['additionalDirectories']:
-    data['permissions']['additionalDirectories'].append(install_root)
+if install_root not in perms['additionalDirectories']:
+    perms['additionalDirectories'].append(install_root)
 
-data.setdefault('skillOverrides', {})
-for skill in ['akidoc-rules', 'akidoc-flow-audit', 'akidoc-techbiz-optimizer']:
-    data['skillOverrides'][skill] = 'on'
+if not isinstance(data.get('skillOverrides'), dict):
+    data['skillOverrides'] = {}
+for old_skill in ['akidoc-rules', 'akidoc-flow-audit', 'akidoc-techbiz-optimizer']:
+    data['skillOverrides'].pop(old_skill, None)
+data['skillOverrides']['akirule'] = 'on'
 
 target.write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n')
 PY

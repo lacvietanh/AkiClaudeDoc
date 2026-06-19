@@ -8,8 +8,6 @@
     ]
   },
   "skillOverrides": {
-    "akidoc-rules": "on",
-    "akidoc-flow-audit": "on",
-    "akidoc-techbiz-optimizer": "on"
+    "akirule": "on"
   }
 }

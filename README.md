@@ -1,25 +1,65 @@
 # AkiClaudeDoc
 
-AkiClaudeDoc packages Aki's Claude Code rules and skills into a small reusable project. It is just Markdown instructions plus Claude Code skill definitions, arranged so the same setup can be installed on another machine.
+AkiClaudeDoc packages Aki's Claude Code rules and skills into a small reusable project. It is Markdown instructions plus a Claude Code skill definition, arranged so the same setup can be installed on another machine.
 
-The goal is simple: keep the source of truth in Git, publish the explanation and quickstart on `dev.akitao.com`, and let users install the same Claude Code rule/skill baseline into their own `~/.claude` environment.
+The goal: keep the source of truth in Git, publish the explanation and quickstart on `dev.akitao.com`, and let users install the same Claude Code rule/skill baseline into their own `~/.claude` environment.
 
 ## What this is
 
 AkiClaudeDoc contains:
 
-- shared rule files for Claude behavior, coding, docs, content, and Aki Nuxt/Cloudflare work;
-- Claude Code skills that load or apply those rules;
-- a small global Claude instruction block;
+- shared rule files (`RULE-*`) and analytical method files (`METHOD-*`) for Claude behavior, coding, docs, content, and Aki Nuxt/Cloudflare work;
+- one Claude Code skill (`akirule`) that acts as a smart router — always loading core rules and reading additional files on demand;
+- a small global Claude instruction block (`CLAUDE.md`);
 - a simple install script.
 
 It is not an auto-updater, daemon, package manager, or control plane.
 
+## File naming conventions
+
+Files in `payload/` follow a strict naming convention:
+
+- `RULE-*.md` — constraint rules: behavior limits, coding standards, content standards, stack requirements. These define *what* Claude must or must not do.
+- `METHOD-*.md` — analytical frameworks: structured methods Claude reads and applies when a task requires flow auditing or first-principles optimization. These define *how* to reason through a specific type of problem.
+- `index.md` — rule index, precedence order, and project binding policy.
+
+This separation matters: `RULE-*` files are always-relevant constraints; `METHOD-*` files are heavy analytical frameworks that only add value when the task is genuinely analytical.
+
+## How `akirule` works
+
+`akirule` is a single Claude Code skill installed at `~/.claude/skills/akirule/SKILL.md`. It is set to `"on"` in `skillOverrides`, so Claude Code injects it into every conversation automatically.
+
+The skill operates in three tiers:
+
+**Tier 1 — Core (always embedded via `@` syntax):**
+- `index.md` — rule precedence and project binding
+- `RULE-agent-behavior.md` — response discipline, scope, verification
+- `RULE-coding.md` — coding philosophy, source-of-truth, security
+
+These three files are hard-embedded into the skill prompt on every conversation. They are small (≈130 lines total) and universally relevant.
+
+**Tier 2 — On-signal rules (Claude reads the file when task signals match):**
+- `RULE-docs.md` — triggered when editing docs, CLAUDE.md, plan files, or complex code with a docs reference
+- `RULE-content-write.md` — triggered when writing UI text, i18n keys, meta content, or product-facing prose
+- `RULE-stack-akiNuxtCf.md` — triggered for any Nuxt, Vue, or Cloudflare work; default-load in Aki project contexts
+
+**Tier 3 — On-signal methods (Claude reads the file when task has analytical depth):**
+- `METHOD-flow-audit.md` — triggered for refactors, multi-file bugs, fragile flows, user journey audits
+- `METHOD-techbiz-optimizer.md` — triggered for scope decisions, architecture tradeoffs, effort/value questions
+
+The skill prompt uses imperative trigger language ("Read this file NOW if…") with high sensitivity — Claude errs toward loading rather than skipping. A `[load full]` or `[nạp full]` keyword in a message forces all `RULE-*` and `METHOD-*` files to load immediately.
+
+## How Claude Code skills work in this context
+
+Claude Code skills are Markdown files read by the harness at conversation start. The `@path` syntax in a skill file hard-embeds that file's content directly. For dynamic files (Tier 2 and 3), the skill prompt instructs Claude to use its Read tool to fetch the file when the task matches — no harness magic, just Claude following the trigger instructions.
+
+The `~/.aki/claudedoc/` directory is added to `permissions.allow` and `additionalDirectories` in `settings.json` so Claude can read those files without a permission prompt.
+
 ## Source of truth
 
-The Git repository is the source of truth. If a rule or skill changes, edit it in Git and deploy/install from the repo again.
+The Git repository is the source of truth. If a rule or skill changes, edit it in Git and run `install.sh` again.
 
-`dev.akitao.com` is the production presentation layer: landing page, article, quickstart, install command, and explanation. The website should explain and promote the project, but the canonical files should live in this repository.
+`dev.akitao.com` is the production presentation layer. The website explains and promotes the project; the canonical files live in this repository.
 
 ## Repository layout
 
@@ -31,55 +71,42 @@ payload/
   RULE-content-write.md
   RULE-docs.md
   RULE-stack-akiNuxtCf.md
-  SKILL-flow-audit.md
-  SKILL-techbiz-optimizer.md
+  METHOD-flow-audit.md
+  METHOD-techbiz-optimizer.md
 
 claude/
   CLAUDE.md
-  skills/akidoc-rules/SKILL.md
-  skills/akidoc-flow-audit/SKILL.md
-  skills/akidoc-techbiz-optimizer/SKILL.md
+  skills/akirule/SKILL.md
   fragments/settings.akidoc.fragment.json
 
 install.sh
 ```
 
-`payload/` contains the Markdown resources that are deployed to the user's machine. These are the packaged rule/method resources, not the active `~/.claude` runtime location.
+`payload/` is what gets deployed to `~/.aki/claudedoc`. `claude/` contains the Claude Code runtime assets installed into `~/.claude`. `fragments/settings.akidoc.fragment.json` is an illustrative reference of the settings shape — do not apply it manually. The installer generates the exact expanded paths for each machine.
 
 ## Install target
 
-The installer deploys Markdown resources to:
+The installer deploys payload resources to:
 
 ```text
-~/.aki/claudedoc
+~/.aki/claudedoc/
 ```
 
 Claude Code assets are installed into:
 
 ```text
-~/.claude/skills/akidoc-rules/SKILL.md
-~/.claude/skills/akidoc-flow-audit/SKILL.md
-~/.claude/skills/akidoc-techbiz-optimizer/SKILL.md
+~/.claude/skills/akirule/SKILL.md
 ~/.claude/CLAUDE.md
-~/.claude/settings.json
+~/.claude/settings.json   (read permission + skillOverrides added)
 ```
 
-The installed skill files refer directly to:
-
-```text
-~/.aki/claudedoc
-```
-
+The `akirule` skill reads `RULE-*` and `METHOD-*` files directly from `~/.aki/claudedoc/` at conversation time, on demand.
 
 ## Install from local checkout
-
-If you already cloned or copied the repo locally:
 
 ```bash
 bash install.sh
 ```
-
-This is the same install path used by development. There is no need to push to remote and download again just to deploy locally.
 
 ## One-line install
 
@@ -97,17 +124,16 @@ The script is intentionally simple so users can inspect it before running.
 
 ## What the installer does
 
-1. Copies `payload/*` into `~/.aki/claudedoc`.
-2. Copies the three AkiClaudeDoc skills into `~/.claude/skills`.
-3. Replaces `~/.claude/CLAUDE.md` with the packaged AkiClaudeDoc global guidance.
-4. Adds the AkiClaudeDoc skill overrides and read permission to `~/.claude/settings.json`.
-5. Creates timestamped backups before replacing mutable Claude files.
+1. Copies `payload/*` into `~/.aki/claudedoc` (rsync, excludes `ref-ECC/`).
+2. Copies the `akirule` skill into `~/.claude/skills/akirule/` and removes any old AkiClaudeDoc skill directories (`akidoc-rules`, `akidoc-flow-audit`, `akidoc-techbiz-optimizer`).
+3. Replaces `~/.claude/CLAUDE.md` with the packaged global guidance (timestamped backup created first).
+4. Writes `~/.claude/settings.json`: adds read permission for `~/.aki/claudedoc/**`, sets `skillOverrides.akirule = "on"`, removes old skill overrides (timestamped backup created first).
 
-Running the installer again updates the same managed files.
+Running the installer again updates the same managed files cleanly.
 
 ## What is excluded
 
-`ref-ECC/` is intentionally excluded. It is a large reference corpus and is not needed for the default AkiClaudeDoc install.
+`ref-ECC/` is intentionally excluded from the default install. It is a large reference corpus not needed for standard rule/skill operation.
 
 This repo also does not package:
 
@@ -119,31 +145,28 @@ This repo also does not package:
 
 ## Why `~/.aki/claudedoc`
 
-AkiClaudeDoc installs into `~/.aki/claudedoc` because it is simple, user-local, and easy to understand.
-
 - no sudo;
 - user-local;
-- easy to inspect;
-- easy to delete;
+- easy to inspect and delete;
 - consistent with the Aki ecosystem namespace.
 
 ## Uninstall
 
-Remove installed resources and skills:
-
 ```bash
 rm -rf ~/.aki/claudedoc
-rm -rf ~/.claude/skills/akidoc-rules ~/.claude/skills/akidoc-flow-audit ~/.claude/skills/akidoc-techbiz-optimizer
+rm -rf ~/.claude/skills/akirule
 ```
 
-Then remove the marked AkiClaudeDoc block from `~/.claude/CLAUDE.md` and remove the AkiClaudeDoc entries from `~/.claude/settings.json` if desired.
+Then remove the AkiClaudeDoc block from `~/.claude/CLAUDE.md` and the AkiClaudeDoc entries from `~/.claude/settings.json` if desired.
 
 ## Content for dev.akitao.com
 
-This README is written as the source material for a public article or docs page. The web page should explain:
+This README is the source material for a public article or docs page. The web page should explain:
 
 - why shared Claude Code rules matter;
-- what gets installed;
+- the RULE-* / METHOD-* naming convention and what each type does;
+- how the `akirule` smart router works (3 tiers, on-demand file reads);
+- what gets installed and where;
 - why Git is the source of truth;
 - how to install from local checkout or one-line command;
 - why the default path is `~/.aki/claudedoc`;

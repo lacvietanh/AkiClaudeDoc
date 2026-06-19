@@ -6,24 +6,19 @@ Keep global context small. Prefer current project files and runtime output over 
 
 Aki's shared rule corpus lives at `~/.aki/claudedoc`.
 
-Use the `akidoc-rules` skill when working in Aki projects, editing durable project files, creating/editing project instructions, or when the user asks to follow Aki rules.
+The `akirule` skill is always active in Aki projects. It loads core rules automatically and reads additional rule and skill files on demand based on task signals. See the skill definition for the full smart-router spec.
 
-The skill loads these core rules:
+Core rules always loaded:
 - `~/.aki/claudedoc/index.md` — rule index, precedence, and project binding policy
 - `~/.aki/claudedoc/RULE-agent-behavior.md` — response language, scope discipline, verification, decision boundaries
 - `~/.aki/claudedoc/RULE-coding.md` — coding philosophy, source-of-truth, verification, error handling, security
-- `~/.aki/claudedoc/RULE-docs.md` — documentation structure, index, plan lifecycle, docs behavior
+
+Additional rules loaded on signal:
+- `~/.aki/claudedoc/RULE-docs.md` — docs structure, index, plan lifecycle, doc-sync behavior
 - `~/.aki/claudedoc/RULE-content-write.md` — UI copy, semantic stability, writing style, i18n usage
-
-Load stack-specific rules only when relevant:
-- `~/.aki/claudedoc/RULE-stack-akiNuxtCf.md` — load for Nuxt, Vue, Cloudflare Pages/Workers, Tailwind, i18n, SEO, or Aki Nuxt/Cloudflare stack work
-
-## Shared Aki skills
-
-Use these global skills when their trigger matches:
-- `akidoc-rules` — load shared Aki rules
-- `akidoc-flow-audit` — audit fragile workflows, repeated guards, state drift, or awkward flows
-- `akidoc-techbiz-optimizer` — reduce over-scoped technical/business work to the smallest high-value next step
+- `~/.aki/claudedoc/RULE-stack-akiNuxtCf.md` — Nuxt, Vue, Cloudflare Pages/Workers, Tailwind, i18n, SEO
+- `~/.aki/claudedoc/METHOD-flow-audit.md` — flow integrity audit method
+- `~/.aki/claudedoc/METHOD-techbiz-optimizer.md` — first-principles scope and value optimizer
 
 ## ref-ECC guard
 
