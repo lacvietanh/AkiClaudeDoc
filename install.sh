@@ -75,7 +75,10 @@ INSPECT_PY
 
 inspect_status
 
-read -p "Bạn có chắc chắn muốn cài đặt/cập nhật với các thay đổi trên? (y/n): " confirm
+confirm="y"
+if [ -t 0 ]; then
+    read -p "Bạn có chắc chắn muốn cài đặt/cập nhật với các thay đổi trên? (y/n): " confirm
+fi
 if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
     echo "Đã hủy cài đặt."
     exit 1
