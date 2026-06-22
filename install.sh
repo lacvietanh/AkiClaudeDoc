@@ -27,11 +27,15 @@ inspect_status() {
     echo -e "📝 Global CLAUDE.md: Sẽ \033[1;32mTẠO MỚI\033[0m $CLAUDE_DIR/CLAUDE.md"
   fi
 
-  if [ -f "$CLAUDE_DIR/skills/akirule/SKILL.md" ]; then
-    echo -e "🔧 Skill akirule: Sẽ \033[1;33mCẬP NHẬT đè\033[0m $CLAUDE_DIR/skills/akirule/SKILL.md"
-  else
-    echo -e "🔧 Skill akirule: Sẽ \033[1;32mTẠO MỚI\033[0m $CLAUDE_DIR/skills/akirule/SKILL.md"
-  fi
+  for skill_dir in "$REPO_ROOT"/claude/skills/*/; do
+    [ -d "$skill_dir" ] || continue
+    skill_name="$(basename "$skill_dir")"
+    if [ -f "$CLAUDE_DIR/skills/$skill_name/SKILL.md" ]; then
+      echo -e "🔧 Skill $skill_name: Sẽ \033[1;33mCẬP NHẬT đè\033[0m $CLAUDE_DIR/skills/$skill_name/SKILL.md"
+    else
+      echo -e "🔧 Skill $skill_name: Sẽ \033[1;32mTẠO MỚI\033[0m $CLAUDE_DIR/skills/$skill_name/SKILL.md"
+    fi
+  done
 
   local old_skills=()
   for s in akidoc-rules akidoc-flow-audit akidoc-techbiz-optimizer; do
@@ -88,8 +92,12 @@ echo "Đang tiến hành cài đặt..."
 mkdir -p "$INSTALL_ROOT" "$CLAUDE_DIR/skills"
 rsync -a --delete --exclude 'ref-ECC/' --exclude '.DS_Store' "$REPO_ROOT/payload/" "$INSTALL_ROOT/"
 
-mkdir -p "$CLAUDE_DIR/skills/akirule"
-cp "$REPO_ROOT/claude/skills/akirule/SKILL.md" "$CLAUDE_DIR/skills/akirule/SKILL.md"
+for skill_dir in "$REPO_ROOT"/claude/skills/*/; do
+  [ -d "$skill_dir" ] || continue
+  skill_name="$(basename "$skill_dir")"
+  mkdir -p "$CLAUDE_DIR/skills/$skill_name"
+  cp "$skill_dir/SKILL.md" "$CLAUDE_DIR/skills/$skill_name/SKILL.md"
+done
 
 for old_skill in akidoc-rules akidoc-flow-audit akidoc-techbiz-optimizer; do
   rm -rf "$CLAUDE_DIR/skills/$old_skill"
