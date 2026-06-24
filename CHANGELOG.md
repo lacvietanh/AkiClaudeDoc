@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-24
+
+### Changed
+- Standardized and improved `GEMINI.md` with professional English phrasing and structured bootstrap directives to align Gemini and Antigravity agents with the `CLAUDE.md` source of truth.
+
+---
+
 ## 2026-06-19
 
 ### Changed
