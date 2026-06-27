@@ -12,9 +12,27 @@ backup() {
   fi
 }
 
+# Keep only the 2 most recent backups for a given base path (portable: macOS bash 3.2 + GNU bash)
+prune_backups() {
+  local base="$1"
+  local dir
+  dir="$(dirname "$base")"
+  local name
+  name="$(basename "$base")"
+  local count
+  count=$(find "$dir" -maxdepth 1 -name "${name}.akiclaudedoc-backup-*" | wc -l | tr -d ' ')
+  if [ "$count" -le 2 ]; then
+    return
+  fi
+  find "$dir" -maxdepth 1 -name "${name}.akiclaudedoc-backup-*" | sort | head -n "$((count - 2))" | while IFS= read -r f; do
+    echo -e "  🗑️  Xóa backup cũ: $(basename "$f")"
+    rm -rf "$f"
+  done
+}
+
 inspect_status() {
   echo -e "\033[1;36m=== KIỂM TRA TRẠNG THÁI HỆ THỐNG TRƯỚC KHI CÀI ĐẶT ===\033[0m"
-  
+
   if [ -d "$INSTALL_ROOT" ]; then
     echo -e "📦 Payload rules: Sẽ \033[1;33mCẬP NHẬT đè\033[0m lên $INSTALL_ROOT"
   else
@@ -77,6 +95,45 @@ INSPECT_PY
   echo -e "\033[1;36m====================================================\033[0m"
 }
 
+print_summary() {
+  echo -e "\n\033[1;32m=== ĐÃ CÀI ĐẶT THÀNH CÔNG ===\033[0m"
+
+  # Version info
+  local git_hash=""
+  if git -C "$REPO_ROOT" rev-parse --short HEAD &>/dev/null; then
+    git_hash=" ($(git -C "$REPO_ROOT" rev-parse --short HEAD))"
+  fi
+  echo -e "📅 Thời điểm: $(date '+%Y-%m-%d %H:%M:%S')${git_hash}"
+  echo -e "📂 Payload : $INSTALL_ROOT"
+  echo -e "🔧 Skills  : $CLAUDE_DIR/skills/"
+  echo ""
+
+  # Rule manifest with tiers
+  echo -e "\033[1;36mRules đã deploy:\033[0m"
+  python3 - "$INSTALL_ROOT/index.md" <<'PY'
+import re, pathlib, sys
+index = pathlib.Path(sys.argv[1]).read_text()
+tier_colors = {"Core": "\033[1;31m", "Contextual": "\033[1;33m", "Analytical": "\033[1;34m"}
+reset = "\033[0m"
+for line in index.splitlines():
+    m = re.match(r'\|\s*`([^`]+)`\s*\|\s*(\w+)\s*\|(.+)\|', line)
+    if m:
+        fname, tier, desc = m.group(1), m.group(2).strip(), m.group(3).strip()
+        color = tier_colors.get(tier, "")
+        print(f"  {color}{tier:<12}{reset} {fname:<30} {desc}")
+PY
+
+  # Skills installed
+  echo ""
+  echo -e "\033[1;36mSkills đã deploy:\033[0m"
+  for skill_dir in "$CLAUDE_DIR/skills"/*/; do
+    [ -d "$skill_dir" ] || continue
+    echo -e "  🔧 $(basename "$skill_dir")"
+  done
+
+  echo -e "\n\033[1;32m==============================\033[0m"
+}
+
 inspect_status
 
 confirm="y"
@@ -92,6 +149,18 @@ echo "Đang tiến hành cài đặt..."
 mkdir -p "$INSTALL_ROOT" "$CLAUDE_DIR/skills"
 rsync -a --delete --exclude 'ref-ECC/' --exclude '.DS_Store' "$REPO_ROOT/payload/" "$INSTALL_ROOT/"
 
+# Copy changelog so any machine knows what's installed without the repo
+cp "$REPO_ROOT/CHANGELOG.md" "$INSTALL_ROOT/CHANGELOG.md"
+
+# Write version stamp
+{
+  echo "installed=$(date '+%Y-%m-%d %H:%M:%S')"
+  if git -C "$REPO_ROOT" rev-parse --short HEAD &>/dev/null; then
+    echo "commit=$(git -C "$REPO_ROOT" rev-parse --short HEAD)"
+    echo "branch=$(git -C "$REPO_ROOT" rev-parse --abbrev-ref HEAD)"
+  fi
+} > "$INSTALL_ROOT/.version"
+
 for skill_dir in "$REPO_ROOT"/claude/skills/*/; do
   [ -d "$skill_dir" ] || continue
   skill_name="$(basename "$skill_dir")"
@@ -105,12 +174,16 @@ done
 
 mkdir -p "$CLAUDE_DIR"
 backup "$CLAUDE_DIR/CLAUDE.md"
+echo -e "🧹 Dọn backup CLAUDE.md (giữ 2 gần nhất):"
+prune_backups "$CLAUDE_DIR/CLAUDE.md"
 cp "$REPO_ROOT/claude/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
 
 if [ ! -f "$CLAUDE_DIR/settings.json" ]; then
   printf '{}\n' > "$CLAUDE_DIR/settings.json"
 fi
 backup "$CLAUDE_DIR/settings.json"
+echo -e "🧹 Dọn backup settings.json (giữ 2 gần nhất):"
+prune_backups "$CLAUDE_DIR/settings.json"
 python3 - "$CLAUDE_DIR/settings.json" "$INSTALL_ROOT" <<'PY'
 import json, pathlib, sys
 
@@ -142,4 +215,4 @@ data['skillOverrides']['akirule'] = 'on'
 target.write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n')
 PY
 
-printf 'AkiClaudeDoc installed to %s\n' "$INSTALL_ROOT"
+print_summary

@@ -3,24 +3,23 @@
 Shared source-of-truth rules for Aki projects.
 
 ## Purpose
-Aki-RULE provides reusable rules for agent behavior, coding, content, docs, and stack-specific work.
+Provides reusable rules for agent behavior, coding, content, docs, and stack-specific work.
 Project `CLAUDE.md` files bind these shared rules to a specific project.
 
-## Rule sets
-Core rule sets (always loaded):
-1. `RULE-agent-behavior.md`
-2. `RULE-coding.md`
+## File manifest
 
-On-signal rule sets (loaded by the `akirule` smart router when task signals match):
-3. `RULE-content-write.md`
-4. `RULE-docs.md`
-5. `RULE-stack-akiNuxtCf.md`
+| File | Tier | Purpose |
+|------|------|---------|
+| `RULE-agent-behavior.md` | Core | Response language, scope discipline, verification, decision boundaries |
+| `RULE-coding.md` | Core | Philosophy, source-of-truth, error handling, security |
+| `RULE-docs.md` | Contextual | Docs structure, plan lifecycle, doc-sync behavior |
+| `RULE-content-write.md` | Contextual | UI copy, semantic stability, writing style, i18n |
+| `RULE-stack-akiNuxtCf.md` | Contextual | Nuxt/Vue/Cloudflare Pages/Workers, Tailwind, i18n |
+| `RULE-seo.md` | Contextual | Meta limits, schema.org matrix, robots, sitemap, OG, AI visibility, entity linking |
+| `METHOD-flow-audit.md` | Analytical | Flow integrity audit method |
+| `METHOD-techbiz-optimizer.md` | Analytical | First-principles scope and value optimizer |
 
-Method files (loaded by the `akirule` smart router for analytical tasks):
-- `METHOD-flow-audit.md` — flow integrity audit method
-- `METHOD-techbiz-optimizer.md` — first-principles scope and value optimizer
-
-Keep the number of files small. Split only when a rule group has a different lifecycle or applies to a different set of projects.
+Routing logic (which file loads when) is defined in `~/.claude/skills/akirule/SKILL.md`.
 
 ## Precedence
 When rules conflict, use this order:
@@ -31,16 +30,15 @@ When rules conflict, use this order:
 5. Older docs, memory, or prior conversation context
 
 Project `CLAUDE.md` may add project facts and stricter constraints.
-It should not silently weaken core safety, verification, or source-of-truth rules.
+It must not silently weaken core safety, verification, or source-of-truth rules.
 
 ## Project binding
-Each project should keep a root `CLAUDE.md`.
-That file should:
-- list applicable Aki-RULE files
-- define project-specific facts and overrides
-- stay short
-- avoid duplicating shared rules unless the rule must be visible without opening global files
+Each project should keep a root `CLAUDE.md` that:
+- references the akirule skill as the rule loader (see SKILL.md for signal list)
+- defines project-specific facts and overrides
+- stays short
+- avoids duplicating shared rules
 
 ## Change policy
 Aki-RULE changes affect many projects.
-Before changing these files, first clarify the intended rule, scope, and tradeoff unless the user explicitly requests the exact change.
+Before changing these files, clarify the intended rule, scope, and tradeoff unless the user explicitly requests the exact change.

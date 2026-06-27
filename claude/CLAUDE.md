@@ -6,19 +6,15 @@ Keep global context small. Prefer current project files and runtime output over 
 
 Aki's shared rule corpus lives at `~/.aki/claudedoc`.
 
-The `akirule` skill is always active in Aki projects. It loads core rules automatically and reads additional rule and skill files on demand based on task signals. See the skill definition for the full smart-router spec.
+The `akirule` skill is always active in Aki projects. It handles all routing: core rules load automatically on every task; contextual and analytical rules load on signal match with high sensitivity; full load is available on explicit command. See `~/.claude/skills/akirule/SKILL.md` for the complete routing spec and signal list.
 
-Core rules always loaded:
-- `~/.aki/claudedoc/index.md` — rule index, precedence, and project binding policy
-- `~/.aki/claudedoc/RULE-agent-behavior.md` — response language, scope discipline, verification, decision boundaries
-- `~/.aki/claudedoc/RULE-coding.md` — coding philosophy, source-of-truth, verification, error handling, security
+**IMPORTANT — editing shared rules:**
+The installed claudedoc directory is a **deployed copy**, not the source of truth.
+To change a shared rule:
+1. Edit from the **source AkiClaudeDoc project** (location varies per machine — ask the user if unknown).
+2. Run the install script from that project to propagate changes to the installed copy.
 
-Additional rules loaded on signal:
-- `~/.aki/claudedoc/RULE-docs.md` — docs structure, index, plan lifecycle, doc-sync behavior
-- `~/.aki/claudedoc/RULE-content-write.md` — UI copy, semantic stability, writing style, i18n usage
-- `~/.aki/claudedoc/RULE-stack-akiNuxtCf.md` — Nuxt, Vue, Cloudflare Pages/Workers, Tailwind, i18n, SEO
-- `~/.aki/claudedoc/METHOD-flow-audit.md` — flow integrity audit method
-- `~/.aki/claudedoc/METHOD-techbiz-optimizer.md` — first-principles scope and value optimizer
+Never edit the installed claudedoc files directly — changes will be silently overwritten on the next install.
 
 ## ref-ECC guard
 
