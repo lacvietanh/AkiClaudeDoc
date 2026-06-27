@@ -3,6 +3,7 @@
 ## 2026-06-27
 
 ### Changed
+- `claude/skills/akigitcommit/SKILL.md`: Thêm mode detection — tự check `CHANGELOG.md` trước khi group. Khi có CHANGELOG: dùng domain-grouped mode (group theo object/feature, tối đa 3–5 commits). Khi không có CHANGELOG: giữ nguyên type-grouped mode cũ (feat/fix/refactor). Cập nhật description trong frontmatter.
 - `RULE-seo.md`: Sửa hướng dẫn title format — bỏ `| [Brand]` khỏi source title vì `@nuxtjs/seo` tự append qua `titleTemplate`. Thêm section `@nuxtjs/seo — titleTemplate behavior (CRITICAL)` với ví dụ ✅/❌ rõ ràng để tránh double-suffix. Sửa giới hạn `< 60` → `≤ 60`, thêm exception 80-char cho article/post/knowledge slug pages. Cập nhật post-build validation checklist: `>` thay `>=`, decode HTML entities trước khi đo độ dài, skip redirect stubs.
 - `RULE-stack-akiNuxtCf.md`: Thêm rule `trailingSlash: true` bắt buộc trong i18n block — không chỉ `router.options` và `site`. Thiếu config này khiến `localePath()` strip trailing slash, gây canonical mismatch warning hàng loạt khi build.
 - `claude/CLAUDE.md`: Thêm rule "Editing shared rules — luôn sửa từ source AkiClaudeDoc project rồi chạy install, không sửa trực tiếp vào bản đã install" để AI agent không sửa nhầm deployed copy.

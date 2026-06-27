@@ -1,6 +1,6 @@
 ---
 name: akigitcommit
-description: Analyze the working tree and commit changes in clean logical groups. Reads full git status + diff first, plans grouped commits, then stages each group explicitly (never `git add -A`) to avoid losing earlier staging. Conventional Commits, no co-author trailers, never pushes unless asked.
+description: Analyze the working tree and commit changes in clean logical groups. Auto-detects CHANGELOG to switch between domain-grouped mode (3–5 commits by object/feature) and type-grouped mode (feat/fix/refactor). Stages by explicit path, never `git add -A`. Conventional Commits, no co-author trailers, never pushes unless asked.
 ---
 
 # akigitcommit — scientific grouped commits
@@ -8,6 +8,17 @@ description: Analyze the working tree and commit changes in clean logical groups
 Invoke with `/akigitcommit`. Goal: turn a messy working tree into a small set of
 clean, logically grouped commits — without ever losing staging from one group to
 the next.
+
+## Mode detection (run first)
+
+Before grouping, check: does the repo have a `CHANGELOG.md`?
+
+```
+ls CHANGELOG.md 2>/dev/null && head -60 CHANGELOG.md
+```
+
+- **CHANGELOG present** → use **domain-grouped mode** (see below)
+- **No CHANGELOG** → use **type-grouped mode** (classic behavior)
 
 ## Workflow (follow in order)
 
@@ -18,11 +29,23 @@ the next.
    - For untracked files, look at the content so you can classify them correctly.
    Do not start staging until you understand the whole tree.
 
-2. **Group by logic, not by accident.** Classify each file (and where needed,
-   each hunk) into cohesive groups. Typical axes: `feat`, `fix`, `refactor`,
-   `docs`, `style`, `test`, `chore`, `config`. Keep changes that belong to the
-   same intent together; split unrelated intents into separate commits. State the
-   reasoning for each group.
+2. **Group changes** using the mode detected above.
+
+   **Domain-grouped mode** (CHANGELOG present):
+   - Read the CHANGELOG to understand the scope of the current version/release.
+   - Group files by **object or domain** — all files that touch the same feature,
+     subsystem, or concern go into one commit. Example: all files related to
+     `log` (component, composable, i18n key, data file) → one commit.
+   - Target **3–5 commits maximum**. Resist splitting by file type; split only
+     when two domains are genuinely unrelated.
+   - The CHANGELOG entry already documents the "why" — commit messages just need
+     to be clear about the "what" and scope.
+
+   **Type-grouped mode** (no CHANGELOG):
+   - Classify each file (and where needed, each hunk) into cohesive groups.
+   - Typical axes: `feat`, `fix`, `refactor`, `docs`, `style`, `test`, `chore`, `config`.
+   - Keep changes that belong to the same intent together; split unrelated intents.
+   - State the reasoning for each group.
 
 3. **Present the plan, then wait.** Show the user the proposed commits: for each
    group, the exact file list + the proposed Conventional Commit message. Wait for
