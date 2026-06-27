@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-27 (2)
+
+### Added
+- `RULE-release.md`: New Contextual rule for Aki projects that ship versioned releases (repo with `CHANGELOG.md` + `CLAUDE.md`, Nuxt or Tauri v2). Defines the two-channel split — `CHANGELOG.md` (technical, English, Keep a Changelog) vs `app/data/releases.json` (public, user-friendly, bilingual EN+VI when the site is multilingual, default EN). Specifies the bilingual `releases.json` schema, semver bump discipline (`major.minor.patch`, one release = one version, no stray bumps), how to identify the current version before bumping (changelog top entry / git tag / session context), and content discipline (no em/en dash, stable terminology). Distilled from the release-notes campaign across vstshop, akinet, akitao, kinhdich.
+- `payload/index.md`: Added `RULE-release.md` to the file manifest.
+- `akirule/SKILL.md` (source): Added Tier 2 signal block for `RULE-release.md` (keywords release/changelog/version/semver/bump + paths `CHANGELOG.md`, `releases.json`, `pages/releases/**`).
+
+---
+
 ## 2026-06-27
 
 ### Changed

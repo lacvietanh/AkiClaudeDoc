@@ -42,6 +42,12 @@ Load if message or file path contains any of:
 - **Paths:** `docs/seo/**`, `docs/ref/seo*`, `scripts/validate-seo*`, `composables/usePageSeo*`, `composables/useSeoSchemas*`
 - **Actions:** creating a new page, adding schema, configuring sitemap or robots
 
+### RULE-release.md
+Load if message or file path contains any of:
+- **Keywords:** `release`, `release note`, `release notes`, `changelog`, `CHANGELOG`, `version`, `versioning`, `semver`, `bump`, `bump version`, `major.minor.patch`, `releases.json`, `phát hành`, `phiên bản`, `cập nhật phiên bản`, `nâng version`
+- **Paths:** `CHANGELOG.md`, `app/data/releases.json`, `pages/releases/**`
+- **Actions:** shipping a change that should be recorded for users or maintainers; bumping a version
+
 ### METHOD-flow-audit.md
 Load if message contains any of:
 - **Keywords:** `refactor`, `restructure`, `simplify`, `fragile`, `complicated`, `flow`, `state machine`, `async chain`, `tại sao phức tạp`, `luồng`, `tracing`, `cause and effect`, `over-guarded`, `conditional`, `timing`, `tái cấu trúc`, `đơn giản hóa`
