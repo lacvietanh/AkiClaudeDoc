@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-27 (4)
+
+### Changed
+- `RULE-release.md`: Added two new sections. **"No version gaps in releases.json"** — every CHANGELOG version must appear in releases.json; internal/technical versions must not be skipped but instead summarized with a brief user-friendly entry (patterns provided for `improved`/`fixed` types). **"Sync check"** — mandatory grep before closing any task touching CHANGELOG or releases.json, confirms no gap and correct newest-first order in both files.
+
+---
+
 ## 2026-06-27 (3)
 
 ### Added

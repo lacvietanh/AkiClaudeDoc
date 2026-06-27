@@ -33,3 +33,23 @@ Then choose the correct bump level. When unsure between two levels, prefer the s
 - Release note copy: no em/en dash (`—` `–`); short user-facing sentences, benefit first. See [[RULE-content-write]].
 - Keep terminology stable across versions (e.g. always "Release Notes", not mixed synonyms). See [[RULE-content-write]] semantic stability.
 - Doc/version moves are part of the change, not an afterthought. See [[RULE-docs]].
+
+## No version gaps in releases.json
+Every version that appears in `CHANGELOG.md` MUST also appear in `releases.json`. Skipping a version because it is "internal" or "technical" is not allowed — it creates visible number jumps that users notice and distrust.
+
+**If a version contains only internal/technical changes** (scripts, refactors, build tooling), write a brief user-friendly summary instead of omitting it entirely. Use one of these patterns:
+- `"type": "improved"` — "Under-the-hood improvements for stability and performance"
+- `"type": "fixed"` — "URL or display fixes" (describe the symptom a user would notice, not the cause)
+- `"type": "improved"` — "Build and SEO tooling updates (no visible change for users)"
+
+Never leave a gap like `1.0.5 → 1.0.7` or `0.1.0 → 0.1.3` in releases.json. A one-line entry is better than a missing version.
+
+## Sync check — required before closing a task
+After editing `CHANGELOG.md` or `releases.json`, run:
+
+```
+grep '"version"' app/data/releases.json
+grep -E '^## \[' CHANGELOG.md
+```
+
+Confirm every CHANGELOG version has a matching entry in releases.json and the order (newest-first in releases.json, newest-first in CHANGELOG) is consistent. Fix any gap before the task is done.
