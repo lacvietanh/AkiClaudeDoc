@@ -41,6 +41,14 @@ Nuxt 4 · Vue 3 · Tailwind v4 · @nuxtjs/i18n · @nuxtjs/seo · SweetAlert2 · 
 - For new locale keys, prefer one short, stable convention and keep it consistent within the same project
 - Repeated/shared UI strings: i18n keys
 - Strategy: `prefix_except_default`
+- **`trailingSlash: true` must be set inside the `i18n` block** in addition to `router.options` and `site`. Without it, `localePath()` strips trailing slash from generated URLs, causing canonical mismatch warnings on every page:
+  ```ts
+  i18n: {
+    strategy: 'prefix_except_default',
+    trailingSlash: true,   // ← required; prevents localePath() from stripping slash
+    // ...
+  }
+  ```
 
 ## UI
 - Desktop-first, but responsive across narrow to wide screens
@@ -50,9 +58,18 @@ Nuxt 4 · Vue 3 · Tailwind v4 · @nuxtjs/i18n · @nuxtjs/seo · SweetAlert2 · 
 - Add `aria-label` to icon-only controls
 - Use focus trap for modals when needed
 
+## External integrations (Firebase, third-party APIs)
+- **Composable is the only boundary** — page components and layouts never import the provider SDK directly (no `import { getFirestore } from 'firebase/firestore'` in a `.vue` file)
+- All provider-specific code lives in composables or utility modules; pages only call composable functions
+- This means swapping a provider (Firebase → Supabase → D1) only touches the composable layer, not any page
+- **Organize by domain, not by provider** — split into one file per data concern, not one god-file:
+  ```
+  utils/firebase/core.ts      ← init app, getDb(), getAuth() only
+  composables/useAuth.ts      ← login, logout, session state
+  composables/useUser.ts      ← user profile CRUD
+  composables/useProjects.ts  ← project data
+  ```
+- Apply the Result pattern (see RULE-coding.md) at the composable boundary — composables return `Result<T>`, pages check `.ok`
+
 ## SEO
-- Every page should use the project SEO helpers and schema setup
-- Prefer SSR/prerendered critical content
-- Keep OG images and metadata explicit
-- Single source of truth: Define a single variable (e.g., `const title`) and use it across meta tags, OG, Twitter, and JSON-LD to avoid duplicate values
-- Limits: Title < 60 characters, Description < 155 characters
+See `RULE-seo.md` for all SEO rules (meta limits, schema matrix, robots, sitemap, OG image, AI visibility, entity linking).

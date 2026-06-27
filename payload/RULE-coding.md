@@ -37,6 +37,35 @@ Project docs and memory are useful context, not final truth.
 - Fail loudly in development when it helps reveal broken assumptions
 - Keep production failures safe and user-appropriate
 
+## Result pattern for external calls
+When calling external APIs, Firebase, or any fallible I/O at a system boundary, return a Result type instead of throwing:
+
+```ts
+type Result<T> = { ok: true; data: T } | { ok: false; error: string }
+```
+
+- The function that owns the boundary (composable, service module) does the try/catch once and returns Result
+- Callers check `.ok` before using `.data` — no try/catch spread across UI or business logic
+- TypeScript narrows the type correctly after the `.ok` check — no `data!` assertions needed
+- For batch calls: each item returns its own Result; one failure does not crash the batch
+
+```ts
+// ✅ boundary function — catches once
+async function fetchUser(uid: string): Promise<Result<User>> {
+  try {
+    const doc = await getDoc(ref('users', uid))
+    return { ok: true, data: doc.data() as User }
+  } catch (e: any) {
+    return { ok: false, error: e.code ?? 'unknown' }
+  }
+}
+
+// ✅ caller — no try/catch needed
+const result = await fetchUser(uid)
+if (!result.ok) return showError(result.error)
+doSomethingWith(result.data) // TypeScript knows this is User
+```
+
 ## Security
 - Sanitize external input
 - Never expose secrets in client code
