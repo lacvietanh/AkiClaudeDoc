@@ -58,6 +58,23 @@ Nuxt 4 · Vue 3 · Tailwind v4 · @nuxtjs/i18n · @nuxtjs/seo · SweetAlert2 · 
 - Add `aria-label` to icon-only controls
 - Use focus trap for modals when needed
 
+## Layout chrome — breadcrumb · back-to-home · scroll-to-top
+ONE mechanism for every akinuxtstack site. Do not reinvent it per page; any drift here breaks cross-project consistency.
+
+**Breadcrumb — single source of truth**
+- Exactly ONE `<Breadcrumb>`, rendered in `default.vue` inside `<main>` before `<slot/>`. No page renders its own breadcrumb nav.
+- It owns the VISUAL trail only. Derive the trail from `route.path`: strip the non-default locale prefix, map known segments to i18n labels via a lookup table, humanize the rest. Hide it on home (`crumbs.length <= 1`).
+- Dynamic leaf: a detail page supplies the real last-crumb label via `useBreadcrumb(() => label)` (path-keyed `useState`). Render the leaf through `<ClientOnly>` with the humanized segment as the SSR fallback. NEVER read the page-set leaf during the layout's synchronous SSR render — it is not set yet (hydration-mismatch trap).
+- Crumb links point ONLY to real prerendered routes. An intermediate segment with no page of its own renders as plain text, never a link — a dead link makes the Nitro `no-error-response` prerender check fail with a 404.
+- Translated-slug sites (e.g. `que`↔`iching`): build links by reconstructing the real path and re-applying the locale prefix (`/en${acc}/`), NOT `localePath(acc)` — `localePath` cannot round-trip an already-localized slug. Keep `trailingSlash`.
+
+**BreadcrumbList JSON-LD — owned by the page, never the layout**
+- The `<Breadcrumb>` component emits NO structured data. The `BreadcrumbList` JSON-LD is the page's responsibility (in-page `useHead` / `useSeoSchemas().breadcrumb`, or a page-scoped SEO composable).
+- Exactly ONE `BreadcrumbList` per page. If a SEO composable already emits it, do not add a second copy in the page.
+
+**Pre-footer chrome**
+- One `<ScrollToTop>` in the layout. No per-page back-to-top. Back-to-home is the Home crumb — no separate back-to-home button.
+
 ## External integrations (Firebase, third-party APIs)
 - **Composable is the only boundary** — page components and layouts never import the provider SDK directly (no `import { getFirestore } from 'firebase/firestore'` in a `.vue` file)
 - All provider-specific code lives in composables or utility modules; pages only call composable functions

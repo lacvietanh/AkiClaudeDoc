@@ -33,7 +33,7 @@ Load if message or file path contains any of:
 ### RULE-stack-akiNuxtCf.md
 **Default ON for any Aki project context.** Skip only when the task is provably stack-independent (plain markdown, isolated script, config unrelated to the Aki frontend stack).
 Load if message or file path contains any of:
-- **Keywords:** `nuxt`, `vue`, `cloudflare`, `workers`, `pages`, `wrangler`, `tailwind`, `composable`, `middleware`, `layout`, `plugin`, `component`, `useRoute`, `useFetch`, `definePageMeta`, `nitro`, `vite`
+- **Keywords:** `nuxt`, `vue`, `cloudflare`, `workers`, `pages`, `wrangler`, `tailwind`, `composable`, `middleware`, `layout`, `plugin`, `component`, `useRoute`, `useFetch`, `definePageMeta`, `nitro`, `vite`, `breadcrumb`, `scroll-to-top`, `back-to-home`, `layout chrome`, `useBreadcrumb`
 - **Paths:** `components/**`, `pages/**`, `composables/**`, `layouts/**`, `middleware/**`, `wrangler.toml`, `nuxt.config.*`, `tailwind.config.*`, `app.vue`
 
 ### RULE-seo.md

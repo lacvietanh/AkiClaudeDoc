@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-06-27 (3)
+
+### Added
+- `RULE-stack-akiNuxtCf.md`: New "Layout chrome — breadcrumb · back-to-home · scroll-to-top" section codifying the unified layout-chrome standard for every akinuxtstack site, so future work cannot drift it back out of consistency. Locks the invariants learned during the breadcrumb rollout: exactly one layout-level `<Breadcrumb>` owning the VISUAL trail only; dynamic leaf via `useBreadcrumb()` + `<ClientOnly>` SSR fallback (hydration-safe); `BreadcrumbList` JSON-LD owned by the page, exactly once (never the layout, never duplicated when a SEO composable already emits it); crumb links only to real prerendered routes (dead intermediate segments render as plain text to avoid Nitro `no-error-response` 404s); translated-slug link reconstruction (`/en${acc}/`) instead of `localePath()`; a single `<ScrollToTop>` with back-to-home served by the Home crumb. Distilled from vstshop, akinet, akitao, kinhdich (incl. removing kinhdich's `SELF_MANAGED` exception so it fully rejoins the standard).
+
+### Changed
+- `payload/index.md`: Extended the `RULE-stack-akiNuxtCf.md` manifest description to mention layout chrome (breadcrumb/scroll-to-top).
+- `akirule/SKILL.md` (source): Added Tier 2 keywords to the stack-rule signal block (`breadcrumb`, `scroll-to-top`, `back-to-home`, `layout chrome`, `useBreadcrumb`).
+
+---
+
 ## 2026-06-27 (2)
 
 ### Added
