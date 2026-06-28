@@ -176,7 +176,34 @@ mkdir -p "$CLAUDE_DIR"
 backup "$CLAUDE_DIR/CLAUDE.md"
 echo -e "🧹 Dọn backup CLAUDE.md (giữ 2 gần nhất):"
 prune_backups "$CLAUDE_DIR/CLAUDE.md"
+
 cp "$REPO_ROOT/claude/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
+
+# Inject machine-local section with correct paths for this machine.
+cat >> "$CLAUDE_DIR/CLAUDE.md" << RULE_SOURCE_BLOCK
+
+## AkiClaudeDoc — edit source, not deployed copy (ABSOLUTE)
+
+The deployed rule files at \`$INSTALL_ROOT\` are **overwritten on every install**.
+To change any shared rule:
+1. Edit in the **source repo**: \`$REPO_ROOT/payload/\`
+2. Run \`bash $REPO_ROOT/install.sh\` to propagate.
+
+**NEVER edit files under \`$INSTALL_ROOT\` directly** — changes will be silently lost on the next install.
+
+@~/.claude/CLAUDE.local.md
+RULE_SOURCE_BLOCK
+
+# Create CLAUDE.local.md on first install if absent — never overwrite after that.
+if [ ! -f "$CLAUDE_DIR/CLAUDE.local.md" ]; then
+  cat > "$CLAUDE_DIR/CLAUDE.local.md" << 'LOCAL_TEMPLATE'
+# Machine-local Claude instructions
+
+This file is machine-specific and never touched by AkiClaudeDoc installs.
+Add any per-machine rules here (e.g. build constraints, IDE paths, remote flags).
+LOCAL_TEMPLATE
+  echo -e "📝 Created $CLAUDE_DIR/CLAUDE.local.md (machine-local template)"
+fi
 
 if [ ! -f "$CLAUDE_DIR/settings.json" ]; then
   printf '{}\n' > "$CLAUDE_DIR/settings.json"

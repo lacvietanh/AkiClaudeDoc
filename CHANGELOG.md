@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-06-28
+
+### Changed
+- `RULE-release.md`: Expanded "Identify the current version before bumping" — now requires running three commands (`git log`, `grep package.json`, `grep CHANGELOG.md`) before touching any version. Defines three states: **Pre-bump** (package.json == git → bump once), **Mid-release** (package.json > git → accumulate, do not bump again), **Mismatch** (warn, do not auto-fix). Added bump-level guard: same session features+fixes → minor; unsure → smaller level; no version skipping; do not bump until at least one user-visible change exists.
+- `RULE-release.md`: Added **"GitHub Release output"** section — after CHANGELOG update and version bump, automatically output a copy-ready GitHub Release block without waiting for the user to ask. Title: `v{version} — {2–5 word specific impact}`, no generic words. Body mirrors CHANGELOG but one short sentence per bullet, no file paths, no jargon.
+- `install.sh`: Replaced machine-local block extraction with a clean two-file model. `CLAUDE.md` is fully managed by installer; machine-local config lives in `~/.claude/CLAUDE.local.md` (never overwritten after first creation). Installer appends `@~/.claude/CLAUDE.local.md` import + machine-local source-path block to `CLAUDE.md` on every run. Creates `CLAUDE.local.md` from template on first install only.
+- `README.md`: Updated "What the installer does" and "Install target" to document the `CLAUDE.local.md` pattern. Added "Machine-local configuration" section.
+
+---
+
 ## 2026-06-27 (4)
 
 ### Changed

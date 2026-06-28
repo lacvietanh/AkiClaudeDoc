@@ -96,8 +96,9 @@ Claude Code assets are installed into:
 
 ```text
 ~/.claude/skills/akirule/SKILL.md
-~/.claude/CLAUDE.md
-~/.claude/settings.json   (read permission + skillOverrides added)
+~/.claude/CLAUDE.md            ← managed by installer, never edit directly
+~/.claude/CLAUDE.local.md      ← machine-local, never touched after first install
+~/.claude/settings.json        (read permission + skillOverrides added)
 ```
 
 The `akirule` skill reads `RULE-*` and `METHOD-*` files directly from `~/.aki/claudedoc/` at conversation time, on demand.
@@ -126,10 +127,15 @@ The script is intentionally simple so users can inspect it before running.
 
 1. Copies `payload/*` into `~/.aki/claudedoc` (rsync, excludes `ref-ECC/`).
 2. Copies the `akirule` skill into `~/.claude/skills/akirule/` and removes any old AkiClaudeDoc skill directories (`akidoc-rules`, `akidoc-flow-audit`, `akidoc-techbiz-optimizer`).
-3. Replaces `~/.claude/CLAUDE.md` with the packaged global guidance (timestamped backup created first).
-4. Writes `~/.claude/settings.json`: adds read permission for `~/.aki/claudedoc/**`, sets `skillOverrides.akirule = "on"`, removes old skill overrides (timestamped backup created first).
+3. Replaces `~/.claude/CLAUDE.md` with the packaged global guidance (timestamped backup created first), then appends a machine-local section with the correct source repo path for this machine and an `@~/.claude/CLAUDE.local.md` import line.
+4. Creates `~/.claude/CLAUDE.local.md` with a template comment **only if it does not already exist** — never overwrites it after that.
+5. Writes `~/.claude/settings.json`: adds read permission for `~/.aki/claudedoc/**`, sets `skillOverrides.akirule = "on"`, removes old skill overrides (timestamped backup created first).
 
-Running the installer again updates the same managed files cleanly.
+Running the installer again updates the same managed files cleanly. `CLAUDE.local.md` is always preserved.
+
+## Machine-local configuration
+
+`~/.claude/CLAUDE.local.md` is the right place for per-machine rules that must not be shared (e.g. build constraints, remote-only flags, IDE paths). The installer imports it automatically via the `@` syntax at the end of `CLAUDE.md`. Add any machine-specific instructions there; they survive every reinstall.
 
 ## What is excluded
 
