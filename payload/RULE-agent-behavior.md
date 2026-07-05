@@ -24,6 +24,9 @@ Ask before:
 - modifying shared rule files, templates, or project-wide conventions
 - large rewrites or broad renames
 - actions visible to other people or external services
+- any change — including one framed as an optimization or cleanup — that touches, contradicts, or
+  extends documented project design/goals (architecture docs, ADRs, established conventions).
+  Surface the conflict and ask instead of silently implementing over it.
 
 ## File creation and naming
 - Follow the current project's existing naming conventions before applying shared defaults
