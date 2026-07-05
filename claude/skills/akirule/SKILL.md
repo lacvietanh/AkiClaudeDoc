@@ -48,6 +48,15 @@ Load if message or file path contains any of:
 - **Paths:** `CHANGELOG.md`, `app/data/releases.json`, `pages/releases/**`
 - **Actions:** shipping a change that should be recorded for users or maintainers; bumping a version
 
+### RULE-db-design.md
+Load if message or file path contains any of:
+- **Keywords:** `schema`, `migration`, `D1`, `SQL`, `database design`, `ERD`, `refactor DB`,
+  `event sourcing`, `bounded context`, `normalization`, `1NF`, `table design`, `thiết kế db`,
+  `thiết kế database`, `migration DB`
+- **Paths:** `migrations/**`, `schema.sql`, `**/d1/**`
+- **Actions:** designing a new table/schema, writing a DB migration, refactoring how data is
+  stored
+
 ### METHOD-flow-audit.md
 Load if message contains any of:
 - **Keywords:** `refactor`, `restructure`, `simplify`, `fragile`, `complicated`, `flow`, `state machine`, `async chain`, `tại sao phức tạp`, `luồng`, `tracing`, `cause and effect`, `over-guarded`, `conditional`, `timing`, `tái cấu trúc`, `đơn giản hóa`

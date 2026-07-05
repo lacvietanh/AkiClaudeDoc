@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-07-05
+
+### Added
+- `RULE-db-design.md`: New optional/contextual rule file — four generalized database design
+  principles (Immutability & Event Sourcing, First Normal Form, Bounded Context/DDD, flat-query
+  discipline). Loads only when designing schema/migrations/DB refactors, not on every task.
+
+### Changed
+- `RULE-stack-akiNuxtCf.md`: Added "Build & TypeScript" section (strict TS, `<script setup>`
+  only, relative server imports, clean build logs, duplicate-Vite sourcemap-warning guidance).
+  Added "Canonical component names" section (fixed names for footer/topnav/sidebar/rail-dock/
+  breadcrumb/auth-util roles). Added "State" section (useState-first, Pinia only when needed,
+  localStorage sync in `onMounted`). Added onUnmounted cleanup requirement for multi-layout admin
+  sites. Added favicon/manifest UI guidance with a link to the AkiTao Favicon Generator tool.
+  Added i18n co-located page-text guidance.
+- `payload/index.md`: Added manifest row for `RULE-db-design.md`; expanded
+  `RULE-stack-akiNuxtCf.md` description to mention canonical names, state, and build/TS.
+- `claude/skills/akirule/SKILL.md` (source): Added Tier 2 signal block for `RULE-db-design.md`.
+
+---
+
 ## 2026-06-28
 
 ### Changed

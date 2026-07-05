@@ -14,9 +14,10 @@ Project `CLAUDE.md` files bind these shared rules to a specific project.
 | `RULE-coding.md` | Core | Philosophy, source-of-truth, error handling, security |
 | `RULE-docs.md` | Contextual | Docs structure, plan lifecycle, doc-sync behavior |
 | `RULE-content-write.md` | Contextual | UI copy, semantic stability, writing style, i18n |
-| `RULE-stack-akiNuxtCf.md` | Contextual | Nuxt/Vue/Cloudflare Pages/Workers, Tailwind, i18n, layout chrome (breadcrumb/scroll-to-top) |
+| `RULE-stack-akiNuxtCf.md` | Contextual | Nuxt/Vue/Cloudflare Pages/Workers, Tailwind, i18n, canonical component names, state (useState-first), build & TypeScript, layout chrome (breadcrumb/scroll-to-top) |
 | `RULE-seo.md` | Contextual | Meta limits, schema.org matrix, robots, sitemap, OG, AI visibility, entity linking |
 | `RULE-release.md` | Contextual | Release notes vs changelog split, bilingual releases.json, semver bump discipline |
+| `RULE-db-design.md` | Optional/Contextual | Immutability & Event Sourcing, 1NF, Bounded Context (DDD), flat-query discipline — load when designing schema/migration/DB refactor |
 | `METHOD-flow-audit.md` | Analytical | Flow integrity audit method |
 | `METHOD-techbiz-optimizer.md` | Analytical | First-principles scope and value optimizer |
 
