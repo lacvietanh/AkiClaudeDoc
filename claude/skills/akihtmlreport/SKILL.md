@@ -1,15 +1,16 @@
 ---
-name: akiadvise
-description: Distill a complex analysis/report already discussed in the conversation into a single-file, ultra-wide, visually dense HTML report (ADVISE.html) at the project root — for content too dense to stay legible as chat text.
+name: akihtmlreport
+description: Visualize a complex report that already exists in the conversation as one self-contained HTML file — nothing else, no new analysis. Distills a dense analysis/report already discussed into a single-file, ultra-wide, visually dense HTML report (REPORT.html) at the project root, for content too dense to stay legible as chat text.
 ---
 
-# akiadvise — single-file visual report extraction
+# akihtmlreport — single-file visual report extraction
 
-Invoke with `/akiadvise`, or when the user asks in their own words to extract the discussion into a
-visual file ("trích xuất ra html", "xuất báo cáo trực quan", "làm file advise", "export this to
-html"). Goal: turn a complex analysis or report that already exists in this conversation into one
-self-contained HTML file for dense, at-a-glance reading — not a replacement for chat responses, and
-not something to reach for by default.
+Invoke with `/akihtmlreport`, or when the user asks in their own words to extract the discussion
+into a visual file ("trích xuất ra html", "xuất báo cáo trực quan", "làm file report", "export
+this to html"). Its purpose is single and narrow: turn a complex analysis or report that already
+exists in this conversation into one self-contained HTML file for dense, at-a-glance reading —
+**nothing else, no new analysis**. Not a replacement for chat responses, and not something to
+reach for by default.
 
 ## When this skill actually applies
 
@@ -31,13 +32,13 @@ two-line answer.
 
 ## Target file — default path and the single-file rule
 
-- Default output: **project root**, filename **`ADVISE.html`** (uppercase, no variant names, no
+- Default output: **project root**, filename **`REPORT.html`** (uppercase, no variant names, no
   topic/version suffix).
-- **Exactly one `ADVISE.html` exists per project at a time.** This is deliberate: the point is to
+- **Exactly one `REPORT.html` exists per project at a time.** This is deliberate: the point is to
   keep attention on ONE complex task at a time, not to accumulate a pile of past reports. Never
-  create `ADVISE-2.html`, `ADVISE-v2.html`, `ADVISE-<topic>.html`, and never move a prior one aside
+  create `REPORT-2.html`, `REPORT-v2.html`, `REPORT-<topic>.html`, and never move a prior one aside
   automatically to make room for a new one.
-- **Before writing, check whether `ADVISE.html` already exists at the target path:**
+- **Before writing, check whether `REPORT.html` already exists at the target path:**
   - Does not exist → write directly, no confirmation needed.
   - Already exists → **stop and ask the user** what to do (overwrite, or skip). Never silently
     overwrite, and never auto-rename to dodge the collision — that defeats the single-file rule.
@@ -45,10 +46,10 @@ two-line answer.
     themselves first) — this skill does not decide that on their behalf.
 - If the user explicitly names a different path or filename in their request, honor that instead —
   the default only applies when they haven't specified one.
-- **Git-ignore it.** `ADVISE.html` is a disposable visual export, not a doc source of truth (that's
+- **Git-ignore it.** `REPORT.html` is a disposable visual export, not a doc source of truth (that's
   `docs/arch`/`docs/plan`) — it gets fully overwritten every time this skill runs, so tracking it in
   git only produces noise diffs unrelated to real code changes. If the target project is a git repo
-  and its `.gitignore` doesn't already exclude `ADVISE.html`, add an entry for it (with a one-line
+  and its `.gitignore` doesn't already exclude `REPORT.html`, add an entry for it (with a one-line
   comment explaining why) the first time this skill writes the file there.
 
 ## Layout requirements — ultra-wide, narrow (dense)
@@ -84,8 +85,16 @@ two-line answer.
   discussion** — this is an extraction, not a re-summary. Do not drop detail to make it shorter; the
   whole point of a wide/dense layout is that it can hold more, not less.
 
+## Pairs naturally with `/akithink`
+
+A `/akithink` Phase 5 convergence (decision + rationale + rejected alternatives + assumptions to
+monitor) is a common source of exactly the kind of dense, multi-part material this skill exists to
+visualize — the docs file stays the source of truth, `/akihtmlreport` just gives it a scannable view.
+
 ## After writing
 
-Tell the user the file's path and that it's a local file to open directly in a browser — do not
-attempt to launch a browser or publish/host it anywhere. If the user separately asks for a hosted,
-shareable version, that is a different request (the `Artifact` tool), not part of this skill.
+After writing the file, open it locally: `open REPORT.html` on macOS, falling back to `xdg-open` on
+Linux. If opening fails (headless environment, no `xdg-open`, etc.), just tell the user the file's
+path instead of failing the skill. Never publish or host it anywhere — if the user separately asks
+for a hosted, shareable version, that is a different request (the `Artifact` tool), not part of this
+skill.

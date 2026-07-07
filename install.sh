@@ -56,7 +56,7 @@ inspect_status() {
   done
 
   local old_skills=()
-  for s in akidoc-rules akidoc-flow-audit akidoc-techbiz-optimizer; do
+  for s in akidoc-rules akidoc-flow-audit akidoc-techbiz-optimizer akiadvise; do
     [ -d "$CLAUDE_DIR/skills/$s" ] && old_skills+=("$s")
   done
   if [ ${#old_skills[@]} -gt 0 ]; then
@@ -178,9 +178,14 @@ mkdir -p "$CLAUDE_DIR/hooks"
 cp "$REPO_ROOT/claude/hooks/aki-update-check.py" "$CLAUDE_DIR/hooks/aki-update-check.py"
 printf '%s\n' "$REPO_ROOT" > "$INSTALL_ROOT/.source-repo"
 
-for old_skill in akidoc-rules akidoc-flow-audit akidoc-techbiz-optimizer; do
+for old_skill in akidoc-rules akidoc-flow-audit akidoc-techbiz-optimizer akiadvise; do
   rm -rf "$CLAUDE_DIR/skills/$old_skill"
 done
+
+# Explicit cleanup for renamed/removed payload files: rsync --delete already
+# removes anything no longer present under payload/, but keep an explicit
+# check so a renamed file never lingers even if the rsync step changes shape.
+rm -f "$INSTALL_ROOT/METHOD-techbiz-optimizer.md"
 
 mkdir -p "$CLAUDE_DIR"
 backup "$CLAUDE_DIR/CLAUDE.md"

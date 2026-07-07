@@ -9,7 +9,7 @@ The goal: keep the source of truth in Git, publish the explanation and quickstar
 AkiClaudeDoc contains:
 
 - shared rule files (`RULE-*`) and analytical method files (`METHOD-*`) for Claude behavior, coding, docs, content, and Aki Nuxt/Cloudflare work;
-- Claude Code skills: `akirule`, a smart router that always loads core rules and reads additional files on demand, and `akiadvise`, which distills a dense conversation into a single self-contained HTML report;
+- Claude Code skills: `akirule`, a smart router that always loads core rules and reads additional files on demand; `akithink`, a structured deep-thinking session for big decisions; `akihtmlreport`, which distills a dense conversation into a single self-contained HTML report; `akihelp`, a live introduction to the whole system; and `akigitcommit`, a scientific grouped-commit workflow;
 - a small global Claude instruction block (`CLAUDE.md`);
 - a simple install script.
 
@@ -45,15 +45,40 @@ These three files are hard-embedded into the skill prompt on every conversation.
 
 **Tier 3 — On-signal methods (Claude reads the file when task has analytical depth):**
 - `METHOD-flow-audit.md` — triggered for refactors, multi-file bugs, fragile flows, user journey audits
-- `METHOD-techbiz-optimizer.md` — triggered for scope decisions, architecture tradeoffs, effort/value questions
+- `METHOD-deep-think.md` — triggered for scope decisions, architecture tradeoffs, effort/value questions, first-principles or critique-style thinking, and big/hard-to-reverse decisions
 
 The skill prompt uses imperative trigger language ("Read this file NOW if…") with high sensitivity — Claude errs toward loading rather than skipping. A `[load full]` or `[nạp full]` keyword in a message forces all `RULE-*` and `METHOD-*` files to load immediately.
 
-## How `akiadvise` works
+## One brain, two modes — passive vs active thinking
 
-`akiadvise` is a Claude Code skill installed at `~/.claude/skills/akiadvise/SKILL.md`. It only triggers on an explicit request (`/akiadvise`, or "xuất báo cáo trực quan" / "export this to html") — never proactively just because a response got long.
+`METHOD-deep-think.md` is a single analytical brain (goal excavation, first principles, mandatory
+critique, conditional techbiz lens), consumed two different ways:
 
-It distills an analysis or report that already exists in the conversation into one ultra-wide, dense, self-contained `ADVISE.html` file at the project root — no re-summarizing, no dropped detail, theme-aware, zero external requests. Exactly one `ADVISE.html` exists per project at a time; if one already exists, the skill asks before overwriting rather than creating versioned copies.
+- **Passive** — `akirule` auto-loads it inline whenever a normal task hits a matching signal
+  (see Tier 3 above). Applied briefly, inside the current answer, with at most one clarifying
+  question — never turns a routine task into an interrogation.
+- **Active** — the user explicitly runs `/akithink`, which opens a 5-phase interactive session
+  (restate → goal excavation → first principles → mandatory critique → convergence) and uses the
+  same METHOD file as its toolbox at maximum depth, ending in a proposed decision record under
+  `docs/`.
+
+Content-wise the active mode is a superset of the passive one; mechanically, only `/akithink` runs
+the interactive protocol. Passive mode also carries a radar rule: if an inline pass turns out to be
+covering a one-way-door, large-scope, or goal-ambiguous decision, it says so explicitly and offers
+to open a full `/akithink` session instead of settling for a shallow answer.
+
+## How `akihtmlreport` works
+
+`akihtmlreport` is a Claude Code skill installed at `~/.claude/skills/akihtmlreport/SKILL.md`. It only triggers on an explicit request (`/akihtmlreport`, or "xuất báo cáo trực quan" / "export this to html") — never proactively just because a response got long.
+
+It distills an analysis or report that already exists in the conversation into one ultra-wide, dense, self-contained `REPORT.html` file at the project root — no re-summarizing, no dropped detail, theme-aware, zero external requests. Exactly one `REPORT.html` exists per project at a time; if one already exists, the skill asks before overwriting rather than creating versioned copies. After writing, it opens the file locally in the default browser. It pairs naturally with `/akithink` Phase 5 output — the docs decision record stays the source of truth, the HTML is just a scannable view of it.
+
+## How `akihelp` works
+
+`akihelp` is a Claude Code skill installed at `~/.claude/skills/akihelp/SKILL.md`. Invoked with
+`/akihelp`, it introduces the whole installed Aki system — skills, the akirule tiers, the
+passive/active thinking split — by reading `index.md` and the installed skill frontmatters live at
+runtime, so its output never goes stale even as skills are added, renamed, or removed.
 
 ## How Claude Code skills work in this context
 
@@ -78,12 +103,15 @@ payload/
   RULE-docs.md
   RULE-stack-akiNuxtCf.md
   METHOD-flow-audit.md
-  METHOD-techbiz-optimizer.md
+  METHOD-deep-think.md
 
 claude/
   CLAUDE.md
   skills/akirule/SKILL.md
-  skills/akiadvise/SKILL.md
+  skills/akithink/SKILL.md
+  skills/akihtmlreport/SKILL.md
+  skills/akihelp/SKILL.md
+  skills/akigitcommit/SKILL.md
   hooks/aki-update-check.py
   fragments/settings.akidoc.fragment.json
 
@@ -104,7 +132,10 @@ Claude Code assets are installed into:
 
 ```text
 ~/.claude/skills/akirule/SKILL.md
-~/.claude/skills/akiadvise/SKILL.md
+~/.claude/skills/akithink/SKILL.md
+~/.claude/skills/akihtmlreport/SKILL.md
+~/.claude/skills/akihelp/SKILL.md
+~/.claude/skills/akigitcommit/SKILL.md
 ~/.claude/hooks/aki-update-check.py   ← SessionStart update-check hook (notify-only)
 ~/.claude/CLAUDE.md            ← managed by installer, never edit directly
 ~/.claude/CLAUDE.local.md      ← machine-local, never touched after first install
@@ -135,8 +166,8 @@ The script is intentionally simple so users can inspect it before running.
 
 ## What the installer does
 
-1. Copies `payload/*` into `~/.aki/claudedoc` (rsync, excludes `ref-ECC/`).
-2. Copies the `akirule` skill into `~/.claude/skills/akirule/` and removes any old AkiClaudeDoc skill directories (`akidoc-rules`, `akidoc-flow-audit`, `akidoc-techbiz-optimizer`).
+1. Copies `payload/*` into `~/.aki/claudedoc` (rsync, excludes `ref-ECC/`), and removes any stale payload files left over from a rename (e.g. the old `METHOD-techbiz-optimizer.md`).
+2. Copies every skill directory under `claude/skills/*/` into `~/.claude/skills/` and removes old/renamed skill directories (`akidoc-rules`, `akidoc-flow-audit`, `akidoc-techbiz-optimizer`, `akiadvise`).
 3. Replaces `~/.claude/CLAUDE.md` with the packaged global guidance (timestamped backup created first), then appends a machine-local section with the correct source repo path for this machine and an `@~/.claude/CLAUDE.local.md` import line.
 4. Creates `~/.claude/CLAUDE.local.md` with a template comment **only if it does not already exist** — never overwrites it after that.
 5. Writes `~/.claude/settings.json`: adds read permission for `~/.aki/claudedoc/**`, sets `skillOverrides.akirule = "on"`, registers the `SessionStart` update-check hook, removes old skill overrides (timestamped backup created first).

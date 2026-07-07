@@ -1,5 +1,52 @@
 # Changelog
 
+## 2026-07-08 (2)
+
+### Added
+- `payload/METHOD-deep-think.md`: replaces `METHOD-techbiz-optimizer.md` as the single analytical
+  brain for deep thinking, consumed two ways — **passive** (akirule auto-loads it inline on
+  matching signals) and **active** (`/akithink`). Restructured into 4 modules: Module 1 goal
+  excavation (climb the goal hierarchy to the ultimate goal, flag conflicting goals), Module 2
+  first principles (facts / real constraints / assumptions, reusing the old file's "Problem truth"
+  / "Assumptions" / "Flow" material), Module 3 critique (mandatory adversarial pass — steelman,
+  attack-the-favored-option, inversion, pre-mortem, second-order effects, anti-sycophancy rule),
+  Module 4 techbiz lens (conditional — the old file's value/effort/scope/cost/alternatives/
+  validation/decision-test/red-flags content, applied only when business/product context exists).
+  Adds a one-way-door vs two-way-door framing and a closing radar rule: passive mode must say
+  "this deserves a dedicated `/akithink` session" rather than settle for a shallow pass on
+  irreversible or goal-ambiguous decisions.
+- New skill `akithink` (`claude/skills/akithink/SKILL.md`): structured 5-phase deep-thinking
+  session (model check → restate → goal excavation → first principles → mandatory critique →
+  convergence) for big, hard-to-reverse, or goal-ambiguous decisions. Explicit-invoke only, reads
+  `METHOD-deep-think.md` as its toolbox, recommends a top-tier model (Opus/Fable) without blocking,
+  supports a "chốt" escape hatch to jump to convergence, and always proposes a `docs/` decision
+  record on close (plus `/akihtmlreport` when the material is large/complex).
+- New skill `akihelp` (`claude/skills/akihelp/SKILL.md`): `/akihelp` renders a live introduction to
+  the whole Aki system (installed skills, the akirule 3-tier router, the deep-think passive/active
+  split, editing-rules discipline) by reading `index.md` and installed skill frontmatters at
+  runtime — never a hardcoded inventory, so it cannot go stale.
+
+### Changed
+- Renamed skill `akiadvise` → `akihtmlreport` (`claude/skills/akihtmlreport/SKILL.md`). Output
+  filename `ADVISE.html` → `REPORT.html` everywhere (single-file rule, collision check,
+  `.gitignore` guidance); invocation `/akiadvise` → `/akihtmlreport`; description sharpened to
+  state the single purpose plainly (visualize existing conversation content, no new analysis);
+  "After writing" now opens the file locally (`open REPORT.html` on macOS, `xdg-open` fallback on
+  Linux, falls back to just printing the path) instead of refusing to launch a browser; notes it
+  pairs naturally with `/akithink` Phase 5 output.
+- `payload/index.md`: manifest row `METHOD-techbiz-optimizer.md` → `METHOD-deep-think.md` with
+  updated purpose text.
+- `claude/skills/akirule/SKILL.md`: Tier 2 signal block renamed `METHOD-techbiz-optimizer.md` →
+  `METHOD-deep-think.md`; added thinking-session signals (`first principles`, `tư duy nguyên bản`,
+  `phản biện`, `mục tiêu tối thượng`, `one-way door`, `quyết định lớn`, `decision record`,
+  `pre-mortem`).
+- `install.sh`: added `akiadvise` to the old-skill directory cleanup loop so renamed installs don't
+  leave a stale skill; added an explicit `rm -f` for `~/.aki/claudedoc/METHOD-techbiz-optimizer.md`
+  as a safety net alongside the `rsync --delete` payload sync.
+- `README.md`: repo-layout tree, install-target file list, and prose updated for the
+  `akithink`/`akihtmlreport`/`akihelp` skills and `METHOD-deep-think.md`; added a "One brain, two
+  modes" section explaining the passive/active thinking architecture.
+
 ## 2026-07-08
 
 ### Added
