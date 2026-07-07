@@ -19,7 +19,7 @@ Project `CLAUDE.md` files bind these shared rules to a specific project.
 | `RULE-release.md` | Contextual | CHANGELOG.md mandatory in every project, release notes vs changelog split, releases.json (web-only), semver bump discipline, release vs deploy boundary |
 | `RULE-db-design.md` | Optional/Contextual | Immutability & Event Sourcing, 1NF, Bounded Context (DDD), flat-query discipline — load when designing schema/migration/DB refactor |
 | `METHOD-flow-audit.md` | Analytical | Flow integrity audit method |
-| `METHOD-techbiz-optimizer.md` | Analytical | First-principles scope and value optimizer |
+| `METHOD-deep-think.md` | Analytical | Deep-think brain: goal excavation, first principles, critique, conditional techbiz lens; passive via akirule, active via /akithink |
 
 Routing logic (which file loads when) is defined in `~/.claude/skills/akirule/SKILL.md`.
 

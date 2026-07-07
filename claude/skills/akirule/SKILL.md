@@ -62,10 +62,10 @@ Load if message contains any of:
 - **Keywords:** `refactor`, `restructure`, `simplify`, `fragile`, `complicated`, `flow`, `state machine`, `async chain`, `tại sao phức tạp`, `luồng`, `tracing`, `cause and effect`, `over-guarded`, `conditional`, `timing`, `tái cấu trúc`, `đơn giản hóa`
 - **Context:** fixing a bug spanning multiple files, tracing cause and effect across a chain
 
-### METHOD-techbiz-optimizer.md
+### METHOD-deep-think.md
 Load if message contains any of:
-- **Keywords:** `new feature`, `tính năng mới`, `should we`, `có nên`, `simplest way`, `đơn giản nhất`, `is this worth`, `có đáng`, `tradeoff`, `scope`, `effort`, `value`, `premature`, `complexity`, `abstraction`, `tooling`
-- **Context:** architectural or tooling decision, scope or effort/value discussion
+- **Keywords:** `new feature`, `tính năng mới`, `should we`, `có nên`, `simplest way`, `đơn giản nhất`, `is this worth`, `có đáng`, `tradeoff`, `scope`, `effort`, `value`, `premature`, `complexity`, `abstraction`, `tooling`, `first principles`, `tư duy nguyên bản`, `phản biện`, `mục tiêu tối thượng`, `one-way door`, `quyết định lớn`, `decision record`, `pre-mortem`
+- **Context:** architectural or tooling decision, scope or effort/value discussion, a big or hard-to-reverse decision, or a request for first-principles/critique-style thinking
 
 ---
 
