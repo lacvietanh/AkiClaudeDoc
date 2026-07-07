@@ -131,6 +131,10 @@ PY
     echo -e "  🔧 $(basename "$skill_dir")"
   done
 
+  echo ""
+  echo -e "\033[1;36mHooks đã deploy:\033[0m"
+  echo -e "  📢 aki-update-check (SessionStart, notify-only) — báo khi có bản rule mới"
+
   echo -e "\n\033[1;32m==============================\033[0m"
 }
 
@@ -167,6 +171,12 @@ for skill_dir in "$REPO_ROOT"/claude/skills/*/; do
   mkdir -p "$CLAUDE_DIR/skills/$skill_name"
   cp "$skill_dir/SKILL.md" "$CLAUDE_DIR/skills/$skill_name/SKILL.md"
 done
+
+# Install the notify-only update-check hook and record this machine's source
+# repo path so the hook can print the correct update command.
+mkdir -p "$CLAUDE_DIR/hooks"
+cp "$REPO_ROOT/claude/hooks/aki-update-check.py" "$CLAUDE_DIR/hooks/aki-update-check.py"
+printf '%s\n' "$REPO_ROOT" > "$INSTALL_ROOT/.source-repo"
 
 for old_skill in akidoc-rules akidoc-flow-audit akidoc-techbiz-optimizer; do
   rm -rf "$CLAUDE_DIR/skills/$old_skill"
@@ -211,11 +221,12 @@ fi
 backup "$CLAUDE_DIR/settings.json"
 echo -e "🧹 Dọn backup settings.json (giữ 2 gần nhất):"
 prune_backups "$CLAUDE_DIR/settings.json"
-python3 - "$CLAUDE_DIR/settings.json" "$INSTALL_ROOT" <<'PY'
+python3 - "$CLAUDE_DIR/settings.json" "$INSTALL_ROOT" "$CLAUDE_DIR" <<'PY'
 import json, pathlib, sys
 
 target = pathlib.Path(sys.argv[1])
 install_root = sys.argv[2]
+claude_dir = sys.argv[3]
 data = json.loads(target.read_text())
 
 if not isinstance(data.get('permissions'), dict):
@@ -238,6 +249,30 @@ if not isinstance(data.get('skillOverrides'), dict):
 for old_skill in ['akidoc-rules', 'akidoc-flow-audit', 'akidoc-techbiz-optimizer']:
     data['skillOverrides'].pop(old_skill, None)
 data['skillOverrides']['akirule'] = 'on'
+
+# SessionStart update-check hook (notify-only). Idempotent: drop any prior
+# aki-update-check registration, then add the current one.
+if not isinstance(data.get('hooks'), dict):
+    data['hooks'] = {}
+hooks = data['hooks']
+if not isinstance(hooks.get('SessionStart'), list):
+    hooks['SessionStart'] = []
+
+def _is_aki_update(entry):
+    try:
+        return any('aki-update-check' in h.get('command', '') for h in entry.get('hooks', []))
+    except Exception:
+        return False
+
+hooks['SessionStart'] = [e for e in hooks['SessionStart'] if not _is_aki_update(e)]
+hooks['SessionStart'].append({
+    'matcher': 'startup|resume',
+    'hooks': [{
+        'type': 'command',
+        'command': f'python3 "{claude_dir}/hooks/aki-update-check.py"',
+        'timeout': 8,
+    }],
+})
 
 target.write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n')
 PY

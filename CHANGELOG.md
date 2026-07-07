@@ -1,5 +1,32 @@
 # Changelog
 
+## 2026-07-08
+
+### Added
+- Notify-only update-check hook (`claude/hooks/aki-update-check.py`), installed to
+  `~/.claude/hooks/` and registered as a Claude Code `SessionStart` hook (`startup|resume`).
+  On session start it compares the installed `CHANGELOG.md` top entry against the public repo
+  copy (`raw.githubusercontent.com/lacvietanh/AkiClaudeDoc/master/CHANGELOG.md`); when the remote
+  is newer it prints a user-visible `systemMessage` with the "what's new" delta, the update command,
+  and the changelog link, and passes the same delta to Claude via `additionalContext`. Fail-silent
+  (any error/offline → exit 0, no output), throttled to once per 24h, and never auto-updates — it
+  only points at `git pull && bash install.sh`. Uses the CHANGELOG top header as the version marker,
+  so there is no separate version file to bump. Does not nag machines whose local changelog is ahead
+  of the remote (dev checkouts).
+
+### Changed
+- `install.sh`: copies the update-check hook into `~/.claude/hooks/`, writes `~/.aki/claudedoc/.source-repo`
+  (this machine's source repo path, so the hook can print the correct update command), and registers
+  the `SessionStart` hook in `settings.json` idempotently (drops any prior `aki-update-check` entry
+  before adding the current one). Post-install summary now lists deployed hooks.
+- `README.md`: documented the update-check hook in "What the installer does", the repo layout, and
+  the install-target file list.
+
+### Fixed
+- `README.md`: one-line install command pointed at the non-existent `main` branch
+  (`raw.githubusercontent.com/lacvietanh/AkiClaudeDoc/main/install.sh` → 404); corrected to
+  `master`, the repo's actual default branch.
+
 ## 2026-07-07 (3)
 
 ### Added

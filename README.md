@@ -84,6 +84,7 @@ claude/
   CLAUDE.md
   skills/akirule/SKILL.md
   skills/akiadvise/SKILL.md
+  hooks/aki-update-check.py
   fragments/settings.akidoc.fragment.json
 
 install.sh
@@ -104,9 +105,10 @@ Claude Code assets are installed into:
 ```text
 ~/.claude/skills/akirule/SKILL.md
 ~/.claude/skills/akiadvise/SKILL.md
+~/.claude/hooks/aki-update-check.py   ← SessionStart update-check hook (notify-only)
 ~/.claude/CLAUDE.md            ← managed by installer, never edit directly
 ~/.claude/CLAUDE.local.md      ← machine-local, never touched after first install
-~/.claude/settings.json        (read permission + skillOverrides added)
+~/.claude/settings.json        (read permission + skillOverrides + SessionStart hook added)
 ```
 
 The `akirule` skill reads `RULE-*` and `METHOD-*` files directly from `~/.aki/claudedoc/` at conversation time, on demand.
@@ -120,7 +122,7 @@ bash install.sh
 ## One-line install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/lacvietanh/AkiClaudeDoc/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/lacvietanh/AkiClaudeDoc/master/install.sh | bash
 ```
 
 or via the docs-site wrapper:
@@ -137,9 +139,14 @@ The script is intentionally simple so users can inspect it before running.
 2. Copies the `akirule` skill into `~/.claude/skills/akirule/` and removes any old AkiClaudeDoc skill directories (`akidoc-rules`, `akidoc-flow-audit`, `akidoc-techbiz-optimizer`).
 3. Replaces `~/.claude/CLAUDE.md` with the packaged global guidance (timestamped backup created first), then appends a machine-local section with the correct source repo path for this machine and an `@~/.claude/CLAUDE.local.md` import line.
 4. Creates `~/.claude/CLAUDE.local.md` with a template comment **only if it does not already exist** — never overwrites it after that.
-5. Writes `~/.claude/settings.json`: adds read permission for `~/.aki/claudedoc/**`, sets `skillOverrides.akirule = "on"`, removes old skill overrides (timestamped backup created first).
+5. Writes `~/.claude/settings.json`: adds read permission for `~/.aki/claudedoc/**`, sets `skillOverrides.akirule = "on"`, registers the `SessionStart` update-check hook, removes old skill overrides (timestamped backup created first).
+6. Installs the notify-only update-check hook into `~/.claude/hooks/aki-update-check.py` and records this machine's source repo path in `~/.aki/claudedoc/.source-repo`.
 
 Running the installer again updates the same managed files cleanly. `CLAUDE.local.md` is always preserved.
+
+## Update notifications
+
+Once installed, a Claude Code `SessionStart` hook checks (at most once per 24h, fail-silent, never blocking) whether the public repo `CHANGELOG.md` has entries newer than the installed copy. If so, it prints a short notice with the new changelog entries, the update command (`git pull && bash install.sh`), and a link. It is notify-only — it never downloads or installs anything on its own. Existing installs start receiving notices only after they re-run `install.sh` once to pick up the hook.
 
 ## Machine-local configuration
 
@@ -155,7 +162,7 @@ This repo also does not package:
 - model router tokens;
 - localhost project permissions;
 - unrelated personal Claude settings;
-- auto-update logic.
+- automatic download/install logic (the update-check hook is notify-only — it never fetches or applies updates itself).
 
 ## Why `~/.aki/claudedoc`
 

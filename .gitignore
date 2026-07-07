@@ -15,6 +15,10 @@ temp/
 .vscode/
 .idea/
 
+# Python bytecode cache
+__pycache__/
+*.pyc
+
 # Large reference corpus is intentionally not part of the default package
 ref-ECC/
 **/ref-ECC/
