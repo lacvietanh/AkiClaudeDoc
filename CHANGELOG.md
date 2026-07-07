@@ -46,6 +46,11 @@
 - `README.md`: repo-layout tree, install-target file list, and prose updated for the
   `akithink`/`akihtmlreport`/`akihelp` skills and `METHOD-deep-think.md`; added a "One brain, two
   modes" section explaining the passive/active thinking architecture.
+- `README.md`: full rewrite for concision — install command leads, skills presented as a table,
+  installer behavior condensed to one numbered list, duplicate install-target section merged into
+  the layout tree. Fixed the layout tree and akirule Tier 2 description, which were missing
+  `RULE-seo.md`, `RULE-release.md`, and `RULE-db-design.md`; uninstall section now covers all five
+  skills and the update-check hook.
 
 ## 2026-07-08
 
