@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-07-07 (3)
+
+### Added
+- New skill `akiadvise` (`claude/skills/akiadvise/SKILL.md`): distills a complex analysis/report
+  already discussed in conversation into a single-file, ultra-wide, visually dense HTML report
+  (`ADVISE.html`, default at project root). Enforces a single-file discipline (one `ADVISE.html`
+  per project at a time — never `ADVISE-2.html`/versioned variants; asks before overwriting an
+  existing one) and only applies to genuinely dense/complex content, never proactively.
+
 ## 2026-07-07 (2)
 
 ### Added

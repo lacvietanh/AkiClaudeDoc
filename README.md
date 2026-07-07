@@ -9,7 +9,7 @@ The goal: keep the source of truth in Git, publish the explanation and quickstar
 AkiClaudeDoc contains:
 
 - shared rule files (`RULE-*`) and analytical method files (`METHOD-*`) for Claude behavior, coding, docs, content, and Aki Nuxt/Cloudflare work;
-- one Claude Code skill (`akirule`) that acts as a smart router — always loading core rules and reading additional files on demand;
+- Claude Code skills: `akirule`, a smart router that always loads core rules and reads additional files on demand, and `akiadvise`, which distills a dense conversation into a single self-contained HTML report;
 - a small global Claude instruction block (`CLAUDE.md`);
 - a simple install script.
 
@@ -49,6 +49,12 @@ These three files are hard-embedded into the skill prompt on every conversation.
 
 The skill prompt uses imperative trigger language ("Read this file NOW if…") with high sensitivity — Claude errs toward loading rather than skipping. A `[load full]` or `[nạp full]` keyword in a message forces all `RULE-*` and `METHOD-*` files to load immediately.
 
+## How `akiadvise` works
+
+`akiadvise` is a Claude Code skill installed at `~/.claude/skills/akiadvise/SKILL.md`. It only triggers on an explicit request (`/akiadvise`, or "xuất báo cáo trực quan" / "export this to html") — never proactively just because a response got long.
+
+It distills an analysis or report that already exists in the conversation into one ultra-wide, dense, self-contained `ADVISE.html` file at the project root — no re-summarizing, no dropped detail, theme-aware, zero external requests. Exactly one `ADVISE.html` exists per project at a time; if one already exists, the skill asks before overwriting rather than creating versioned copies.
+
 ## How Claude Code skills work in this context
 
 Claude Code skills are Markdown files read by the harness at conversation start. The `@path` syntax in a skill file hard-embeds that file's content directly. For dynamic files (Tier 2 and 3), the skill prompt instructs Claude to use its Read tool to fetch the file when the task matches — no harness magic, just Claude following the trigger instructions.
@@ -77,6 +83,7 @@ payload/
 claude/
   CLAUDE.md
   skills/akirule/SKILL.md
+  skills/akiadvise/SKILL.md
   fragments/settings.akidoc.fragment.json
 
 install.sh
@@ -96,6 +103,7 @@ Claude Code assets are installed into:
 
 ```text
 ~/.claude/skills/akirule/SKILL.md
+~/.claude/skills/akiadvise/SKILL.md
 ~/.claude/CLAUDE.md            ← managed by installer, never edit directly
 ~/.claude/CLAUDE.local.md      ← machine-local, never touched after first install
 ~/.claude/settings.json        (read permission + skillOverrides added)
