@@ -101,7 +101,7 @@ sitemap: {
 }
 ```
 
-- `/login` is **public and indexable** in current Aki project policy
+- `/login` defaults to **public and indexable** unless the project's own policy says otherwise
 - Private/admin routes: `robots: false` + excluded from sitemap
 - Public pages: `index, follow, max-image-preview:large, max-snippet:-1` (set in `usePageSeo` if the composable supports it)
 
@@ -131,11 +131,14 @@ These rules help content appear in AI-generated answers (Perplexity, ChatGPT, Ge
 
 ## Entity & ecosystem linking
 
-For sites in the Aki ecosystem:
-- `parentOrganization`: link subsidiary sites back to `AkiNet` (`https://akinet.me`)
+For sites that belong to a multi-site ecosystem or brand family:
+- `parentOrganization`: link subsidiary sites back to the parent organization's site
 - `sameAs` in `Organization`: include parent org, sibling products, social profiles, and knowledge graph anchors (Wikidata, LinkedIn, etc.)
-- Footer cross-links to ecosystem siblings (`akinet.me`, `akitao.com`, `vstshop.com`, etc.) reinforce entity co-occurrence for crawlers
+- Footer cross-links to ecosystem sibling sites reinforce entity co-occurrence for crawlers
 - `Person` (Founder): link `worksFor` and `sameAs` to founder profiles and project pages
+
+Keep the concrete domain list (parent org URL, sibling sites) in the project's own docs — one
+source of truth per ecosystem, not hardcoded in shared rules.
 
 ---
 
@@ -167,7 +170,7 @@ Run `scripts/validate-seo.js` (or equivalent) after every build. At minimum it s
 - Decode HTML entities before measuring length (`&amp;` = 1 char, not 5)
 - Use `isArticlePage(relPath)` to apply the 80-char limit on article/post/knowledge slug pages
 
-If the project doesn't have this script yet, copy from `akitao.com/scripts/validate-seo.js` as a baseline.
+If the project doesn't have this script yet, port the validator from an existing project on the same stack as a baseline instead of writing one from scratch.
 
 ---
 

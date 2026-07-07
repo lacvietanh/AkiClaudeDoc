@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-07-07 (2)
+
+### Added
+- `RULE-stack-akiNuxtCf.md`: Admin layout isolation rules in Rendering — the admin layout owns its
+  own chrome (`AdminSidebar.vue`, added to the canonical component names table) and never imports
+  public chrome components; each admin feature area gets its own route under `/admin/**` instead
+  of tab-state inside one page.
+- `RULE-stack-akiNuxtCf.md`: New "Dev workflow scripts (package.json)" section — `killport` +
+  `dev` chaining with a pinned per-site dev port; `db.init.local`/`db.push` patterns for projects
+  with a D1 database.
+
+### Changed
+- Generalized ecosystem-specific wording so every rule stands alone for public readers:
+  `RULE-stack-akiNuxtCf.md` deploy verification no longer names internal projects; `RULE-seo.md`
+  entity-linking section now describes the parent/sibling pattern generically (concrete domain
+  lists belong in each project's own docs), `/login` indexability is a default rather than a
+  named-org policy, and the validate-seo baseline pointer no longer references an internal repo
+  path. (Intentional exception kept: the AkiTao Favicon Generator tool link.)
+- `payload/index.md`: Expanded `RULE-stack-akiNuxtCf.md` manifest description (admin layout
+  isolation, dev workflow scripts).
+
 ## 2026-07-07
 
 ### Added

@@ -38,6 +38,15 @@ Nuxt 4 · Vue 3 · Tailwind v4 · @nuxtjs/i18n · @nuxtjs/seo · SweetAlert2 · 
   (admin has no locale switcher, and the project's default/public locale is irrelevant here).
   Domain-specific terms may stay in their original language when no English equivalent is
   precise — see the project's own domain-terminology exception if it has one.
+- **The admin layout is fully isolated from public UI**: `layouts/admin.vue` has its own chrome —
+  navigation lives in its own `AdminSidebar.vue` — and never imports public chrome components
+  (`AppTopNav`/`AppFooter`/`Breadcrumb`/…) unless there is a clear, recorded benefit. Admin and
+  public UI evolve at different paces; sharing nav/UI couples them so a client change breaks admin
+  and vice versa
+- **Each admin feature area is its own route/page under `/admin/**`** (its own router view) —
+  admin views are feature-dense, so give each area a real URL instead of cramming several areas
+  into one page behind tab state; this keeps each view single-responsibility and code-splits
+  naturally
 - On multi-layout sites (default ↔ admin), any listener/timer/subscription registered while in
   the admin layout must be cleaned up in `onUnmounted` so it does not leak across a layout switch
 - Use `aki-info-detect` to separate bot and real-browser behavior when needed
@@ -106,6 +115,7 @@ them). Rename on drift whenever you touch one of these files.
 | Sidebar (one side) | `AppSidebar.vue` |
 | Sidebar (two sides) | `AppSidebarLeft.vue` / `AppSidebarRight.vue` |
 | Rail / dock (optional) | `AppRail.vue` / `AppDock.vue` |
+| Admin sidebar (admin layout only) | `AdminSidebar.vue` |
 | Breadcrumb | `Breadcrumb.vue` |
 | Auth boundary util | `server/utils/auth.ts` |
 
@@ -139,10 +149,21 @@ ONE mechanism for every akinuxtstack site. Do not reinvent it per page; any drif
   ```
 - Apply the Result pattern (see RULE-coding.md) at the composable boundary — composables return `Result<T>`, pages check `.ok`
 
+## Dev workflow scripts (package.json)
+Standard utility scripts — fixed names, per-project values (port, DB name):
+
+- `killport`: `lsof -t -i:<port> | xargs kill -9 2>/dev/null || true` — each site pins ONE fixed
+  dev port, and the `dev` script always runs `npm run killport && nuxt dev` so a stale process
+  never blocks the port
+- Projects with a D1 database:
+  - `db.init.local`: `rm -rf .wrangler/state/v3/d1 && wrangler d1 execute <db-name> --local --file=schema.sql`
+    — wipe local D1 state, reload the schema
+  - `db.push`: `wrangler d1 execute <db-name> --remote --file=schema.sql`
+
 ## Deploy verification — push is not done
 A push only *requests* a Cloudflare build; the task is not closed until the newest build for this project reaches a terminal state. (This is deployment, not releasing — versioning and release artifacts are owned by `RULE-release.md`.)
 
-Most AkiNet projects deploy via **Cloudflare Pages**, not Workers — the `cloudflare-builds` MCP only covers the Workers Builds API and will show zero builds for a Pages project (confirmed against `kinhdich-akinet` on 2026-07-07). For Pages, use `wrangler pages deployment list --project-name=<pages-project-name>` (project name may differ from the repo/site name — check with `wrangler pages project list` if unsure) or the general-purpose `cloudflare` MCP (`https://mcp.cloudflare.com/mcp`, covers the full API including Pages). Only use `cloudflare-builds` for a project that is an actual standalone Worker.
+Sites on this stack deploy via **Cloudflare Pages**, not Workers — the `cloudflare-builds` MCP only covers the Workers Builds API and will show zero builds for a Pages project. For Pages, use `wrangler pages deployment list --project-name=<pages-project-name>` (project name may differ from the repo/site name — check with `wrangler pages project list` if unsure) or the general-purpose `cloudflare` MCP (`https://mcp.cloudflare.com/mcp`, covers the full API including Pages). Only use `cloudflare-builds` for a project that is an actual standalone Worker.
 
 After every push, watch the newest build/deployment (general `cloudflare` MCP if connected, otherwise `wrangler`), polling about every 30s:
 - **running** → keep waiting. Do not fetch logs.
