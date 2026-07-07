@@ -1,7 +1,9 @@
 # Release & Versioning Rule
 
 ## Scope — when this applies
-Aki projects that ship versioned releases: a repo with both `CHANGELOG.md` and `CLAUDE.md`, built on the Aki stack (Nuxt — see `RULE-stack-akiNuxtCf.md`) or a Tauri v2 app. If a change is user-visible or dev-relevant, the release artifacts below must move with the code in the same task — never edit code and leave them stale.
+Every Aki project, any stack (Nuxt web — see `RULE-stack-akiNuxtCf.md` — Tauri v2, CLI, …). `CHANGELOG.md` is **mandatory from project creation**: the commit workflow and versioning discipline both anchor to it, so a repo without one is broken, not exempt — create it as the first fix. If a change is user-visible or dev-relevant, the release artifacts below must move with the code in the same task — never edit code and leave them stale.
+
+**Release vs deploy — two different events.** A *release* defines a version of the app (CHANGELOG, releases.json, GitHub Release) and applies to every project type. A *deploy* puts a web build live and is web-only — see `RULE-stack-akiNuxtCf.md` § Deploy verification. This rule owns releases only.
 
 ## Two separate channels — do not merge them
 | File | Audience | Language | Tone |
@@ -10,6 +12,8 @@ Aki projects that ship versioned releases: a repo with both `CHANGELOG.md` and `
 | `app/data/releases.json` | public / end user | Bilingual EN + VI if the site is multilingual (default EN); EN-only if single-language | Popular, user-friendly, benefit-first. No jargon, no file paths |
 
 The changelog explains *what changed and why* for maintainers. The release note tells users *what they get*. Write them separately; do not paste changelog lines into the release note.
+
+`releases.json` exists **only where a public web page renders it** (the Nuxt stack's release-notes page). Tauri, CLI, and other non-web projects keep `CHANGELOG.md` only — a release-notes file nothing renders is dead data; do not create one. Where `releases.json` does not exist, every rule below that mentions it simply does not apply.
 
 ## releases.json schema
 - Single-language site: `{ version, date, title, changes: [{ type, text }] }`
@@ -23,6 +27,8 @@ The changelog explains *what changed and why* for maintainers. The release note 
 - One release = one version; bundle the session's changes under it. Bump deliberately — do not bump on every tiny edit, and do not skip a bump when something shipped.
 
 ## Identify the current version before bumping
+
+Run this check **each time a problem is closed and about to be recorded** — not once at the end of a session. It answers "does this entry go into a new version or the one already open?": pre-bump means open a new version; mid-release means the current version is still open, append to it.
 
 Run these three commands first — do not guess:
 

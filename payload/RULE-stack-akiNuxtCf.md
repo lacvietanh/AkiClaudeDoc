@@ -139,5 +139,15 @@ ONE mechanism for every akinuxtstack site. Do not reinvent it per page; any drif
   ```
 - Apply the Result pattern (see RULE-coding.md) at the composable boundary — composables return `Result<T>`, pages check `.ok`
 
+## Deploy verification — push is not done
+A push only *requests* a Cloudflare build; the task is not closed until the newest build for this project reaches a terminal state. (This is deployment, not releasing — versioning and release artifacts are owned by `RULE-release.md`.)
+
+Most AkiNet projects deploy via **Cloudflare Pages**, not Workers — the `cloudflare-builds` MCP only covers the Workers Builds API and will show zero builds for a Pages project (confirmed against `kinhdich-akinet` on 2026-07-07). For Pages, use `wrangler pages deployment list --project-name=<pages-project-name>` (project name may differ from the repo/site name — check with `wrangler pages project list` if unsure) or the general-purpose `cloudflare` MCP (`https://mcp.cloudflare.com/mcp`, covers the full API including Pages). Only use `cloudflare-builds` for a project that is an actual standalone Worker.
+
+After every push, watch the newest build/deployment (general `cloudflare` MCP if connected, otherwise `wrangler`), polling about every 30s:
+- **running** → keep waiting. Do not fetch logs.
+- **success** → report "✅ deployed" with the version/deployment id, then stop. Never fetch logs for a successful build.
+- **failed** → fetch the build log, isolate the failing lines, fix the cause in the working tree, and report. Do NOT commit or push the fix — the user decides.
+
 ## SEO
 See `RULE-seo.md` for all SEO rules (meta limits, schema matrix, robots, sitemap, OG image, AI visibility, entity linking).

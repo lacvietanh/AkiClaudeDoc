@@ -1,5 +1,32 @@
 # Changelog
 
+## 2026-07-07
+
+### Added
+- `RULE-stack-akiNuxtCf.md`: New "Deploy verification — push is not done" section — a push only
+  *requests* a Cloudflare build, task isn't closed until the newest build reaches a terminal state.
+  Clarifies that most AkiNet projects deploy via **Cloudflare Pages**, not Workers — the
+  `cloudflare-builds` MCP only covers the Workers Builds API and shows zero builds for a Pages
+  project (confirmed against `kinhdich-akinet` 2026-07-07). Points to
+  `wrangler pages deployment list` or the general-purpose `cloudflare` MCP
+  (`https://mcp.cloudflare.com/mcp`) for Pages projects instead.
+- `RULE-release.md`: "Release vs deploy — two different events" section separating release
+  (CHANGELOG/releases.json/GitHub Release, all stacks) from deploy (web build going live,
+  web-only, owned by `RULE-stack-akiNuxtCf.md`).
+
+### Changed
+- `RULE-release.md`: Scope widened from "projects with CHANGELOG.md" to **every Aki project,
+  any stack** — `CHANGELOG.md` is mandatory from project creation, a repo without one is broken
+  not exempt. Clarified `releases.json` is web-only (exists only where a public release-notes
+  page renders it); Tauri/CLI/non-web projects keep `CHANGELOG.md` only. "Identify the current
+  version before bumping" now runs per closed problem, not once per session.
+- `claude/skills/akigitcommit/SKILL.md`: No-CHANGELOG fallback reframed as exempting only
+  non-Aki repos (every Aki repo must have one). Added "commit unit is one closed problem" rule —
+  a problem's commit includes its code AND its CHANGELOG.md/releases.json entries, never batched
+  into a separate catch-all commit.
+- `payload/index.md`: Updated `RULE-stack-akiNuxtCf.md` and `RULE-release.md` manifest
+  descriptions to reflect the above.
+
 ## 2026-07-05
 
 ### Added

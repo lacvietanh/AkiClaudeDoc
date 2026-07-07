@@ -18,7 +18,10 @@ ls CHANGELOG.md 2>/dev/null && head -60 CHANGELOG.md
 ```
 
 - **CHANGELOG present** → use **domain-grouped mode** (see below)
-- **No CHANGELOG** → use **type-grouped mode** (classic behavior)
+- **No CHANGELOG** → use **type-grouped mode** — a **fallback for repos outside
+  the Aki ecosystem**. Every Aki project carries a `CHANGELOG.md` from creation
+  (see `RULE-release.md`), so in an Aki repo a missing CHANGELOG is a defect to
+  flag, not a mode to silently fall into.
 
 ## Workflow (follow in order)
 
@@ -36,6 +39,10 @@ ls CHANGELOG.md 2>/dev/null && head -60 CHANGELOG.md
    - Group files by **object or domain** — all files that touch the same feature,
      subsystem, or concern go into one commit. Example: all files related to
      `log` (component, composable, i18n key, data file) → one commit.
+   - **The commit unit is one closed problem.** A problem's commit includes its
+     code AND its `CHANGELOG.md` entry (and its `releases.json` entry when the
+     change is user-facing) — release artifacts ride with the change they
+     describe, never batched into a separate catch-all commit at the end.
    - Target **3–5 commits maximum**. Resist splitting by file type; split only
      when two domains are genuinely unrelated.
    - The CHANGELOG entry already documents the "why" — commit messages just need
