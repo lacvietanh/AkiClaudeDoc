@@ -12,12 +12,14 @@ Project `CLAUDE.md` files bind these shared rules to a specific project.
 |------|------|---------|
 | `RULE-agent-behavior.md` | Core | Response language, scope discipline, verification, decision boundaries |
 | `RULE-coding.md` | Core | Philosophy, source-of-truth, error handling, security |
+| `RULE-design-core.md` | Contextual (high-sensitivity) | Universal pattern philosophy: SSoT, Rule of Three, SRP "and"-test, OCP, composition, module boundaries, name-by-role, anti-patch. Sharpens RULE-coding; applies to every project type — load eagerly on any structural/decomposition decision |
 | `RULE-docs.md` | Contextual | Docs structure, plan lifecycle, doc-sync behavior |
 | `RULE-content-write.md` | Contextual | UI copy, semantic stability, writing style, i18n |
 | `RULE-stack-akiNuxtCf.md` | Contextual | Nuxt/Vue/Cloudflare Pages/Workers, Tailwind, i18n, canonical component names, state (useState-first), build & TypeScript, admin layout isolation, dev workflow scripts (killport/D1), layout chrome (breadcrumb/scroll-to-top), deploy verification after push |
+| `RULE-ui-pattern.md` | Contextual | Frontend enforcement of design-core: 4-tier class taxonomy, design tokens, arbitrary-value policy, atomic structure, variant API, UI audit/refactor playbook |
 | `RULE-seo.md` | Contextual | Meta limits, schema.org matrix, robots, sitemap, OG, AI visibility, entity linking |
 | `RULE-release.md` | Contextual | CHANGELOG.md mandatory in every project, release notes vs changelog split, releases.json (web-only), semver bump discipline, release vs deploy boundary |
-| `RULE-db-design.md` | Optional/Contextual | Immutability & Event Sourcing, 1NF, Bounded Context (DDD), flat-query discipline — load when designing schema/migration/DB refactor |
+| `RULE-db-design.md` | Contextual | Immutability & Event Sourcing, 1NF, Bounded Context (DDD), flat-query discipline — load when designing schema/migration/DB refactor |
 | `METHOD-flow-audit.md` | Analytical | Flow integrity audit method |
 | `METHOD-deep-think.md` | Analytical | Deep-think brain: goal excavation, first principles, critique, conditional techbiz lens; passive via akirule, active via /akithink |
 

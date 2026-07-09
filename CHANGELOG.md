@@ -1,5 +1,35 @@
 # Changelog
 
+## 2026-07-10
+
+### Added
+- `payload/RULE-design-core.md`: new Contextual (high-sensitivity) rule — the universal,
+  stack-agnostic pattern-design philosophy (SSoT, Rule of Three, SRP "and"-test, OCP, composition
+  over duplication, module boundaries, name-by-role, anti-patch). Sharpens `RULE-coding.md` without
+  restating it and defers UI-specific enforcement to `RULE-ui-pattern.md`. Registered in `index.md`,
+  the akirule Tier 2 signal block, and `README.md`.
+- `payload/RULE-ui-pattern.md`: new Contextual rule — the frontend enforcement of
+  `RULE-design-core.md` (4-tier class taxonomy, design tokens as the single source for visual values,
+  arbitrary-value policy, atomic component structure, variant API, and a UI audit/refactor playbook).
+  Registered in `index.md`, the akirule Tier 2 signal block, and `README.md`.
+
+### Changed
+- Tier vocabulary normalized to exactly three canonical labels — **Core / Contextual / Analytical** —
+  across `payload/index.md`, `README.md`, `claude/skills/akirule/SKILL.md`, and the rule headers.
+  Dropped the drift-prone variants "Core-adjacent" (`RULE-design-core.md` is Contextual
+  high-sensitivity) and "Optional/Contextual" (`RULE-db-design.md` is Contextual), so every label now
+  matches the actual routing mechanism. `RULE-design-core.md` is Contextual, not Core, on purpose:
+  embedding it in Tier 1 would tax every conversation for every user; its near-universal reach is
+  served by broad signals instead.
+- `README.md`: added `RULE-design-core.md` and `RULE-ui-pattern.md` to both the tier list and the
+  repository-layout tree (they were missing); rewrote the routing section so its "three tiers" match
+  `akirule/SKILL.md` exactly — Tier 1 Core (embed), Tier 2 Contextual (contextual rules plus the
+  signal-loaded analytical methods), Tier 3 Full-load on explicit command — instead of mislabeling the
+  analytical methods as "Tier 3".
+- `install.sh`: the post-install "Rules deployed" summary parser now accepts multi-word tier cells
+  (regex `(\w+)` → `([^|]+?)`, plus a tolerant color lookup), so rows like `RULE-design-core.md` and
+  `RULE-db-design.md` are no longer silently dropped from the printed manifest.
+
 ## 2026-07-08 (2)
 
 ### Added

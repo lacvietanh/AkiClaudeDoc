@@ -116,10 +116,12 @@ index = pathlib.Path(sys.argv[1]).read_text()
 tier_colors = {"Core": "\033[1;31m", "Contextual": "\033[1;33m", "Analytical": "\033[1;34m"}
 reset = "\033[0m"
 for line in index.splitlines():
-    m = re.match(r'\|\s*`([^`]+)`\s*\|\s*(\w+)\s*\|(.+)\|', line)
+    m = re.match(r'\|\s*`([^`]+)`\s*\|\s*([^|]+?)\s*\|(.+)\|', line)
     if m:
         fname, tier, desc = m.group(1), m.group(2).strip(), m.group(3).strip()
-        color = tier_colors.get(tier, "")
+        # Tolerant match: a tier cell like "Contextual (high-sensitivity)" still
+        # colors by its base word instead of being dropped or left uncolored.
+        color = next((c for k, c in tier_colors.items() if tier.startswith(k)), "")
         print(f"  {color}{tier:<12}{reset} {fname:<30} {desc}")
 PY
 

@@ -18,6 +18,16 @@ user-invocable: false
 
 Before responding, scan the user message and any file paths mentioned. For each rule below: if ANY single signal matches → Read that file immediately, before generating a response.
 
+### RULE-design-core.md
+Load if message or file path contains any of:
+- **Keywords:** `design pattern`, `pattern design`, `nguyên tắc thiết kế`, `DRY`, `SOLID`, `SRP`,
+  `OCP`, `single responsibility`, `single source of truth`, `SSoT`, `module`, `tách module`,
+  `decomposition`, `phân rã`, `tái sử dụng`, `reuse`, `abstraction`, `trừu tượng hoá`,
+  `pattern lặp`, `duplicate logic`, `rule of three`, `bounded context`, `clean code`
+- **Context:** designing/splitting a module, extracting shared code, refactoring for reuse,
+  hunting duplication, or any "how should this be structured" decision — any stack (backend,
+  Tauri, CLI, library, DB, UI)
+
 ### RULE-docs.md
 Load if message or file path contains any of:
 - **Keywords:** `docs`, `CLAUDE.md`, `README`, `PLAN`, `plan/`, `diagram`, `mermaid`, `architecture`, `arch/`, `doc sync`, `documentation`, `index.md`, `feat/`, `plan lifecycle`, `tài liệu`, `sơ đồ`, `kiến trúc`
@@ -35,6 +45,17 @@ Load if message or file path contains any of:
 Load if message or file path contains any of:
 - **Keywords:** `nuxt`, `vue`, `cloudflare`, `workers`, `pages`, `wrangler`, `tailwind`, `composable`, `middleware`, `layout`, `plugin`, `component`, `useRoute`, `useFetch`, `definePageMeta`, `nitro`, `vite`, `breadcrumb`, `scroll-to-top`, `back-to-home`, `layout chrome`, `useBreadcrumb`
 - **Paths:** `components/**`, `pages/**`, `composables/**`, `layouts/**`, `middleware/**`, `wrangler.toml`, `nuxt.config.*`, `tailwind.config.*`, `app.vue`
+
+### RULE-ui-pattern.md
+Load if message or file path contains any of:
+- **Keywords (enforcement):** `component`, `vue`, `nuxt`, `tailwind`, `css`, `class`, `style`,
+  `design token`, `token`, `variant`, `design system`, `atomic design`, `pattern class`, `@apply`,
+  `@layer`, `BaseButton`, `c-btn`, `c-card`
+- **Keywords (audit):** `dọn dẹp`, `class trùng`, `duplicate class`, `duplicate CSS`, `trùng lặp`,
+  `audit CSS`, `refactor CSS`, `refactor UI`, `arbitrary value`, `quét class`, `w-[`, `text-[`
+- **Paths:** `components/**`, `assets/css/**`, `tailwind.config.*`, `**/*.vue`
+- **Actions:** writing/refactoring any component or style; auditing a frontend codebase for
+  DRY/SOLID violations
 
 ### RULE-seo.md
 Load if message or file path contains any of:
