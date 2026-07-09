@@ -97,6 +97,16 @@
   of the remote (dev checkouts).
 
 ### Changed
+- `claude/skills/akihtmlreport/SKILL.md`: never `Read` an existing `REPORT.html` (it is large, dense
+  HTML and the skill always regenerates it wholesale) — inspect metadata only; a stale file (older
+  than ~12 h) is deleted without reading, a recent one still prompts. The generation timestamp is
+  computed in UTC and rendered in the viewer's local time via inline JS; a compact table of contents
+  with per-section `id` anchors is required at the top; a short final-summary section is now mandatory
+  at the end. Evaluation reports (refactor/code-review/strategy/idea assessments) must also surface
+  each item's side effects and edge cases as a first-class element, keep the MVP recommendation as
+  the headline, and split autonomous-decidable from needs-user-decision. Added an optional
+  glossary/notes appendix as the very last section for reports leaning on jargon or abbreviations.
+- `.gitignore`: ignore the disposable `REPORT.html` visual export.
 - `payload/RULE-coding.md`: expanded the lone `atob()` note into a **Unicode / UTF-8 safety**
   subsection — base64/JWT decoding via `TextDecoder`, NFC normalization before compare/store/dedupe/
   keys, byte (not `str.length`) measurement for size and length limits, and codepoint-safe truncation.
