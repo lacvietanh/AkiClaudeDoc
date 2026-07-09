@@ -84,3 +84,20 @@ doSomethingWith(result.data) // TypeScript knows this is User
 - Never expose secrets in client code
 - Avoid command injection, XSS, SQL injection, unsafe redirects, and token leakage
 - Treat generated files, external data, and user-provided content as untrusted until validated
+
+## Unicode / UTF-8 safety
+A string and its byte representation are different things; nearly every Unicode bug comes from
+conflating them. Applies to every runtime, and bites hardest where there is no Node `Buffer` to
+hide it (e.g. Cloudflare Workers).
+- **base64 / JWT / cookie payloads:** `atob()`/`btoa()` are Latin1-only, not UTF-8 codecs —
+  `JSON.parse(atob(jwt))` silently mojibakes non-ASCII text (accented names, emoji) and `btoa()`
+  throws on codepoints > U+00FF. Decode via `new TextDecoder().decode(bytes)`, encode via
+  `new TextEncoder().encode(str)` before base64.
+- **Compare / store / dedupe / keys:** normalize first with `str.normalize('NFC')`. The same
+  visible text (e.g. "Nguyễn") can be two different byte sequences, so an un-normalized equality
+  check, unique key, or dedupe treats identical-looking values as different.
+- **Length limits & sizes:** measure bytes, not `str.length` (which counts UTF-16 units) — use
+  `new TextEncoder().encode(str).length` for body size, storage/field limits, and `Content-Length`.
+- **Truncating text:** never slice by index into the middle of a character — `slice`/`substring`
+  split accented characters and emoji into `�`. Iterate codepoints (`[...str]`) when cutting
+  previews or slugs.

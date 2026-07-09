@@ -1,6 +1,6 @@
 # Database Design Rules
 
-**Tier: Optional/Contextual** — load when designing a schema, writing a migration, or refactoring
+**Tier: Contextual** — load when designing a schema, writing a migration, or refactoring
 a database layer. Do not load by default on every task.
 
 ## 1. Immutability & Event Sourcing
@@ -26,3 +26,11 @@ Prefer flat, non-correlated queries over nested CTEs or per-row correlated subqu
 merge/aggregation logic into plain application code when data volume makes that cheap and
 clearer. Apply this everywhere, not just to already-identified hot paths — see RULE-coding.md
 (Performance section) for the general principle.
+
+## 5. The DB is not your Unicode safety net
+SQLite/D1 stores UTF-8 natively and has no `utf8` vs `utf8mb4` trap, so it is easy to assume
+"D1 → no Unicode bugs". False: the DB faithfully stores whatever bytes it is handed, including
+already-corrupt ones. Text corruption (mojibake, un-normalized duplicates) happens one layer up,
+in the application code that decodes/compares the string before the `INSERT` — fix it there, per
+RULE-coding.md (Unicode / UTF-8 safety), not in the schema. The one schema-level Unicode concern
+is on MySQL/MariaDB: use `utf8mb4`, never the 3-byte `utf8`, or emoji and some CJK truncate.

@@ -16,6 +16,16 @@ Nuxt 4 · Vue 3 · Tailwind v4 · @nuxtjs/i18n · @nuxtjs/seo · SweetAlert2 · 
 - No `fs`, `child_process`, or `path` in Worker runtime
 - Use `fetch()` for outbound requests
 - Use `crypto.subtle`, not Node native crypto
+- No `Buffer` here, so everything base64/UTF-8 is hand-rolled — this is exactly where the Unicode
+  pitfalls in RULE-coding (Unicode / UTF-8 safety) bite in production. Concretely on this stack:
+  - Decode Firebase/JWT/base64 payloads via `TextDecoder`, never `atob()`+`JSON.parse`, or unicode
+    claims (e.g. a Firebase token's `name`) reach D1 already mojibaked — the DB stores the corrupt
+    bytes faithfully, so this is an app-layer bug, not a DB one.
+  - Non-ASCII in a response or `Set-Cookie` header value must be `encodeURIComponent`-ed — HTTP
+    header values are Latin1.
+  - Response size / `Content-Length` and any KV/D1 size check are counted in bytes
+    (`new TextEncoder().encode(str).length`), not `str.length`.
+  - `crypto.subtle` operates on bytes — feed it `new TextEncoder().encode(str)`, not the string.
 - Do not enable `nodejs_compat` in `wrangler.toml` unless upstream issues are confirmed fixed
 - Must strictly use `trailingSlash: true` consistently for Cloudflare Pages (applies to routing, canonical, og:url, sitemap, schema.org)
 

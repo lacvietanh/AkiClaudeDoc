@@ -97,6 +97,17 @@
   of the remote (dev checkouts).
 
 ### Changed
+- `payload/RULE-coding.md`: expanded the lone `atob()` note into a **Unicode / UTF-8 safety**
+  subsection — base64/JWT decoding via `TextDecoder`, NFC normalization before compare/store/dedupe/
+  keys, byte (not `str.length`) measurement for size and length limits, and codepoint-safe truncation.
+- `payload/RULE-stack-akiNuxtCf.md`: expanded the Cloudflare/Workers Unicode note — decode
+  Firebase/JWT payloads via `TextDecoder` (with an explicit "corruption is an app-layer bug, D1 stores
+  the bad bytes faithfully" clarification), percent-encode non-ASCII header/cookie values, count
+  response size / `Content-Length` in bytes, and feed `crypto.subtle` encoded bytes.
+- `payload/RULE-db-design.md`: added section 5 "The DB is not your Unicode safety net" — SQLite/D1
+  stores UTF-8 faithfully but does not prevent mojibake (fixed at the decode/compare layer per
+  `RULE-coding.md`); the one schema-level concern is using `utf8mb4`, never 3-byte `utf8`, on
+  MySQL/MariaDB.
 - `install.sh`: copies the update-check hook into `~/.claude/hooks/`, writes `~/.aki/claudedoc/.source-repo`
   (this machine's source repo path, so the hook can print the correct update command), and registers
   the `SessionStart` hook in `settings.json` idempotently (drops any prior `aki-update-check` entry
