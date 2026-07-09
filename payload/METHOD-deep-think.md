@@ -141,6 +141,43 @@ These may be correct, but they are not proof. Each one requires evidence, not ta
 
 ---
 
+## Module 5 — MVP focus, side-effects & edge-cases weighed by severity
+
+An evaluation discipline, not a survival rule, and it is **not gated by business context** (unlike
+Module 4). It guards against two opposite failure modes at once: rat-holing on trivial edges while
+the main solution goes unbuilt, and hiding a serious risk behind "MVP first".
+
+**When this applies** — whenever you are *discussing or evaluating* something, not merely executing it:
+- a refactor,
+- a code review / code assessment,
+- a strategy or plan (not only code),
+- an idea or proposal.
+
+**Weigh by severity, not by sequence:**
+- Keep the MVP / main work as the focus of your energy; do not let trivial edge-cases or cosmetic
+  side-effects drain the effort that belongs to the core solution.
+- But SFX/EC are **not automatically subordinate to the MVP**. This is a loop, not a one-way
+  pipeline: a material one can feed back and reshape the MVP itself — an edge-case that is really a
+  serious correctness bug, or a side-effect that breaks another flow, can send the main
+  recommendation back for rework. Do not defer it just because "MVP comes first".
+- So surface each in proportion to its severity: trivial → name it out-of-scope and move on;
+  material → state it with its handling; severe enough to threaten the MVP's correctness or
+  viability → raise it immediately and let it override the MVP.
+  - **SFX:** what does this ripple into — other flows, callers, stored data, future maintainers,
+    incentives? (Draws on Module 3, second-order effects.)
+  - **EC:** where does it break at the boundaries — empty/null, limits, concurrency, first/last
+    item, non-ASCII, failure paths? (Draws on Module 3, inversion / pre-mortem.)
+
+In one line: **the MVP gets the focus, but severity — not ordering — decides when an SFX/EC is
+promoted, up to and including reopening the MVP.**
+
+**Decide vs ask (once promoted):** first try to resolve it yourself with first-principles and
+critical thinking — then decide and report. Escalate to the owner only when it is genuinely their
+call per RULE-agent-behavior Decision boundaries (irreversible, cross-boundary, or unverifiable);
+do not ask about what basic reasoning already settles.
+
+---
+
 ## Radar rule (passive-mode duty)
 
 When applying this METHOD passively and the decision turns out to be one-way-door (hard to reverse), large in scope, or the goal itself is unclear, do NOT settle for a shallow inline analysis. Say explicitly: "this deserves a dedicated `/akithink` session" and offer to start one.

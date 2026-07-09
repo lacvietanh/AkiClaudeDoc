@@ -29,6 +29,18 @@
 - `install.sh`: the post-install "Rules deployed" summary parser now accepts multi-word tier cells
   (regex `(\w+)` → `([^|]+?)`, plus a tolerant color lookup), so rows like `RULE-design-core.md` and
   `RULE-db-design.md` are no longer silently dropped from the printed manifest.
+- `payload/METHOD-deep-think.md`: added Module 5 "MVP focus, side-effects & edge-cases weighed by
+  severity" — an evaluation discipline (not business-gated, unlike Module 4). The MVP keeps the focus
+  of effort, but SFX/EC are weighed by severity, not sequence: it is a feedback loop, not a one-way
+  pipeline, so a material side-effect/edge-case can reshape or reopen the MVP itself. Scoped to the
+  four cases of *discussing or evaluating* (not executing) a refactor, a code review, a strategy/plan,
+  or an idea; trivial risks named out-of-scope, severe ones promoted immediately. On promotion, the
+  agent resolves what first-principles/critical-thinking can settle (decide + report) and escalates
+  to the owner only for genuine owner-calls (irreversible / cross-boundary / unverifiable) per
+  `RULE-agent-behavior` Decision boundaries — not for what basic reasoning settles.
+- `claude/skills/akirule/SKILL.md`: `METHOD-deep-think` now auto-loads on evaluation/discussion
+  signals (`evaluate`, `assess`, `worth refactoring`, `side effect`, `edge case`, `đánh giá`,
+  `bàn luận`, `đánh giá ý tưởng`, `đánh giá chiến lược`, …) so Module 5 fires on the four cases.
 
 ## 2026-07-08 (2)
 
