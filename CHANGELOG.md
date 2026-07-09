@@ -29,6 +29,27 @@
 - `install.sh`: the post-install "Rules deployed" summary parser now accepts multi-word tier cells
   (regex `(\w+)` → `([^|]+?)`, plus a tolerant color lookup), so rows like `RULE-design-core.md` and
   `RULE-db-design.md` are no longer silently dropped from the printed manifest.
+- `claude/skills/akihtmlreport/SKILL.md`: never `Read` an existing `REPORT.html` (it is large, dense
+  HTML and the skill always regenerates it wholesale) — inspect metadata only; a stale file (older
+  than ~12 h) is deleted without reading, a recent one still prompts. The generation timestamp is
+  computed in UTC and rendered in the viewer's local time via inline JS; a compact table of contents
+  with per-section `id` anchors is required at the top; a short final-summary section is now mandatory
+  at the end. Evaluation reports (refactor/code-review/strategy/idea assessments) must also surface
+  each item's side effects and edge cases as a first-class element, keep the MVP recommendation as
+  the headline, and split autonomous-decidable from needs-user-decision. Added an optional
+  glossary/notes appendix as the very last section for reports leaning on jargon or abbreviations.
+- `.gitignore`: ignore the disposable `REPORT.html` visual export.
+- `payload/RULE-coding.md`: expanded the lone `atob()` note into a **Unicode / UTF-8 safety**
+  subsection — base64/JWT decoding via `TextDecoder`, NFC normalization before compare/store/dedupe/
+  keys, byte (not `str.length`) measurement for size and length limits, and codepoint-safe truncation.
+- `payload/RULE-stack-akiNuxtCf.md`: expanded the Cloudflare/Workers Unicode note — decode
+  Firebase/JWT payloads via `TextDecoder` (with an explicit "corruption is an app-layer bug, D1 stores
+  the bad bytes faithfully" clarification), percent-encode non-ASCII header/cookie values, count
+  response size / `Content-Length` in bytes, and feed `crypto.subtle` encoded bytes.
+- `payload/RULE-db-design.md`: added section 5 "The DB is not your Unicode safety net" — SQLite/D1
+  stores UTF-8 faithfully but does not prevent mojibake (fixed at the decode/compare layer per
+  `RULE-coding.md`); the one schema-level concern is using `utf8mb4`, never 3-byte `utf8`, on
+  MySQL/MariaDB.
 - `payload/METHOD-deep-think.md`: added Module 5 "MVP focus, side-effects & edge-cases weighed by
   severity" — an evaluation discipline (not business-gated, unlike Module 4). The MVP keeps the focus
   of effort, but SFX/EC are weighed by severity, not sequence: it is a feedback loop, not a one-way
@@ -109,27 +130,6 @@
   of the remote (dev checkouts).
 
 ### Changed
-- `claude/skills/akihtmlreport/SKILL.md`: never `Read` an existing `REPORT.html` (it is large, dense
-  HTML and the skill always regenerates it wholesale) — inspect metadata only; a stale file (older
-  than ~12 h) is deleted without reading, a recent one still prompts. The generation timestamp is
-  computed in UTC and rendered in the viewer's local time via inline JS; a compact table of contents
-  with per-section `id` anchors is required at the top; a short final-summary section is now mandatory
-  at the end. Evaluation reports (refactor/code-review/strategy/idea assessments) must also surface
-  each item's side effects and edge cases as a first-class element, keep the MVP recommendation as
-  the headline, and split autonomous-decidable from needs-user-decision. Added an optional
-  glossary/notes appendix as the very last section for reports leaning on jargon or abbreviations.
-- `.gitignore`: ignore the disposable `REPORT.html` visual export.
-- `payload/RULE-coding.md`: expanded the lone `atob()` note into a **Unicode / UTF-8 safety**
-  subsection — base64/JWT decoding via `TextDecoder`, NFC normalization before compare/store/dedupe/
-  keys, byte (not `str.length`) measurement for size and length limits, and codepoint-safe truncation.
-- `payload/RULE-stack-akiNuxtCf.md`: expanded the Cloudflare/Workers Unicode note — decode
-  Firebase/JWT payloads via `TextDecoder` (with an explicit "corruption is an app-layer bug, D1 stores
-  the bad bytes faithfully" clarification), percent-encode non-ASCII header/cookie values, count
-  response size / `Content-Length` in bytes, and feed `crypto.subtle` encoded bytes.
-- `payload/RULE-db-design.md`: added section 5 "The DB is not your Unicode safety net" — SQLite/D1
-  stores UTF-8 faithfully but does not prevent mojibake (fixed at the decode/compare layer per
-  `RULE-coding.md`); the one schema-level concern is using `utf8mb4`, never 3-byte `utf8`, on
-  MySQL/MariaDB.
 - `install.sh`: copies the update-check hook into `~/.claude/hooks/`, writes `~/.aki/claudedoc/.source-repo`
   (this machine's source repo path, so the hook can print the correct update command), and registers
   the `SessionStart` hook in `settings.json` idempotently (drops any prior `aki-update-check` entry
