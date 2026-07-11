@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-07-11
+
+### Added
+- `docs/research/2026-07-11-versioning-critique-akithink.md`: structured decision record (/akithink) analyzing and refining the versioning rewrite proposal.
+
+### Changed
+- `payload/RULE-release.md`: rewrote the versioning rules to use cold-start version reconstruction (unbounded git log checks with robust boundary commit fallbacks), severity-driven bump logic, and a legacy audit mode. Hardened the rewrite: restored the Pre-bump/Mid-release/Mismatch state table (double-bump guard), made the CHANGELOG-diff pickaxe (`git log -S`) the primary boundary-commit anchor with fixed-string message grep demoted, added user confirmation on ambiguous fallback, a fresh-repo case, the smaller-level tie-breaker, and an audit-mode rule against inventing unknown historical content.
+- `payload/index.md`: updated manifest description for `RULE-release.md` to reflect cold-start versioning and audit mode.
+
 ## 2026-07-10
 
 ### Added

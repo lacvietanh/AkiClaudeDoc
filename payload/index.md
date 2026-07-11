@@ -18,7 +18,7 @@ Project `CLAUDE.md` files bind these shared rules to a specific project.
 | `RULE-stack-akiNuxtCf.md` | Contextual | Nuxt/Vue/Cloudflare Pages/Workers, Tailwind, i18n, canonical component names, state (useState-first), build & TypeScript, admin layout isolation, dev workflow scripts (killport/D1), layout chrome (breadcrumb/scroll-to-top), deploy verification after push |
 | `RULE-ui-pattern.md` | Contextual | Frontend enforcement of design-core: 4-tier class taxonomy, design tokens, arbitrary-value policy, atomic structure, variant API, UI audit/refactor playbook |
 | `RULE-seo.md` | Contextual | Meta limits, schema.org matrix, robots, sitemap, OG, AI visibility, entity linking |
-| `RULE-release.md` | Contextual | CHANGELOG.md mandatory in every project, release notes vs changelog split, releases.json (web-only), semver bump discipline, release vs deploy boundary |
+| `RULE-release.md` | Contextual | CHANGELOG.md mandatory in every project, release notes vs changelog split, releases.json (web-only), release vs deploy boundary, cold-start version reconstruction, severity-driven bump, audit mode |
 | `RULE-db-design.md` | Contextual | Immutability & Event Sourcing, 1NF, Bounded Context (DDD), flat-query discipline — load when designing schema/migration/DB refactor |
 | `METHOD-flow-audit.md` | Analytical | Flow integrity audit method |
 | `METHOD-deep-think.md` | Analytical | Deep-think brain: goal excavation, first principles, critique, conditional techbiz lens; passive via akirule, active via /akithink |

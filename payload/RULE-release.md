@@ -26,31 +26,71 @@ The changelog explains *what changed and why* for maintainers. The release note 
 - **major** — breaking changes
 - One release = one version; bundle the session's changes under it. Bump deliberately — do not bump on every tiny edit, and do not skip a bump when something shipped.
 
-## Identify the current version before bumping
+## Identify the current version — cold-start, not session-memory
 
-Run this check **each time a problem is closed and about to be recorded** — not once at the end of a session. It answers "does this entry go into a new version or the one already open?": pre-bump means open a new version; mid-release means the current version is still open, append to it.
+Run this check **each time a problem is closed and about to be recorded** — not
+once at the end of a session. It answers "does this entry go into a new version
+or the one already open?" Never rely on remembering a prior session: every time
+this step runs — 5 minutes or 5 months since the last run — it must re-derive
+the correct state from the repo alone.
 
-Run these three commands first — do not guess:
-
-```bash
-git log --oneline -3
-grep '"version"' package.json
-grep -m1 '^\### \[' CHANGELOG.md
-```
-
-Then determine the current state:
+1. Read `package.json` (or equivalent) for the recorded version.
+2. Read `CHANGELOG.md` to identify the last documented version (`<last-version>`).
+3. Determine the release state **before** deciding any bump:
 
 | State | Condition | Action |
 |-------|-----------|--------|
-| **Pre-bump** | `package.json` == last git commit version | Decide bump level, bump exactly once |
-| **Mid-release** | `package.json` > last git commit version | Already bumped — accumulate into current version, do NOT bump again |
-| **Mismatch** | CHANGELOG top entry ≠ `package.json` | Warn the user, do not auto-fix |
+| **Pre-bump** | `package.json` == CHANGELOG top version | Reconstruct the accumulation (steps 4–5), then bump exactly once |
+| **Mid-release** | `package.json` > CHANGELOG top version | Already bumped, version still open — append to it, do NOT bump again |
+| **Mismatch** | any other disagreement | Warn the user, do not auto-fix |
 
-Bump level discipline:
-- Same session has both features and fixes → minor, not major
-- Unsure between two levels → choose the smaller, state the reason
-- New version = current version + exactly one step at the chosen level — no skipping (e.g. `1.4.2 → 1.6.0` is invalid without explicit justification)
-- Do not bump until there is at least one user-visible or dev-relevant change to record
+4. Find the boundary commit for `<last-version>` using this sequence:
+   a. The commit that wrote the CHANGELOG entry — the strongest anchor, since the
+      entry itself marks the release boundary:
+      `git log -1 --format=%H -S "[<last-version>]" -- CHANGELOG.md`
+   b. Git tags: `git rev-parse "v<last-version>"` or `git rev-parse "<last-version>"`
+   c. A release commit message — use fixed strings (`.` is a regex wildcard):
+      `git log --fixed-strings --grep="<last-version>" -n 1 --format="%H"`
+      A later commit that merely *mentions* the version (e.g. "fix regression
+      from 1.4.2") is NOT the boundary — inspect the hit before trusting it.
+   d. If no boundary is found, **do not scan the entire history**. Fall back to
+      `git log --oneline -20`, analyze manually, and ask the user to confirm the
+      boundary if there is any ambiguity.
+5. Run `git log <boundary-commit>..HEAD --oneline` to get the complete, unbounded
+   list of accumulated changes since the last release.
+6. Fresh repo: fewer than ~5 commits, or no version recorded anywhere yet →
+   treat the entire history as the current accumulation.
+
+## Bump level — driven by content severity, not by step-count
+
+Classify every accumulated change found in the git log:
+- breaking / not backward-compatible → major
+- new capability, backward-compatible → minor
+- fix / internal-only → patch
+
+**New version = the last version recorded in CHANGELOG (the Pre-bump baseline from the state table above) + exactly one step at the HIGHEST severity found across the full accumulation.** Do not add steps per session or per commit.
+
+Unsure between two levels → choose the smaller, state the reason.
+
+A jump like `1.4.2 → 2.0.0` is a correct single major step if the accumulation contains a breaking change. A jump like `1.4.2 → 1.6.0` remains invalid because it skips the minor version `1.5.0` (minor must only increment by 1).
+
+## The real anti-skip invariant
+
+A version jump is only actually wrong when there is evidence that a release boundary was already completed and left unrecorded. Concretely:
+- Every git tag matching a version pattern (if tags are used) MUST have exactly one matching CHANGELOG entry.
+- Every entry in `app/data/releases.json` (web stacks) MUST have exactly one matching CHANGELOG entry, and vice versa.
+- CHANGELOG versions must increase monotonically with no gaps or duplicates.
+
+If a tag or milestone exists without a matching entry, write the missing entry retroactively. Do not just warn and move on.
+
+## Audit mode — for legacy or imported projects
+
+Run once when `CHANGELOG.md` was not produced under this rule from project inception:
+1. Verify monotonic order of all versions in `CHANGELOG.md`.
+2. Cross-check against all version-pattern git tags.
+3. Cross-check against `app/data/releases.json` (if it exists).
+4. Report mismatches and propose retroactive entries for any gaps. Never renumber or delete public versions.
+5. If a gap's historical content cannot be determined (a tag exists but nobody knows what it contained), the retroactive entry must say so explicitly ("historical content unknown") — never invent or infer changes that cannot be verified.
 
 ## Content discipline
 - Release note copy: no em/en dash (`—` `–`); short user-facing sentences, benefit first. See [[RULE-content-write]].
