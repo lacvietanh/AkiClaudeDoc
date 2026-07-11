@@ -11,6 +11,11 @@ Nuxt 4 · Vue 3 · Tailwind v4 · @nuxtjs/i18n · @nuxtjs/seo · SweetAlert2 · 
   filtered on purpose (`nitro.rollupConfig.onwarn`); never let warnings drift unexamined
 - If the build spews sourcemap warnings, two Vite copies are likely loaded — pin one version via
   package.json `overrides` + clean reinstall
+- `__BUILD_DATE__` (footer build stamp, UNIDOC STANDARD.md §2.4, locked 2026-07-11): compute UTC
+  in `nuxt.config.ts`, inject via `vite.define` — never via a shell env var
+  (`VITE_BUILD_DATE=$(date -u ...) nuxt build` in `package.json` is dead code). Display side reads
+  the raw `__BUILD_DATE__` global, formats with local `get*()` (never `getUTC*()`), wrapped in
+  `<ClientOnly>` to avoid an SSR/client hydration mismatch — `[DESIGN-LOCK]`.
 
 ## Cloudflare constraints
 - No `fs`, `child_process`, or `path` in Worker runtime
