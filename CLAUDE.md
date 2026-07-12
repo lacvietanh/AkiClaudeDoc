@@ -29,6 +29,7 @@ Do not rename existing files or introduce new top-level prefixes without updatin
 - Keep project instructions short and bind them to the current repository instead of duplicating the full shared rule corpus.
 - Changes to rules, skills, install targets, or generated Claude configuration can affect many downstream environments; clarify scope and tradeoffs before broad changes unless the requested edit is explicit.
 - Preserve the separation between packaged source files in this repository and installed runtime files under `~/.aki/claudedoc` or `~/.claude`.
+- Any change to `payload/*` or `claude/skills/*` that adds/removes a topic, changes what a file covers, or changes install behavior must also update `README.md` (file manifest / "What you get" / layout sections) wherever the change makes it stale. `claude/skills/akihelp/SKILL.md` reads live installed state at runtime and never needs manual updates for content — only touch it if the *mechanism* of introducing the system changes. Always update `CHANGELOG.md` for every change to `payload/` or `claude/`.
 
 ## Non-goals
 

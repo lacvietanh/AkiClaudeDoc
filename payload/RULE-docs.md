@@ -6,6 +6,7 @@ Docs should be readable for both humans and LLMs.
 ## Topic structure
 Use these short, stable topic folders:
 
+- `docs/biz/` — business backbone: identity, USP, positioning, monetization (MANDATORY for any project with a business dimension)
 - `docs/feat/` — features, systems, behaviors
 - `docs/arch/` — architecture, structure, technical design
 - `docs/plan/` — plans and execution notes
@@ -13,6 +14,11 @@ Use these short, stable topic folders:
 - `docs/research/` — exploratory, comparative, or time-bound findings
 
 Do not create new top-level doc topics unless the existing set clearly fails.
+
+## Business backbone — `docs/biz/`
+- For any project with a business dimension, `docs/biz/` is REQUIRED and is the spine.
+- All `arch/`, `feat/`, and `plan/` docs that touch product direction or money must reference it.
+- When code intent and a `biz/` doc disagree, the `biz/` doc wins — reconcile or escalate.
 
 ## Index
 - `docs/index.md` is the master index

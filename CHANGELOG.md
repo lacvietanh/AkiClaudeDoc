@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-07-12
+
+### Changed
+- `payload/RULE-docs.md`: added `docs/biz/` as a standard, MANDATORY top-level doc topic — the business backbone (identity, USP, positioning, monetization) for any project with a business dimension. Added a "Business backbone" section making it the spine that all `arch/`/`feat/`/`plan/` product/money docs must reference, and the tie-breaker when code intent and a `biz/` doc disagree (the `biz/` doc wins). Originated from the vstshop.com repositioning work, where business strategy became the declared backbone.
+- `payload/index.md`: updated the `RULE-docs.md` manifest description to note the mandatory `docs/biz/` backbone.
+- `payload/RULE-stack-akiNuxtCf.md`: documented a new gotcha under the admin-SPA / `i18n.pages[x] = false` guidance — once a route is removed from i18n routing, links to it must use a plain string `to="/..."`, never `localePath()`/`switchLocalePath()`. `localePath()` silently returns `undefined` for such a route (no error, no console warning), so `<NuxtLink :to="undefined">` renders an `<a>` with no `href` at all — a link that looks correct in code review but never navigates. Traced to a real incident in `app.akinet.me` (sidebar `/me` link copied from `kinhdich.akinet.me`, where `/me` keeps normal i18n routing — but `app.akinet.me` disables it via `i18n.pages.me = false`, so the copied `localePath('/me')` call broke silently).
+- `CLAUDE.md` (repo root, not `payload/`): added an explicit operating rule — any change to `payload/*` or `claude/skills/*` that adds/removes a topic or changes install behavior must also update `README.md` where it goes stale; `akihelp` reads live installed state so it's exempt from manual content updates; `CHANGELOG.md` must be updated for every `payload/`/`claude/` change. Closes the gap where the `docs/biz/` rule change above shipped without a README/CHANGELOG pass until the user asked for it.
+
 ## 2026-07-11
 
 ### Added

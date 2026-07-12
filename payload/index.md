@@ -13,7 +13,7 @@ Project `CLAUDE.md` files bind these shared rules to a specific project.
 | `RULE-agent-behavior.md` | Core | Response language, scope discipline, verification, decision boundaries |
 | `RULE-coding.md` | Core | Philosophy, source-of-truth, error handling, security |
 | `RULE-design-core.md` | Contextual (high-sensitivity) | Universal pattern philosophy: SSoT, Rule of Three, SRP "and"-test, OCP, composition, module boundaries, name-by-role, anti-patch. Sharpens RULE-coding; applies to every project type — load eagerly on any structural/decomposition decision |
-| `RULE-docs.md` | Contextual | Docs structure, plan lifecycle, doc-sync behavior |
+| `RULE-docs.md` | Contextual | Docs structure (incl. mandatory `docs/biz/` backbone), plan lifecycle, doc-sync behavior |
 | `RULE-content-write.md` | Contextual | UI copy, semantic stability, writing style, i18n |
 | `RULE-stack-akiNuxtCf.md` | Contextual | Nuxt/Vue/Cloudflare Pages/Workers, Tailwind, i18n, canonical component names, state (useState-first), build & TypeScript, admin layout isolation, dev workflow scripts (killport/D1), layout chrome (breadcrumb/scroll-to-top), deploy verification after push |
 | `RULE-ui-pattern.md` | Contextual | Frontend enforcement of design-core: 4-tier class taxonomy, design tokens, arbitrary-value policy, atomic structure, variant API, UI audit/refactor playbook |

@@ -53,6 +53,15 @@ Nuxt 4 · Vue 3 · Tailwind v4 · @nuxtjs/i18n · @nuxtjs/seo · SweetAlert2 · 
   (admin has no locale switcher, and the project's default/public locale is irrelevant here).
   Domain-specific terms may stay in their original language when no English equivalent is
   precise — see the project's own domain-terminology exception if it has one.
+- ⚠️ **Once a route has `i18n.pages[x] = false`, link to it with a plain string `to="/..."`, never
+  `localePath()`.** `localePath()` silently returns `undefined` for a route that's been removed
+  from i18n's route map — no error, no console warning — and `<NuxtLink :to="undefined">` renders
+  an `<a>` with no `href` at all, so the link looks correct in code review but never navigates on
+  click. This bites hardest when porting a component between sibling projects: one project may
+  keep a given page (e.g. a personal `/me` page) under normal i18n routing while another disables
+  it — copying the first project's `localePath('/me')` call into the second breaks silently.
+  Always check that project's own `i18n.pages` entry before reusing a `localePath()`/
+  `switchLocalePath()` call from elsewhere.
 - **The admin layout is fully isolated from public UI**: `layouts/admin.vue` has its own chrome —
   navigation lives in its own `AdminSidebar.vue` — and never imports public chrome components
   (`AppTopNav`/`AppFooter`/`Breadcrumb`/…) unless there is a clear, recorded benefit. Admin and
