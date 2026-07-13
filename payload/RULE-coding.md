@@ -24,7 +24,15 @@ Project docs and memory are useful context, not final truth.
 - Prefer one clear responsibility per function/module
 - Modularize only when it improves clarity, reuse, or testability
 - Prefer existing code and patterns over re-implementation
-- Read enough surrounding context before editing to avoid inconsistent changes
+
+## Changing existing code
+A principle with the procedure that guarantees it — apply to any edit of code you did not just write:
+- **Before:** grasp the flow and intent of the code before you change it — read the docs it
+  references first (code often points to `docs/...`), then the code, and the git history only when
+  the logic is complex or has been reworked many times (Chesterton's Fence: know why a piece is
+  there before you remove it).
+- **After:** confirm the intents and flows you did NOT set out to touch still hold — a fix scoped to
+  problem X must not silently break an unrelated property Y.
 
 ## Verification
 - Done means verified

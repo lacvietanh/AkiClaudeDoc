@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-07-13
+
+### Changed
+- `payload/RULE-coding.md`: replaced the single "read enough surrounding context" bullet with a
+  "Changing existing code" section giving a before/after procedure for editing code you didn't just
+  write — read referenced docs and code before changing (Chesterton's Fence), then confirm untouched
+  intents/flows still hold after the change (a fix scoped to problem X must not silently break
+  unrelated property Y).
+
 ## 2026-07-12
 
 ### Changed
