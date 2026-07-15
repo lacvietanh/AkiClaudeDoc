@@ -69,6 +69,13 @@ Load if message or file path contains any of:
 - **Paths:** `CHANGELOG.md`, `app/data/releases.json`, `pages/releases/**`
 - **Actions:** shipping a change that should be recorded for users or maintainers; bumping a version
 
+### RULE-stack-tauri.md
+**Default ON for any Tauri project context.** Skip only when the task is provably unrelated to the Tauri/Rust backend (pure frontend copy change with no `src-tauri` involvement, isolated doc edit).
+Load if message or file path contains any of:
+- **Keywords:** `tauri`, `#[tauri::command]`, `invoke(`, `spawn_blocking`, `async_runtime`, `Cargo.toml`, `tauri.conf.json`, `capabilities`, `IPC`, `blocking UI`, `freeze`, `treo app`, `đứng app`, `block UI`
+- **Paths:** `src-tauri/**`, `tauri.conf.json`, `Cargo.toml`, `capabilities/*.json`
+- **Actions:** adding/editing any `#[tauri::command]`, touching window/IPC code, bumping app version, diagnosing an app freeze/hang
+
 ### RULE-db-design.md
 Load if message or file path contains any of:
 - **Keywords:** `schema`, `migration`, `D1`, `SQL`, `database design`, `ERD`, `refactor DB`,
