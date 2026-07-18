@@ -3,6 +3,7 @@
 ## 2026-07-18
 
 ### Added
+- `payload/RULE-stack-akiNuxtCf.md`: added a rule to pin `packageManager` and `engines.node` in `package.json` to match the Cloudflare Pages build image, and to regenerate lockfiles via `npx npm@<pinned_version> install` before committing to avoid version drift with optional peer dependencies.
 - `payload/RULE-agent-behavior.md`: new "Memory discipline" section — never write, update, or
   delete a persistent memory (any memory file or the `MEMORY.md` index) on your own initiative;
   always ask the user first. Only persist when the user explicitly asks, or after proposing a

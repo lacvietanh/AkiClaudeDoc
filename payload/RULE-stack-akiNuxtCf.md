@@ -4,6 +4,7 @@
 Nuxt 4 · Vue 3 · Tailwind v4 · @nuxtjs/i18n · @nuxtjs/seo · SweetAlert2 · FontAwesome 7.2 · aki-info-detect
 
 ## Build & TypeScript
+- Pin `packageManager` (e.g. `npm@10.9.2`) and `engines.node` in `package.json` to match the Cloudflare Pages build image version. Always use `npx npm@<pinned_version> install` to regenerate lockfiles before committing to avoid version drift (especially with optional peer dependencies).
 - TypeScript `strict` mode
 - Vue 3 `<script setup>` + Composition API only — Options API is forbidden
 - Inside `server/`: use relative imports, never `~/server/...`
