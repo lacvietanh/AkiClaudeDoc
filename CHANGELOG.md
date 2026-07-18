@@ -1,5 +1,33 @@
 # Changelog
 
+## 2026-07-18
+
+### Added
+- `payload/RULE-agent-behavior.md`: new "Memory discipline" section — never write, update, or
+  delete a persistent memory (any memory file or the `MEMORY.md` index) on your own initiative;
+  always ask the user first. Only persist when the user explicitly asks, or after proposing a
+  specific memory and getting approval. Recalling/reading existing memory needs no permission — the
+  gate is on writing. Originated from a memory-cleanup pass across the Aki projects where the user
+  found that self-initiated memory writes had accumulated a large amount of redundant/stale notes
+  (facts already covered by AkiClaudeDoc / UNIDOC / project `CLAUDE.md`).
+
+## 2026-07-16
+
+### Added
+- `payload/RULE-stack-akiNuxtCf.md`: new "Layout width — single source of truth" section — the
+  layout's outer content wrapper (e.g. `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`) is the only place
+  page/content width is decided; pages and app/tool pages must never put their own `max-w-*`/custom
+  `max-width` on their outermost element, and any that already do must be deleted so they inherit
+  the layout's width instead. Carves out the standard exception for inner reading-measure/widget
+  elements (intro paragraph, search box, article prose column), which is typography sizing, not
+  page layout. Traced to a real incident in `app.akinet.me`: articles hub/detail, the releases
+  page, `me.vue`, and all 10 mini-apps had each independently picked a `max-w-*` value
+  (`max-w-3xl` through `max-w-7xl`, plus one page with a scoped-CSS width fully disconnected from
+  the layout) nested inside the layout's own wrapper, silently narrowing/drifting per route with
+  no functional reason.
+- `payload/index.md`: extended the `RULE-stack-akiNuxtCf.md` manifest description to mention
+  layout width (single source of truth in the layout, pages/apps never redeclare `max-w`).
+
 ## 2026-07-13
 
 ### Changed
@@ -240,7 +268,10 @@
   breadcrumb/auth-util roles). Added "State" section (useState-first, Pinia only when needed,
   localStorage sync in `onMounted`). Added onUnmounted cleanup requirement for multi-layout admin
   sites. Added favicon/manifest UI guidance with a link to the AkiTao Favicon Generator tool.
-  Added i18n co-located page-text guidance.
+  Added i18n co-located page-text guidance. Added `aki-info-detect` loading discipline: use only
+  named local-only exports, never default-import or plugin-load the whole library because it starts
+  network lookup; require explicit requests for network features and verify IP-service URLs are
+  absent from the built chunk.
 - `payload/index.md`: Added manifest row for `RULE-db-design.md`; expanded
   `RULE-stack-akiNuxtCf.md` description to mention canonical names, state, and build/TS.
 - `claude/skills/akirule/SKILL.md` (source): Added Tier 2 signal block for `RULE-db-design.md`.

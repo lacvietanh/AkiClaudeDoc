@@ -160,6 +160,14 @@ ONE mechanism for every akinuxtstack site. Do not reinvent it per page; any drif
 **Pre-footer chrome**
 - One `<ScrollToTop>` in the layout. No per-page back-to-top. Back-to-home is the Home crumb — no separate back-to-home button.
 
+## Layout width — single source of truth
+The layout (`default.vue`'s outer content wrapper, e.g. `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`) is the ONLY place page/content width is decided for the whole site.
+
+- A page (`app/pages/**/*.vue`) or app/tool page (e.g. a mini-app's `app.vue`) must never put its own `max-w-*` (Tailwind) or a custom CSS `max-width` on its outermost template element. Nesting a second, narrower container inside the layout's wrapper silently shrinks that one route below the site-wide standard and drifts wider over time as different pages pick different values with no functional reason (seen in production: `max-w-3xl` through `max-w-7xl` scattered across routes, plus a scoped CSS container fully disconnected from the layout's width).
+- If a page or app already has its own `max-w-*`/`max-width` wrapper on its outermost element, delete it — it must inherit the layout's width, not redeclare its own.
+- Narrower widths are still fine on an inner **reading-measure or widget** element nested *inside* an already full-width page — a short intro paragraph, a search box, an article's prose column. That is deliberate typography/component sizing, not page layout, and is not what this rule forbids.
+- If a page or app genuinely needs to be full-bleed or a different overall width than the layout's standard, that is a conscious layout decision — it belongs in the layout (or a documented, named per-route exception), never quietly overridden inside the page.
+
 ## External integrations (Firebase, third-party APIs)
 - **Composable is the only boundary** — page components and layouts never import the provider SDK directly (no `import { getFirestore } from 'firebase/firestore'` in a `.vue` file)
 - All provider-specific code lives in composables or utility modules; pages only call composable functions

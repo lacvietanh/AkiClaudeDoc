@@ -39,6 +39,15 @@ Ask before:
 - Do not copy temporary conversation wording into permanent files
 - Do not encode one-off task history into source files unless explicitly requested
 
+## Memory discipline
+- **Never write, update, or delete a persistent memory on your own initiative — always ask the user first.**
+  This applies to every memory file and the `MEMORY.md` index. Do not save a fact, feedback, or
+  project note just because it seems useful.
+- Only persist to memory when the user explicitly asks you to remember something, or after you have
+  proposed a specific memory and the user has approved it.
+- When you believe something is worth remembering, say so and ask — do not silently record it.
+- Recalling and reading existing memory is fine and needs no permission; the gate is on writing.
+
 ## Working style
 - Prefer reading current files over relying on memory
 - Use the smallest safe change that solves the task
