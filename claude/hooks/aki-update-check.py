@@ -125,13 +125,13 @@ def main():
     delta = "\n".join(delta_lines).strip()
     max_delta = 1400
     if len(delta) > max_delta:
-        delta = delta[:max_delta].rstrip() + "\n… (xem đầy đủ ở link bên dưới)"
+        delta = delta[:max_delta].rstrip() + "\n… (see full changelog at the link below)"
 
     banner = (
-        "📢 AkiClaudeDoc có bản cập nhật mới\n"
-        f"   Mới nhất: {remote_head}   |   Đang dùng: {local_head}   "
-        f"({len(new_entries)} bản ghi mới)\n"
-        f"   Cập nhật:  {update_cmd}\n"
+        "📢 AkiClaudeDoc has a new update available\n"
+        f"   Latest: {remote_head}   |   Installed: {local_head}   "
+        f"({len(new_entries)} new entries)\n"
+        f"   Update:    {update_cmd}\n"
         f"   Changelog: {CHANGELOG_URL_HUMAN}\n\n"
         f"{delta}"
     )

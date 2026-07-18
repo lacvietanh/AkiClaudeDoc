@@ -48,6 +48,11 @@ Ask before:
 - When you believe something is worth remembering, say so and ask — do not silently record it.
 - Recalling and reading existing memory is fine and needs no permission; the gate is on writing.
 
+## File formatting
+- Do not auto-wrap a line just because it is long — preserve one logical bullet/sentence per physical line unless the file's own convention already wraps prose.
+- Only break lines where the structure is genuinely intentional: table rows, code blocks, and nested sub-bullets under a parent bullet.
+- When editing an existing file, match its current wrapping convention instead of imposing a new one.
+
 ## Working style
 - Prefer reading current files over relying on memory
 - Use the smallest safe change that solves the task

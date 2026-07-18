@@ -25,33 +25,33 @@ prune_backups() {
     return
   fi
   find "$dir" -maxdepth 1 -name "${name}.akiclaudedoc-backup-*" | sort | head -n "$((count - 2))" | while IFS= read -r f; do
-    echo -e "  🗑️  Xóa backup cũ: $(basename "$f")"
+    echo -e "  🗑️  Removing old backup: $(basename "$f")"
     rm -rf "$f"
   done
 }
 
 inspect_status() {
-  echo -e "\033[1;36m=== KIỂM TRA TRẠNG THÁI HỆ THỐNG TRƯỚC KHI CÀI ĐẶT ===\033[0m"
+  echo -e "\033[1;36m=== SYSTEM STATUS CHECK BEFORE INSTALL ===\033[0m"
 
   if [ -d "$INSTALL_ROOT" ]; then
-    echo -e "📦 Payload rules: Sẽ \033[1;33mCẬP NHẬT đè\033[0m lên $INSTALL_ROOT"
+    echo -e "📦 Payload rules: will \033[1;33mOVERWRITE\033[0m $INSTALL_ROOT"
   else
-    echo -e "📦 Payload rules: Sẽ \033[1;32mTẠO MỚI\033[0m tại $INSTALL_ROOT"
+    echo -e "📦 Payload rules: will \033[1;32mCREATE\033[0m at $INSTALL_ROOT"
   fi
 
   if [ -f "$CLAUDE_DIR/CLAUDE.md" ]; then
-    echo -e "📝 Global CLAUDE.md: Sẽ \033[1;33mGHI ĐÈ\033[0m $CLAUDE_DIR/CLAUDE.md (có backup)"
+    echo -e "📝 Global CLAUDE.md: will \033[1;33mOVERWRITE\033[0m $CLAUDE_DIR/CLAUDE.md (backed up)"
   else
-    echo -e "📝 Global CLAUDE.md: Sẽ \033[1;32mTẠO MỚI\033[0m $CLAUDE_DIR/CLAUDE.md"
+    echo -e "📝 Global CLAUDE.md: will \033[1;32mCREATE\033[0m $CLAUDE_DIR/CLAUDE.md"
   fi
 
   for skill_dir in "$REPO_ROOT"/claude/skills/*/; do
     [ -d "$skill_dir" ] || continue
     skill_name="$(basename "$skill_dir")"
     if [ -f "$CLAUDE_DIR/skills/$skill_name/SKILL.md" ]; then
-      echo -e "🔧 Skill $skill_name: Sẽ \033[1;33mCẬP NHẬT đè\033[0m $CLAUDE_DIR/skills/$skill_name/SKILL.md"
+      echo -e "🔧 Skill $skill_name: will \033[1;33mOVERWRITE\033[0m $CLAUDE_DIR/skills/$skill_name/SKILL.md"
     else
-      echo -e "🔧 Skill $skill_name: Sẽ \033[1;32mTẠO MỚI\033[0m $CLAUDE_DIR/skills/$skill_name/SKILL.md"
+      echo -e "🔧 Skill $skill_name: will \033[1;32mCREATE\033[0m $CLAUDE_DIR/skills/$skill_name/SKILL.md"
     fi
   done
 
@@ -60,10 +60,10 @@ inspect_status() {
     [ -d "$CLAUDE_DIR/skills/$s" ] && old_skills+=("$s")
   done
   if [ ${#old_skills[@]} -gt 0 ]; then
-    echo -e "🗑️  Skill cũ sẽ bị XÓA: \033[1;31m${old_skills[*]}\033[0m"
+    echo -e "🗑️  Old skills will be REMOVED: \033[1;31m${old_skills[*]}\033[0m"
   fi
 
-  echo -e "⚙️  settings.json: Khám quyền đọc và skill overrides..."
+  echo -e "⚙️  settings.json: checking read permissions and skill overrides..."
   if [ -f "$CLAUDE_DIR/settings.json" ]; then
     python3 - "$CLAUDE_DIR/settings.json" "$INSTALL_ROOT" <<'INSPECT_PY'
 import json, pathlib, sys
@@ -75,41 +75,41 @@ try:
     read_rule = f'Read(//{install_root.lstrip("/")}/**)'
     allow = data.get('permissions', {}).get('allow', [])
     if read_rule in allow:
-        print("  ✅ Đã có quyền Read cho thư mục payload.")
+        print("  ✅ Read permission for the payload directory already granted.")
     else:
-        print("  ⚠️  CHƯA CÓ quyền Read. Sẽ bổ sung tự động.")
+        print("  ⚠️  Read permission MISSING. Will be added automatically.")
     overrides = data.get('skillOverrides', {})
     if overrides.get('akirule') == 'on':
-        print("  ✅ Skill akirule đã được bật (on).")
+        print("  ✅ akirule skill is already enabled (on).")
     else:
-        print("  ⚠️  Sẽ tự động bật skill: akirule")
+        print("  ⚠️  Will auto-enable skill: akirule")
     stale = [s for s in OLD_SKILLS if s in overrides]
     if stale:
-        print(f"  🗑️  skillOverrides cũ sẽ bị XÓA: {', '.join(stale)}")
+        print(f"  🗑️  Stale skillOverrides will be REMOVED: {', '.join(stale)}")
 except Exception as e:
-    print(f"  ❌ Lỗi đọc settings.json: {e}")
+    print(f"  ❌ Error reading settings.json: {e}")
 INSPECT_PY
   else
-    echo -e "  ⚠️  Chưa có settings.json. Sẽ TẠO MỚI."
+    echo -e "  ⚠️  No settings.json yet. Will be CREATED."
   fi
   echo -e "\033[1;36m====================================================\033[0m"
 }
 
 print_summary() {
-  echo -e "\n\033[1;32m=== ĐÃ CÀI ĐẶT THÀNH CÔNG ===\033[0m"
+  echo -e "\n\033[1;32m=== INSTALL SUCCEEDED ===\033[0m"
 
   # Version info
   local git_hash=""
   if git -C "$REPO_ROOT" rev-parse --short HEAD &>/dev/null; then
     git_hash=" ($(git -C "$REPO_ROOT" rev-parse --short HEAD))"
   fi
-  echo -e "📅 Thời điểm: $(date '+%Y-%m-%d %H:%M:%S')${git_hash}"
+  echo -e "📅 Time    : $(date '+%Y-%m-%d %H:%M:%S')${git_hash}"
   echo -e "📂 Payload : $INSTALL_ROOT"
   echo -e "🔧 Skills  : $CLAUDE_DIR/skills/"
   echo ""
 
   # Rule manifest with tiers
-  echo -e "\033[1;36mRules đã deploy:\033[0m"
+  echo -e "\033[1;36mRules deployed:\033[0m"
   python3 - "$INSTALL_ROOT/index.md" <<'PY'
 import re, pathlib, sys
 index = pathlib.Path(sys.argv[1]).read_text()
@@ -127,15 +127,15 @@ PY
 
   # Skills installed
   echo ""
-  echo -e "\033[1;36mSkills đã deploy:\033[0m"
+  echo -e "\033[1;36mSkills deployed:\033[0m"
   for skill_dir in "$CLAUDE_DIR/skills"/*/; do
     [ -d "$skill_dir" ] || continue
     echo -e "  🔧 $(basename "$skill_dir")"
   done
 
   echo ""
-  echo -e "\033[1;36mHooks đã deploy:\033[0m"
-  echo -e "  📢 aki-update-check (SessionStart, notify-only) — báo khi có bản rule mới"
+  echo -e "\033[1;36mHooks deployed:\033[0m"
+  echo -e "  📢 aki-update-check (SessionStart, notify-only) — notifies when a new rule version is available"
 
   echo -e "\n\033[1;32m==============================\033[0m"
 }
@@ -144,13 +144,13 @@ inspect_status
 
 confirm="y"
 if [ -t 0 ]; then
-    read -p "Bạn có chắc chắn muốn cài đặt/cập nhật với các thay đổi trên? (y/n): " confirm
+    read -p "Proceed with install/update given the changes above? (y/n): " confirm
 fi
 if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
-    echo "Đã hủy cài đặt."
+    echo "Install cancelled."
     exit 1
 fi
-echo "Đang tiến hành cài đặt..."
+echo "Installing..."
 
 mkdir -p "$INSTALL_ROOT" "$CLAUDE_DIR/skills"
 rsync -a --delete --exclude 'ref-ECC/' --exclude '.DS_Store' "$REPO_ROOT/payload/" "$INSTALL_ROOT/"
@@ -191,7 +191,7 @@ rm -f "$INSTALL_ROOT/METHOD-techbiz-optimizer.md"
 
 mkdir -p "$CLAUDE_DIR"
 backup "$CLAUDE_DIR/CLAUDE.md"
-echo -e "🧹 Dọn backup CLAUDE.md (giữ 2 gần nhất):"
+echo -e "🧹 Pruning CLAUDE.md backups (keeping the 2 most recent):"
 prune_backups "$CLAUDE_DIR/CLAUDE.md"
 
 cp "$REPO_ROOT/claude/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
@@ -226,7 +226,7 @@ if [ ! -f "$CLAUDE_DIR/settings.json" ]; then
   printf '{}\n' > "$CLAUDE_DIR/settings.json"
 fi
 backup "$CLAUDE_DIR/settings.json"
-echo -e "🧹 Dọn backup settings.json (giữ 2 gần nhất):"
+echo -e "🧹 Pruning settings.json backups (keeping the 2 most recent):"
 prune_backups "$CLAUDE_DIR/settings.json"
 python3 - "$CLAUDE_DIR/settings.json" "$INSTALL_ROOT" "$CLAUDE_DIR" <<'PY'
 import json, pathlib, sys

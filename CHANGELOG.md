@@ -2,6 +2,15 @@
 
 ## 2026-07-18
 
+### Changed
+- `payload/RULE-stack-akiNuxtCf.md`: public/private boundary cleanup + restructure (no rule content added or removed):
+  - Removed private-corpus leaks unusable by public readers: the `UNIDOC STANDARD.md §2.4` citation and lock date on the build-date-stamp rule (technique kept, now described generically), the undefined `[DESIGN-LOCK]` tag, the project-specific `que`↔`iching` slug example (replaced with a neutral `bai-viet`↔`articles` pair), and the unexplained "akinuxtstack" name (now "this stack").
+  - Deduplicated `trailingSlash: true` from three in-file statements down to one canonical spot (the i18n section's config block); the Cloudflare-constraints bullet now points there.
+  - Moved the six admin-related bullets (English-only + `i18n.pages` routing, `localePath()` undefined-href trap, layout isolation, feature-area routing, listener cleanup) out of "Rendering" into their own "Admin UI" section; merged the two `aki-info-detect` bullets into a "Client detection" section with a link to the public npm package.
+  - Merged the three adjacent layout sections (canonical component names, layout chrome, layout width) into one "Layout" section with subsections; merged the two SSR-guard bullets; shortened the favicon-generator recommendation to its essentials.
+- `payload/RULE-agent-behavior.md`: new "File formatting" section — do not auto-wrap a line just because it is long; keep one logical bullet/sentence per physical line, and only break lines for genuinely intentional structure (tables, code blocks, nested sub-bullets). Match the existing file's own wrapping convention when editing it. Added after a rule-cleanup pass introduced unintended mid-sentence line wraps that the user then had to flag and have reverted.
+- `install.sh`, `claude/hooks/aki-update-check.py`: translated all Vietnamese console output (status checks, install summary, confirmation prompt, update-check banner) to English — this repo is public, so its runtime output should not assume a Vietnamese-reading operator. Colors/emoji/logic unchanged.
+
 ### Added
 - `payload/RULE-stack-akiNuxtCf.md`: added a rule to pin `packageManager` and `engines.node` in `package.json` to match the Cloudflare Pages build image, and to regenerate lockfiles via `npx npm@<pinned_version> install` before committing to avoid version drift with optional peer dependencies.
 - `payload/RULE-agent-behavior.md`: new "Memory discipline" section — never write, update, or
