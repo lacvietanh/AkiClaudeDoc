@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-07-19
+
+### Changed
+- All 13 `payload/RULE-*.md` / `METHOD-*.md` files: restructured into internal groups `A`/`B`/`C`
+  with numbered items `1`/`2`/`3…` (no content added or removed, no file renamed). Gives every
+  rule a stable, recallable address (`topic.A1`, e.g. `coding.B2`, `stack.C1`) for a user juggling
+  many projects at once. `payload/index.md` gains a Topic/Loại column and the full group map;
+  `claude/skills/akirule/SKILL.md` documents the addressing scheme (routing logic itself is
+  unchanged); `README.md` documents the scheme for public readers.
+- `RULE-seo.md`, `RULE-release.md`, `RULE-stack-akiNuxtCf.md`: the content specific to Aki's own
+  AkiNuxtCf ecosystem (rather than universal for any project) is now isolated into each file's
+  last group, logically flagged `⟨Aki⟩` (`seo.C`, `release.C`, `stack.C`). This repo predates
+  `AkiNuxtCf/UNIDOC` (Aki's private ecosystem-standards repo) and had accumulated ecosystem-specific
+  content without a clear boundary from universal rules. Decision: keep everything in this repo
+  with auto-load rather than relocating to UNIDOC or gating behind an explicit trigger — Aki is
+  this repo's heaviest user and the convenience of automatic reminders outweighs a physically clean
+  public/private split. The `⟨Aki⟩` flag is documentation-only for now (marks what a future
+  stripped public export would drop); no automatic filtering mechanism yet. Full decision record:
+  `docs/research/2026-07-19-public-private-abc-restructure.md`.
+
 ## 2026-07-18
 
 ### Changed

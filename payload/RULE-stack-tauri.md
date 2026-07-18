@@ -1,11 +1,15 @@
 # Tauri v2 + Rust Stack Rule
 
+<!-- Address map: tauri.A1-2 · tauri.B1-5 -->
+
 ## Scope — when this applies
 Every Aki desktop project built on Tauri v2 + Rust (backend commands) + any JS frontend framework.
 Generic lessons only — project-specific facts (titlebar height, bundle naming, etc.) stay in that
 project's own `CLAUDE.md`.
 
-## Never block the UI (ABSOLUTE — zero exceptions, no case-by-case judgment calls)
+## A. Không block UI
+
+### A1. Never block the UI (ABSOLUTE — zero exceptions, no case-by-case judgment calls)
 
 This bug class recurs constantly across Aki's Tauri projects because it is easy to miss in review:
 a `#[tauri::command]` that runs a **blocking subprocess wait** (`Command::output()`, `.wait()`,
@@ -33,32 +37,8 @@ Plain, fast, synchronous local file I/O (reading a small JSON/config file, a sin
 `Path::exists()` check) is **not** this bug class and does not need `spawn_blocking` — the line is
 "does this call wait on a subprocess or the network," not "is this technically a syscall."
 
-## Titlebar sacred boundary
-`"decorations": false` + `"transparent": true` → no native titlebar. All `position: fixed/absolute`
-elements **must** start at `top: var(--titlebar-h)` (or the app's titlebar height), never `top: 0`.
-Window controls (drag/minimize/close) via JS `@tauri-apps/api/window`.
+### A2. Subprocess PATH-resolution race at cold start (ABSOLUTE — apply to every spawned CLI binary)
 
-## Version SSOT
-`package.json` only. `tauri.conf.json` → `"version": "../package.json"`. Never hardcode version in
-`tauri.conf.json`. `Cargo.toml` has its own crate version (separate concern) and **must always be
-bumped to the same number in the same commit** — a mismatch between `package.json` and `Cargo.toml`
-is the same class of bug as a bad tag. See [[RULE-release]] § Version string format for the
-absolute no-`v`-prefix rule that governs both fields and every git tag.
-
-## IPC capability silent fail
-Every Tauri command AND window API call must be granted in `src-tauri/capabilities/default.json`.
-Missing → **silent no-op**, no error, no log. Window needs: `core:window:allow-minimize`,
-`core:window:allow-close`, `core:window:allow-start-dragging`.
-
-## Serde fields + old JSON
-New fields on structs deserialized from persisted JSON need `#[serde(default)]` or old records
-silently drop the field instead of erroring.
-
-## `#[cfg(target_os = "macos")]` scoping
-Declare variables **inside** the cfg block. Declared outside but used only inside → unused-variable
-warning on non-macOS builds.
-
-## Subprocess PATH-resolution race at cold start (ABSOLUTE — apply to every spawned CLI binary)
 Any Rust code that spawns a shell to invoke a user-installed CLI (`Command::new("sh"/"zsh"/"bash")`,
 or over `ssh host sh`) and relies on `zsh -lc`/`bash -lc` login-shell PATH resolution to find that
 binary is racing the user's shell rc/profile (nvm, path_helper, zinit, etc.) — which may not have
@@ -75,3 +55,30 @@ candidate path list for the platform(s) the app actually ships for first (e.g. m
 `~/.local/bin`, `~/.claude/local`, `/opt/homebrew/bin`, `/usr/local/bin` for Claude Code
 specifically) — extend the list only when a new platform build actually ships, rather than guessing
 paths for platforms not yet supported.
+
+## B. Boundary & config
+
+### B1. Titlebar sacred boundary
+`"decorations": false` + `"transparent": true` → no native titlebar. All `position: fixed/absolute`
+elements **must** start at `top: var(--titlebar-h)` (or the app's titlebar height), never `top: 0`.
+Window controls (drag/minimize/close) via JS `@tauri-apps/api/window`.
+
+### B2. IPC capability silent fail
+Every Tauri command AND window API call must be granted in `src-tauri/capabilities/default.json`.
+Missing → **silent no-op**, no error, no log. Window needs: `core:window:allow-minimize`,
+`core:window:allow-close`, `core:window:allow-start-dragging`.
+
+### B3. Serde fields + old JSON
+New fields on structs deserialized from persisted JSON need `#[serde(default)]` or old records
+silently drop the field instead of erroring.
+
+### B4. `#[cfg(target_os = "macos")]` scoping
+Declare variables **inside** the cfg block. Declared outside but used only inside → unused-variable
+warning on non-macOS builds.
+
+### B5. Version SSOT
+`package.json` only. `tauri.conf.json` → `"version": "../package.json"`. Never hardcode version in
+`tauri.conf.json`. `Cargo.toml` has its own crate version (separate concern) and **must always be
+bumped to the same number in the same commit** — a mismatch between `package.json` and `Cargo.toml`
+is the same class of bug as a bad tag. See [[RULE-release]] § Version string format for the
+absolute no-`v`-prefix rule that governs both fields and every git tag.

@@ -1,9 +1,13 @@
 # Stack Rule — Nuxt 4 + Cloudflare
 
+<!-- Address map: stack.A1-3 · stack.B1-5 · stack.C1-8 (⟨Aki⟩) -->
+
 ## Stack
 Nuxt 4 · Vue 3 · Tailwind v4 · @nuxtjs/i18n · @nuxtjs/seo · SweetAlert2 · FontAwesome 7.2 · aki-info-detect
 
-## Build & TypeScript
+## A. Cloudflare & TypeScript nền
+
+### A1. Build & TypeScript
 - Pin `packageManager` (e.g. `npm@10.9.2`) and `engines.node` in `package.json` to match the Cloudflare Pages build image version. Always use `npx npm@<pinned_version> install` to regenerate lockfiles before committing to avoid version drift (especially with optional peer dependencies).
 - TypeScript `strict` mode
 - Vue 3 `<script setup>` + Composition API only — Options API is forbidden
@@ -12,7 +16,7 @@ Nuxt 4 · Vue 3 · Tailwind v4 · @nuxtjs/i18n · @nuxtjs/seo · SweetAlert2 · 
 - If the build spews sourcemap warnings, two Vite copies are likely loaded — pin one version via package.json `overrides` + clean reinstall
 - Build-date stamp (e.g. a `__BUILD_DATE__` footer global): compute UTC in `nuxt.config.ts`, inject via `vite.define` — never via a shell env var (`VITE_BUILD_DATE=$(date -u ...) nuxt build` in `package.json` is dead code). Display side reads the raw global, formats with local `get*()` (never `getUTC*()`), wrapped in `<ClientOnly>` to avoid an SSR/client hydration mismatch.
 
-## Cloudflare constraints
+### A2. Cloudflare Worker runtime constraints
 - No `fs`, `child_process`, or `path` in Worker runtime
 - Use `fetch()` for outbound requests
 - Use `crypto.subtle`, not Node native crypto
@@ -24,25 +28,20 @@ Nuxt 4 · Vue 3 · Tailwind v4 · @nuxtjs/i18n · @nuxtjs/seo · SweetAlert2 · 
 - Do not enable `nodejs_compat` in `wrangler.toml` unless upstream issues are confirmed fixed
 - Trailing slash: `trailingSlash: true` everywhere (routing, canonical, og:url, sitemap, schema.org) — canonical config lives in the i18n section below
 
-## Preset and output
+### A3. Preset and output
 - Use `cloudflare_pages`, not `cloudflare_module`
 - Output directory is `dist/`
 - `wrangler.toml` must keep `pages_build_output_dir = "dist"`
 
-## Rendering
+## B. Render · i18n · Vue patterns
+
+### B1. Rendering split
 - Public pages: prerender/SSG when suitable
 - Dynamic content: SSR
 - Private admin routes: SPA/no-index when suitable
 - NEVER index `/admin` or `/admin/**` in robots/sitemap
 
-## Admin UI
-- **Admin UI is always English-only** — it is an internal SPA tool, not user-facing content, so it does NOT need i18n routing at all. With `@nuxtjs/i18n` `customRoutes: 'config'`, disable each admin page from locale routing via `i18n.pages['admin/xxx'] = false` (not a `{ vi, en }` mapping) — this prevents Nuxt from ever generating a locale-prefixed `/admin/**` variant, so there is only one canonical admin URL. Admin UI copy is hardcoded in English directly, never duplicated via locale ternaries (`isVI ? '...' : '...'`) — that pattern is presentation clutter with no real audience (admin has no locale switcher, and the project's default/public locale is irrelevant here). Domain-specific terms may stay in their original language when no English equivalent is precise — see the project's own domain-terminology exception if it has one.
-- ⚠️ **Once a route has `i18n.pages[x] = false`, link to it with a plain string `to="/..."`, never `localePath()`.** `localePath()` silently returns `undefined` for a route that's been removed from i18n's route map — no error, no console warning — and `<NuxtLink :to="undefined">` renders an `<a>` with no `href` at all, so the link looks correct in code review but never navigates on click. This bites hardest when porting a component between sibling projects: one project may keep a given page (e.g. a `/me` profile page) under normal i18n routing while another disables it — copying the first project's `localePath('/me')` call into the second breaks silently. Always check that project's own `i18n.pages` entry before reusing a `localePath()`/`switchLocalePath()` call from elsewhere.
-- **The admin layout is fully isolated from public UI**: `layouts/admin.vue` has its own chrome — navigation lives in its own `AdminSidebar.vue` — and never imports public chrome components (`AppTopNav`/`AppFooter`/`Breadcrumb`/…) unless there is a clear, recorded benefit. Admin and public UI evolve at different paces; sharing nav/UI couples them so a client change breaks admin and vice versa
-- **Each admin feature area is its own route/page under `/admin/**`** (its own router view) — admin views are feature-dense, so give each area a real URL instead of cramming several areas into one page behind tab state; this keeps each view single-responsibility and code-splits naturally
-- On multi-layout sites (default ↔ admin), any listener/timer/subscription registered while in the admin layout must be cleaned up in `onUnmounted` so it does not leak across a layout switch
-
-## Vue/Nuxt patterns
+### B2. Vue/Nuxt patterns
 - SSR guards belong at entry points only — no redundant client guards inside flows that are already client-only
 - Prefer framework composables and runtime APIs over manual plumbing
 - `v-for` must use stable `:key`
@@ -50,15 +49,9 @@ Nuxt 4 · Vue 3 · Tailwind v4 · @nuxtjs/i18n · @nuxtjs/seo · SweetAlert2 · 
 - Internal links: `NuxtLink`
 - External links: `<a target="_blank" rel="noopener noreferrer">`
 - Dialogs: ONLY use `useSwal()`. Strictly forbidden to use `window.alert()` or `window.confirm()`.
+- Template attribute order: `id` → `v-for :key` → `v-if/show` → `v-model` → `@events` → `:bindings` → `class/static`
 
-## Template attribute order
-`id` → `v-for :key` → `v-if/show` → `v-model` → `@events` → `:bindings` → `class/static`
-
-## State
-- Prefer Nuxt `useState` first; reach for Pinia only when the state's shape genuinely needs it (cross-page store with actions/getters, not just shared reactive data)
-- Sync any `localStorage`-backed persistence inside `onMounted`, never at setup-time top level — avoids SSR/hydration mismatch
-
-## i18n
+### B3. i18n
 - Follow the current project's existing locale key convention before introducing a new one
 - For new locale keys, prefer one short, stable convention and keep it consistent within the same project
 - Repeated/shared UI strings: i18n keys
@@ -73,20 +66,23 @@ Nuxt 4 · Vue 3 · Tailwind v4 · @nuxtjs/i18n · @nuxtjs/seo · SweetAlert2 · 
   }
   ```
 
-## UI
+### B4. State
+- Prefer Nuxt `useState` first; reach for Pinia only when the state's shape genuinely needs it (cross-page store with actions/getters, not just shared reactive data)
+- Sync any `localStorage`-backed persistence inside `onMounted`, never at setup-time top level — avoids SSR/hydration mismatch
+
+### B5. UI baseline
 - Desktop-first, but responsive across narrow to wide screens
 - Scale spacing by breakpoint instead of hardcoding large values
-- UI rules: Use a scientific z-index system (`--z-index` variables) and standard border-radius dimensions (`radius-sm`, `md`, `lg`, `xl`, `pill`)
+- Use a scientific z-index system (`--z-index` variables) and standard border-radius dimensions (`radius-sm`, `md`, `lg`, `xl`, `pill`)
 - Use FontAwesome Free. DO NOT write anything for FontAwesome in `.npmrc` (the free version does not need config).
 - Add `aria-label` to icon-only controls
 - Use focus trap for modals when needed
 - Favicon: keep `favicon.ico` at the project's `public/` root
 - Web manifest: full `name`/`short_name`/`icons` (192 + 512 maskable)/`apple-touch-icon`/`theme_color`, linked via `<link rel="manifest">` in `<head>`
-- Recommended tool: [AkiTao Favicon Generator](https://akitao.com/t/favicon-generator/) — emits the full standard icon set (favicon.ico + PNG sizes + maskable + apple-touch-icon + manifest) in one pass
 
-## Layout
+## C. ⟨Aki⟩ Quy ước hệ sinh thái
 
-### Canonical component names
+### C1. Canonical component names
 Fixed names for these roles — do not invent new names for them. Each site assembles from this set as needed (top nav is the minimum required; sidebar/rail/dock added when the site needs them). Rename on drift whenever you touch one of these files.
 
 | Role | Canonical name |
@@ -100,7 +96,7 @@ Fixed names for these roles — do not invent new names for them. Each site asse
 | Breadcrumb | `Breadcrumb.vue` |
 | Auth boundary util | `server/utils/auth.ts` |
 
-### Layout chrome — breadcrumb · back-to-home · scroll-to-top
+### C2. Layout chrome — breadcrumb · back-to-home · scroll-to-top
 ONE mechanism for every site on this stack. Do not reinvent it per page; any drift here breaks cross-project consistency.
 
 **Breadcrumb — single source of truth**
@@ -117,7 +113,7 @@ ONE mechanism for every site on this stack. Do not reinvent it per page; any dri
 **Pre-footer chrome**
 - One `<ScrollToTop>` in the layout. No per-page back-to-top. Back-to-home is the Home crumb — no separate back-to-home button.
 
-### Layout width — single source of truth
+### C3. Layout width — single source of truth
 The layout (`default.vue`'s outer content wrapper, e.g. `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`) is the ONLY place page/content width is decided for the whole site.
 
 - A page (`app/pages/**/*.vue`) or app/tool page (e.g. a mini-app's `app.vue`) must never put its own `max-w-*` (Tailwind) or a custom CSS `max-width` on its outermost template element. Nesting a second, narrower container inside the layout's wrapper silently shrinks that one route below the site-wide standard and drifts wider over time as different pages pick different values with no functional reason (seen in production: `max-w-3xl` through `max-w-7xl` scattered across routes, plus a scoped CSS container fully disconnected from the layout's width).
@@ -125,7 +121,14 @@ The layout (`default.vue`'s outer content wrapper, e.g. `max-w-7xl mx-auto px-4 
 - Narrower widths are still fine on an inner **reading-measure or widget** element nested *inside* an already full-width page — a short intro paragraph, a search box, an article's prose column. That is deliberate typography/component sizing, not page layout, and is not what this rule forbids.
 - If a page or app genuinely needs to be full-bleed or a different overall width than the layout's standard, that is a conscious layout decision — it belongs in the layout (or a documented, named per-route exception), never quietly overridden inside the page.
 
-## External integrations (Firebase, third-party APIs)
+### C4. Admin isolation — English-only, `i18n.pages=false`, `localePath` trap
+- **Admin UI is always English-only** — it is an internal SPA tool, not user-facing content, so it does NOT need i18n routing at all. With `@nuxtjs/i18n` `customRoutes: 'config'`, disable each admin page from locale routing via `i18n.pages['admin/xxx'] = false` (not a `{ vi, en }` mapping) — this prevents Nuxt from ever generating a locale-prefixed `/admin/**` variant, so there is only one canonical admin URL. Admin UI copy is hardcoded in English directly, never duplicated via locale ternaries (`isVI ? '...' : '...'`) — that pattern is presentation clutter with no real audience (admin has no locale switcher, and the project's default/public locale is irrelevant here). Domain-specific terms may stay in their original language when no English equivalent is precise — see the project's own domain-terminology exception if it has one.
+- ⚠️ **Once a route has `i18n.pages[x] = false`, link to it with a plain string `to="/..."`, never `localePath()`.** `localePath()` silently returns `undefined` for a route that's been removed from i18n's route map — no error, no console warning — and `<NuxtLink :to="undefined">` renders an `<a>` with no `href` at all, so the link looks correct in code review but never navigates on click. This bites hardest when porting a component between sibling projects: one project may keep a given page (e.g. a `/me` profile page) under normal i18n routing while another disables it — copying the first project's `localePath('/me')` call into the second breaks silently. Always check that project's own `i18n.pages` entry before reusing a `localePath()`/`switchLocalePath()` call from elsewhere.
+- **The admin layout is fully isolated from public UI**: `layouts/admin.vue` has its own chrome — navigation lives in its own `AdminSidebar.vue` — and never imports public chrome components (`AppTopNav`/`AppFooter`/`Breadcrumb`/…) unless there is a clear, recorded benefit. Admin and public UI evolve at different paces; sharing nav/UI couples them so a client change breaks admin and vice versa
+- **Each admin feature area is its own route/page under `/admin/**`** (its own router view) — admin views are feature-dense, so give each area a real URL instead of cramming several areas into one page behind tab state; this keeps each view single-responsibility and code-splits naturally
+- On multi-layout sites (default ↔ admin), any listener/timer/subscription registered while in the admin layout must be cleaned up in `onUnmounted` so it does not leak across a layout switch
+
+### C5. Firebase / external integrations — composable boundary
 - **Composable is the only boundary** — page components and layouts never import the provider SDK directly (no `import { getFirestore } from 'firebase/firestore'` in a `.vue` file)
 - All provider-specific code lives in composables or utility modules; pages only call composable functions
 - This means swapping a provider (Firebase → Supabase → D1) only touches the composable layer, not any page
@@ -138,10 +141,11 @@ The layout (`default.vue`'s outer content wrapper, e.g. `max-w-7xl mx-auto px-4 
   ```
 - Apply the Result pattern (see RULE-coding.md) at the composable boundary — composables return `Result<T>`, pages check `.ok`
 
-## Client detection — aki-info-detect
-Use [`aki-info-detect`](https://www.npmjs.com/package/aki-info-detect) (npm) to separate bot and real-browser behavior when needed. Import only the specific **named exports** you need — **never** the default `akiInfoDetect()`, which auto-fires `getNetworkInfo()` (ipinfo/ipwhois/ipify) in the background. Do NOT plugin-load the **default/whole** library. Tree-shaken **named local-only** exports (`parseUserAgent`/`getHighEntropyValues`/`getScreen`/`detectGPU`/`getBattery`) MAY run early via a `.client.ts` plugin in an isolated dynamic-import chunk — but verify the network functions (`getIP`/`getISP`/`getCountry`/`getLocation`/`getNetworkInfo`) are absent from the built chunk (`grep` the bundle for the IP URLs). Never auto-run `getIP`/network features unless explicitly requested.
+### C6. aki-info-detect + AkiTao favicon tool
+- Use [`aki-info-detect`](https://www.npmjs.com/package/aki-info-detect) (npm) to separate bot and real-browser behavior when needed. Import only the specific **named exports** you need — **never** the default `akiInfoDetect()`, which auto-fires `getNetworkInfo()` (ipinfo/ipwhois/ipify) in the background. Do NOT plugin-load the **default/whole** library. Tree-shaken **named local-only** exports (`parseUserAgent`/`getHighEntropyValues`/`getScreen`/`detectGPU`/`getBattery`) MAY run early via a `.client.ts` plugin in an isolated dynamic-import chunk — but verify the network functions (`getIP`/`getISP`/`getCountry`/`getLocation`/`getNetworkInfo`) are absent from the built chunk (`grep` the bundle for the IP URLs). Never auto-run `getIP`/network features unless explicitly requested.
+- Recommended tool: [AkiTao Favicon Generator](https://akitao.com/t/favicon-generator/) — emits the full standard icon set (favicon.ico + PNG sizes + maskable + apple-touch-icon + manifest) in one pass
 
-## Dev workflow scripts (package.json)
+### C7. Dev workflow scripts (package.json)
 Standard utility scripts — fixed names, per-project values (port, DB name):
 
 - `killport`: `lsof -t -i:<port> | xargs kill -9 2>/dev/null || true` — each site pins ONE fixed dev port, and the `dev` script always runs `npm run killport && nuxt dev` so a stale process never blocks the port
@@ -149,7 +153,7 @@ Standard utility scripts — fixed names, per-project values (port, DB name):
   - `db.init.local`: `rm -rf .wrangler/state/v3/d1 && wrangler d1 execute <db-name> --local --file=schema.sql` — wipe local D1 state, reload the schema
   - `db.push`: `wrangler d1 execute <db-name> --remote --file=schema.sql`
 
-## Deploy verification — push is not done
+### C8. Deploy verification — push is not done
 A push only *requests* a Cloudflare build; the task is not closed until the newest build for this project reaches a terminal state. (This is deployment, not releasing — versioning and release artifacts are owned by `RULE-release.md`.)
 
 Sites on this stack deploy via **Cloudflare Pages**, not Workers — the `cloudflare-builds` MCP only covers the Workers Builds API and will show zero builds for a Pages project. For Pages, use `wrangler pages deployment list --project-name=<pages-project-name>` (project name may differ from the repo/site name — check with `wrangler pages project list` if unsure) or the general-purpose `cloudflare` MCP (`https://mcp.cloudflare.com/mcp`, covers the full API including Pages). Only use `cloudflare-builds` for a project that is an actual standalone Worker.

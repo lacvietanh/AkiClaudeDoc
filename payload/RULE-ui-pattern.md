@@ -1,5 +1,7 @@
 # UI Pattern — Frontend Enforcement (Nuxt / Vue / Tailwind)
 
+<!-- Address map: ui.A1-3 · ui.B1-4 · ui.C1-5 -->
+
 **Tier: Contextual.** Load on any UI authoring/refactor signal, or on an audit signal (see the
 Audit section). This file is the **UI-specific enforcement** of the universal laws in
 `RULE-design-core.md` — it does not redefine them. Nuxt/Cloudflare stack mechanics (rendering,
@@ -19,7 +21,9 @@ layer: tokens, class taxonomy, variant API, and UI audit.
 
 ---
 
-## 1. Four-tier class taxonomy
+## A. Taxonomy & tokens
+
+### A1. Four-tier class taxonomy
 
 Every style belongs to exactly one tier — there is no fifth tier.
 
@@ -42,7 +46,7 @@ Rules between tiers:
 **Mandatory order:** Utility → Pattern class → Component variant → hand-written CSS. Hand-written CSS
 is the last resort, never the first reflex.
 
-## 2. Design tokens = the single visual source (Law 1)
+### A2. Design tokens = the single visual source (Law 1)
 
 - Every visual value — color, spacing, radius, shadow, font, breakpoint, z-index, easing, duration —
   exists **once**: a token in `tailwind.config` + a CSS variable. Never rewrite a hex / px / ms
@@ -52,14 +56,16 @@ is the last resort, never the first reflex.
 - Reuse the scientific scales required by `RULE-stack-akiNuxtCf.md`: z-index via `--z-index`
   variables, radius via `radius-sm | md | lg | xl | pill`.
 
-## 3. Arbitrary-value policy (Law 1 + Law 7)
+### A3. Arbitrary-value policy (Law 1 + Law 7)
 
 `w-[123px]`, `text-[#3b82f6]`, `top-[13px]` are forbidden unless **all three** hold:
 (a) no existing token in the scale fits, (b) the value provably appears exactly once system-wide,
 (c) an inline comment explains why it is a one-off. A value likely to repeat → add a token first,
 use the token second.
 
-## 4. Atomic component structure (Law 3 + Law 6)
+## B. Cấu trúc component
+
+### B1. Atomic component structure (Law 3 + Law 6)
 
 ```
 components/
@@ -76,20 +82,20 @@ composables/  # All data + business logic lives here — never duplicated in com
   **canonical component names** defined in `RULE-stack-akiNuxtCf.md`. Do not invent new names for
   those roles.
 
-## 5. Variant API (CVA-style) (Law 4)
+### B2. Variant API (CVA-style) (Law 4)
 
 A base component exposes a **finite enum** of variants/sizes; a `computed` class-map resolves
 `prop → classes`. A new visual need is a **new entry in the same map**, never a forked
 `BaseButtonRed.vue`. Props / slots / emits are a stable contract — extend it, do not mutate it for
 one caller.
 
-## 6. Composition, not hand-copied markup (Law 5)
+### B3. Composition, not hand-copied markup (Law 5)
 
 Never duplicate a markup + logic block across components "for speed." Use slots, dynamic
 components (`<component :is>`), a composable, or `v-for` over data instead of writing N near-identical
 templates by hand.
 
-## 7. Documentation duty (Law 1 for knowledge)
+### B4. Documentation duty (Law 1 for knowledge)
 
 A new **global** pattern class or variant must be recorded in the project's pattern library the
 moment it is created. An undocumented pattern does not exist — the next person or agent will rewrite
@@ -97,52 +103,52 @@ it and the duplication returns.
 
 ---
 
-## AUDIT & REFACTOR — cleaning existing code
+## C. Audit playbook — cleaning existing code
 
 **Triggers for this section:** `dọn dẹp`, `class trùng`, `duplicate class/CSS`, `trùng lặp`,
 `audit CSS`, `refactor CSS/UI`, `arbitrary value`, `quét class`. Pair with `METHOD-flow-audit.md`
 for the flow-level mindset; this section is the concrete UI grep layer. Run the steps in order — do
 not skip.
 
-### Step 1 — Inventory by scan (quantify before refactoring by feel)
+### C1. Inventory by scan (quantify before refactoring by feel)
 
 Duplicate long class strings (pattern-class candidates — Law 2):
 ```bash
 grep -rhoE 'class="[^"]{20,}"' --include="*.vue" . | sort | uniq -c | sort -rn | awk '$1>=3'
 ```
-Un-tokenized arbitrary values (Law 8 / §3):
+Un-tokenized arbitrary values (Law 8 / §A3):
 ```bash
 grep -rnoE 'class="[^"]*\[[^]]+\][^"]*"' --include="*.vue" .
 ```
-Hardcoded hex/rgb outside tokens (Law 1 / §2):
+Hardcoded hex/rgb outside tokens (Law 1 / §A2):
 ```bash
 grep -rnoE '#[0-9a-fA-F]{3,6}\b|rgb\([^)]+\)' --include="*.vue" --include="*.css" --include="*.ts" . | grep -v tokens.css
 ```
 Hand-written `px`/`ms` in `<style>` or inline `style=` — same treatment.
 
-### Step 2 — Classify severity
+### C2. Classify severity
 
 SSoT breach (hardcoded value that should be a token) **>** duplicated business/logic **>** duplicated
 presentation style. Fix in that order of danger.
 
-### Step 3 — Priority matrix (impact × effort)
+### C3. Priority matrix (impact × effort)
 
 Plot each finding on impact × effort. Do high-impact / low-effort first. Do not start a large
 refactor by feel before this matrix exists.
 
-### Step 4 — Safe refactor loop
+### C4. Safe refactor loop
 
 One pattern at a time: extract the token / pattern class / variant → replace every call site →
 verify build + type + visual → commit. Follow `RULE-release.md` for CHANGELOG/version; never push
 unasked (`RULE-agent-behavior.md`).
 
-### Step 5 — Compliance scorecard
+### C5. Compliance scorecard
 
 Score the codebase against `RULE-design-core.md` Definition of Done and the four-tier taxonomy: any
 tier-0 breach (hardcoded value), any un-evidenced abstraction, any forked component, any
 value-named token is a fail to record.
 
-### Report template
+**Report template**
 
 ```
 UI Pattern Audit — <project> — <date>

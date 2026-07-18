@@ -1,5 +1,7 @@
 # Design Core — Universal Pattern Rules
 
+<!-- Address map: design.A1-8 · design.B1-3 · design.C1 -->
+
 **Tier: Contextual (high sensitivity).** Stack-agnostic. This file is the
 universal pattern-design philosophy — the "forest view" that keeps a codebase coherent as it
 grows, instead of accreting local patches. It applies to every project type: backend, API/worker,
@@ -28,14 +30,14 @@ how to split responsibilities — regardless of language or framework.
 
 ---
 
-## The core laws — checkable, stack-agnostic
+## A. 8 định luật — checkable, stack-agnostic
 
-**Law 1 — Single Source of Truth.**
+**A1 — Single Source of Truth.**
 Every value, rule, or decision that can change lives in exactly one place; everything else
 references it. This covers config, constants, types, enums, business thresholds, and visual tokens
 — not just one category. A value written twice is a future inconsistency, not a convenience.
 
-**Law 2 — Evidence-based abstraction (Rule of Three).**
+**A2 — Evidence-based abstraction (Rule of Three).**
 Do not abstract on the first or second occurrence. Extract a shared function / module / type only
 when the same shape repeats **≥3 times across ≥2 unrelated call sites**. Premature abstraction is a
 violation: it adds an indirection layer with no proven need, and is harder to read and change than
@@ -44,41 +46,42 @@ the duplication it replaced.
   integrity) extracts on the **2nd** occurrence. A logic bug there is worse than a little
   duplication.
 
-**Law 3 — Single Responsibility, the "and" test.**
+**A3 — Single Responsibility, the "and" test.**
 A unit (function, module, class, service) does one thing. If describing its job requires the word
 "and" — "parses input **and** writes to DB **and** formats output" — split it. The name should
 reveal the single responsibility.
 
-**Law 4 — Open for extension, closed for modification.**
+**A4 — Open for extension, closed for modification.**
 Add behavior through parameters, injected handlers/strategies, or new implementations of a stable
 interface — not by editing a working unit for one new case. A function that grows one more boolean
 flag per caller is the smell that this law is being broken.
 
-**Law 5 — Composition over duplication.**
+**A5 — Composition over duplication.**
 Prefer combining small units — helper functions, modules, data-driven iteration — over copy-pasting
 a near-identical block "for speed." The **second** paste is a mandatory STOP: plan the shared shape
 before a third exists (Law 2).
 
-**Law 6 — Stable boundaries between modules.**
+**A6 — Stable boundaries between modules.**
 Split along independent responsibilities/domains (bounded context). Modules talk through a narrow,
 explicit contract — a stable ID, a typed interface, a `Result` — and never reach into another
 module's internals. Volatile details (provider SDKs, frameworks, transport) sit at the edges behind
 a boundary; stable abstractions sit at the core, and dependencies point inward toward them.
 
-**Law 7 — Name by role, never by concrete value.**
+**A7 — Name by role, never by concrete value.**
 Name things for what they *mean*, not what they *currently are*: `retryLimit` not `three`,
 `PrimaryAction` not `BlueButton`, `AuthBoundary` not `FirebaseWrapper`. Value-names rot the instant
 the value changes and force codebase-wide find-and-replace.
 
-**Law 8 — One flow, made natural — not guarded.**
+**A8 — One flow, made natural — not guarded.**
 When the same guard / check / fallback keeps reappearing around a path, the path's shape is wrong.
 Reshape the flow so the correct behavior is automatic; do not stack more enforcement on a weak
 path. Full method: `METHOD-flow-audit.md`.
 
 ---
 
-## Module decomposition — how to split
+## B. Phân rã & quét rừng
 
+### B1. Module decomposition — how to split
 - Split by **responsibility/domain**, not by technical layer alone and not by file size.
 - A module must be describable in one sentence without "and" (Law 3).
 - Prefer many small, single-purpose modules with clear names over a few god-modules — but only once
@@ -87,8 +90,7 @@ path. Full method: `METHOD-flow-audit.md`.
   SDKs, frameworks) to the edges behind a boundary (Law 6; see also `RULE-coding.md` Result pattern
   and `RULE-ui-pattern.md` / `RULE-stack-akiNuxtCf.md` composable boundary).
 
-## The "forest" pass — before you patch
-
+### B2. The "forest" pass — before you patch
 Before adding a feature or fixing a bug in unfamiliar code, do a quick whole-flow scan instead of a
 local patch. This is the direct antidote to "seeing the leaf, missing the forest":
 
@@ -99,16 +101,16 @@ local patch. This is the direct antidote to "seeing the leaf, missing the forest
 4. **Symptom vs shape** — am I patching a symptom? If three patches cluster at one transition, stop
    and reshape the flow (Law 8) rather than adding a fourth.
 
-## Before introducing any new abstraction — critique gate
-
+### B3. Before introducing any new abstraction — critique gate
 No new shared layer, base module, or generalization ships without a quick `METHOD-deep-think.md`
 critique mini-pass:
 - **Steelman NOT abstracting** — is keeping the duplication actually cheaper here?
 - **Attack the abstraction** — one concrete way it could be the wrong shape, and how you'd know.
 - **Smaller first** — is the first version smaller than the imagined final one?
 
-## Definition of done — design level
+## C. Chốt
 
+### C1. Definition of done — design level
 A change is design-complete when all hold:
 - No value/rule is duplicated (Law 1).
 - Every new unit passes the "and" test (Law 3).

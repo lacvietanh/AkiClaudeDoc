@@ -1,39 +1,42 @@
 # Release & Versioning Rule
 
-## Scope — when this applies
+<!-- Address map: release.A1-4 · release.B1-5 · release.C1-4 (⟨Aki⟩) -->
+
+## A. Versioning core
+
+### A1. Scope — when this applies, CHANGELOG mandatory
 Every Aki project, any stack (Nuxt web — see `RULE-stack-akiNuxtCf.md` — Tauri v2, CLI, …). `CHANGELOG.md` is **mandatory from project creation**: the commit workflow and versioning discipline both anchor to it, so a repo without one is broken, not exempt — create it as the first fix. If a change is user-visible or dev-relevant, the release artifacts below must move with the code in the same task — never edit code and leave them stale.
 
 **Release vs deploy — two different events.** A *release* defines a version of the app (CHANGELOG, releases.json, GitHub Release) and applies to every project type. A *deploy* puts a web build live and is web-only — see `RULE-stack-akiNuxtCf.md` § Deploy verification. This rule owns releases only.
 
-## Two separate channels — do not merge them
-| File | Audience | Language | Tone |
-|------|----------|----------|------|
-| `CHANGELOG.md` | developer / technical | English only | Precise, may name files/symbols. Keep a Changelog format (`Added` / `Changed` / `Fixed` / `Removed`) |
-| `app/data/releases.json` | public / end user | Bilingual EN + VI if the site is multilingual (default EN); EN-only if single-language | Popular, user-friendly, benefit-first. No jargon, no file paths |
-
-The changelog explains *what changed and why* for maintainers. The release note tells users *what they get*. Write them separately; do not paste changelog lines into the release note.
-
-`releases.json` exists **only where a public web page renders it** (the Nuxt stack's release-notes page). Tauri, CLI, and other non-web projects keep `CHANGELOG.md` only — a release-notes file nothing renders is dead data; do not create one. Where `releases.json` does not exist, every rule below that mentions it simply does not apply.
-
-## releases.json schema
-- Single-language site: `{ version, date, title, changes: [{ type, text }] }`
-- Multilingual site: localize the human text — `title: { en, vi }`, `changes: [{ type, text: { en, vi } }]`. Keep `version`, `date`, `type` locale-neutral. Default/fallback language is English.
-- `type` is one of `new` | `improved` | `fixed` (stable badge keys).
-
-## Versioning — semver `major.minor.patch`
+### A2. Versioning — semver `major.minor.patch`
 - **patch** — bug fixes, internal-only changes
 - **minor** — new backward-compatible features
 - **major** — breaking changes
 - One release = one version; bundle the session's changes under it. Bump deliberately — do not bump on every tiny edit, and do not skip a bump when something shipped.
 
-## Version string format (ABSOLUTE — never violate)
+### A3. Version string format (ABSOLUTE — never violate)
 The version *attribute itself* is always bare semver, **never prefixed with `v`**: `package.json`/`Cargo.toml`/equivalent manifest `"version"` field, and every git tag, are `1.10.1` — not `v1.10.1`. This is a real bug class, not a style nit: an inconsistent prefix across tags silently breaks semver comparisons and diffing tools (`git describe`, `hasUpdate()`-style JS comparisons against a fetched tag name), and produces doubled-up UI text when display code does `` `v${version}` `` against a value that already contains `v` (rendered as `vv1.10.1`).
 - Create tags bare: `git tag 1.10.1`, never `git tag v1.10.1`.
 - Before cutting any release, check the existing tag convention with `git tag -l | sort -V | tail -5` — if a project's history has drifted to `v`-prefixed tags partway through, treat that drift as the bug being corrected (go back to bare), not as the precedent to keep following.
 - Human-facing display **may** prepend `v` at render time only — a GitHub Release title (`v{version} — …`, see below), a UI badge ("Update Available — v1.10.1"). That is a presentation concern, separate from and does not violate this rule. The forbidden thing is `v` baked into the stored/compared value itself.
 - When resolving the last release's boundary commit, prefer the bare-tag form: `git rev-parse "<last-version>"`, falling back to `git rev-parse "v<last-version>"` only to read a legacy/already-existing `v`-prefixed tag — never as the form to create going forward.
 
-## Identify the current version — cold-start, not session-memory
+### A4. Bump level — driven by content severity, not by step-count
+Classify every accumulated change found in the git log:
+- breaking / not backward-compatible → major
+- new capability, backward-compatible → minor
+- fix / internal-only → patch
+
+**New version = the last version recorded in CHANGELOG (the Pre-bump baseline from the state table in B1) + exactly one step at the HIGHEST severity found across the full accumulation.** Do not add steps per session or per commit.
+
+Unsure between two levels → choose the smaller, state the reason.
+
+A jump like `1.4.2 → 2.0.0` is a correct single major step if the accumulation contains a breaking change. A jump like `1.4.2 → 1.6.0` remains invalid because it skips the minor version `1.5.0` (minor must only increment by 1).
+
+## B. Xác định & audit
+
+### B1. Identify the current version — cold-start, not session-memory
 
 Run this check **each time a problem is closed and about to be recorded** — not
 once at the end of a session. It answers "does this entry go into a new version
@@ -68,20 +71,7 @@ the correct state from the repo alone.
 6. Fresh repo: fewer than ~5 commits, or no version recorded anywhere yet →
    treat the entire history as the current accumulation.
 
-## Bump level — driven by content severity, not by step-count
-
-Classify every accumulated change found in the git log:
-- breaking / not backward-compatible → major
-- new capability, backward-compatible → minor
-- fix / internal-only → patch
-
-**New version = the last version recorded in CHANGELOG (the Pre-bump baseline from the state table above) + exactly one step at the HIGHEST severity found across the full accumulation.** Do not add steps per session or per commit.
-
-Unsure between two levels → choose the smaller, state the reason.
-
-A jump like `1.4.2 → 2.0.0` is a correct single major step if the accumulation contains a breaking change. A jump like `1.4.2 → 1.6.0` remains invalid because it skips the minor version `1.5.0` (minor must only increment by 1).
-
-## The real anti-skip invariant
+### B2. The real anti-skip invariant
 
 A version jump is only actually wrong when there is evidence that a release boundary was already completed and left unrecorded. Concretely:
 - Every git tag matching a version pattern (if tags are used) MUST have exactly one matching CHANGELOG entry.
@@ -90,7 +80,7 @@ A version jump is only actually wrong when there is evidence that a release boun
 
 If a tag or milestone exists without a matching entry, write the missing entry retroactively. Do not just warn and move on.
 
-## Audit mode — for legacy or imported projects
+### B3. Audit mode — for legacy or imported projects
 
 Run once when `CHANGELOG.md` was not produced under this rule from project inception:
 1. Verify monotonic order of all versions in `CHANGELOG.md`.
@@ -99,22 +89,7 @@ Run once when `CHANGELOG.md` was not produced under this rule from project incep
 4. Report mismatches and propose retroactive entries for any gaps. Never renumber or delete public versions.
 5. If a gap's historical content cannot be determined (a tag exists but nobody knows what it contained), the retroactive entry must say so explicitly ("historical content unknown") — never invent or infer changes that cannot be verified.
 
-## Content discipline
-- Release note copy: no em/en dash (`—` `–`); short user-facing sentences, benefit first. See [[RULE-content-write]].
-- Keep terminology stable across versions (e.g. always "Release Notes", not mixed synonyms). See [[RULE-content-write]] semantic stability.
-- Doc/version moves are part of the change, not an afterthought. See [[RULE-docs]].
-
-## No version gaps in releases.json
-Every version that appears in `CHANGELOG.md` MUST also appear in `releases.json`. Skipping a version because it is "internal" or "technical" is not allowed — it creates visible number jumps that users notice and distrust.
-
-**If a version contains only internal/technical changes** (scripts, refactors, build tooling), write a brief user-friendly summary instead of omitting it entirely. Use one of these patterns:
-- `"type": "improved"` — "Under-the-hood improvements for stability and performance"
-- `"type": "fixed"` — "URL or display fixes" (describe the symptom a user would notice, not the cause)
-- `"type": "improved"` — "Build and SEO tooling updates (no visible change for users)"
-
-Never leave a gap like `1.0.5 → 1.0.7` or `0.1.0 → 0.1.3` in releases.json. A one-line entry is better than a missing version.
-
-## GitHub Release output — copy-ready summary
+### B4. GitHub Release output — copy-ready summary
 
 After updating CHANGELOG and version bump, automatically output a copy-ready GitHub Release block without waiting for the user to ask:
 
@@ -124,7 +99,39 @@ After updating CHANGELOG and version bump, automatically output a copy-ready Git
 
 **Body:** same `#### Fixed` / `#### Changed` / `#### Added` sections as CHANGELOG, but each bullet trimmed to one short sentence — symptom first, no file paths, no internal jargon.
 
-## Sync check — required before closing a task
+### B5. Content discipline
+- Release note copy: no em/en dash (`—` `–`); short user-facing sentences, benefit first. See [[RULE-content-write]].
+- Keep terminology stable across versions (e.g. always "Release Notes", not mixed synonyms). See [[RULE-content-write]] semantic stability.
+- Doc/version moves are part of the change, not an afterthought. See [[RULE-docs]].
+
+## C. ⟨Aki⟩ Web release artifacts
+
+### C1. Two separate channels — do not merge them
+| File | Audience | Language | Tone |
+|------|----------|----------|------|
+| `CHANGELOG.md` | developer / technical | English only | Precise, may name files/symbols. Keep a Changelog format (`Added` / `Changed` / `Fixed` / `Removed`) |
+| `app/data/releases.json` | public / end user | Bilingual EN + VI if the site is multilingual (default EN); EN-only if single-language | Popular, user-friendly, benefit-first. No jargon, no file paths |
+
+The changelog explains *what changed and why* for maintainers. The release note tells users *what they get*. Write them separately; do not paste changelog lines into the release note.
+
+`releases.json` exists **only where a public web page renders it** (the Nuxt stack's release-notes page). Tauri, CLI, and other non-web projects keep `CHANGELOG.md` only — a release-notes file nothing renders is dead data; do not create one. Where `releases.json` does not exist, every rule below that mentions it simply does not apply.
+
+### C2. releases.json schema
+- Single-language site: `{ version, date, title, changes: [{ type, text }] }`
+- Multilingual site: localize the human text — `title: { en, vi }`, `changes: [{ type, text: { en, vi } }]`. Keep `version`, `date`, `type` locale-neutral. Default/fallback language is English.
+- `type` is one of `new` | `improved` | `fixed` (stable badge keys).
+
+### C3. No version gaps in releases.json
+Every version that appears in `CHANGELOG.md` MUST also appear in `releases.json`. Skipping a version because it is "internal" or "technical" is not allowed — it creates visible number jumps that users notice and distrust.
+
+**If a version contains only internal/technical changes** (scripts, refactors, build tooling), write a brief user-friendly summary instead of omitting it entirely. Use one of these patterns:
+- `"type": "improved"` — "Under-the-hood improvements for stability and performance"
+- `"type": "fixed"` — "URL or display fixes" (describe the symptom a user would notice, not the cause)
+- `"type": "improved"` — "Build and SEO tooling updates (no visible change for users)"
+
+Never leave a gap like `1.0.5 → 1.0.7` or `0.1.0 → 0.1.3` in releases.json. A one-line entry is better than a missing version.
+
+### C4. Sync check — required before closing a task
 After editing `CHANGELOG.md` or `releases.json`, run:
 
 ```

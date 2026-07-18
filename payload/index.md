@@ -8,23 +8,55 @@ Project `CLAUDE.md` files bind these shared rules to a specific project.
 
 ## File manifest
 
-| File | Tier | Purpose |
-|------|------|---------|
-| `RULE-agent-behavior.md` | Core | Response language, scope discipline, verification, decision boundaries |
-| `RULE-coding.md` | Core | Philosophy, source-of-truth, error handling, security |
-| `RULE-design-core.md` | Contextual (high-sensitivity) | Universal pattern philosophy: SSoT, Rule of Three, SRP "and"-test, OCP, composition, module boundaries, name-by-role, anti-patch. Sharpens RULE-coding; applies to every project type — load eagerly on any structural/decomposition decision |
-| `RULE-docs.md` | Contextual | Docs structure (incl. mandatory `docs/biz/` backbone), plan lifecycle, doc-sync behavior |
-| `RULE-content-write.md` | Contextual | UI copy, semantic stability, writing style, i18n |
-| `RULE-stack-akiNuxtCf.md` | Contextual | Nuxt/Vue/Cloudflare Pages/Workers, Tailwind, i18n, canonical component names, state (useState-first), build & TypeScript, admin layout isolation, dev workflow scripts (killport/D1), layout chrome (breadcrumb/scroll-to-top), layout width (single source of truth in the layout, pages/apps never redeclare max-w), deploy verification after push |
-| `RULE-stack-tauri.md` | Contextual | Tauri v2 + Rust: absolute never-block-the-UI rule for any command running a subprocess/network call (`spawn_blocking`), titlebar boundary, version SSOT, IPC capability silent-fail, serde default for persisted JSON, cfg(target_os) scoping, subprocess PATH-resolution cold-start race |
-| `RULE-ui-pattern.md` | Contextual | Frontend enforcement of design-core: 4-tier class taxonomy, design tokens, arbitrary-value policy, atomic structure, variant API, UI audit/refactor playbook |
-| `RULE-seo.md` | Contextual | Meta limits, schema.org matrix, robots, sitemap, OG, AI visibility, entity linking |
-| `RULE-release.md` | Contextual | CHANGELOG.md mandatory in every project, release notes vs changelog split, releases.json (web-only), release vs deploy boundary, cold-start version reconstruction, severity-driven bump, audit mode |
-| `RULE-db-design.md` | Contextual | Immutability & Event Sourcing, 1NF, Bounded Context (DDD), flat-query discipline — load when designing schema/migration/DB refactor |
-| `METHOD-flow-audit.md` | Analytical | Flow integrity audit method |
-| `METHOD-deep-think.md` | Analytical | Deep-think brain: goal excavation, first principles, critique, conditional techbiz lens; passive via akirule, active via /akithink |
+| File | Topic | Tier | Loại | Purpose |
+|------|-------|------|------|---------|
+| `RULE-agent-behavior.md` | `agent` | Core | public | Response language, scope discipline, verification, decision boundaries |
+| `RULE-coding.md` | `coding` | Core | public | Philosophy, source-of-truth, error handling, security |
+| `RULE-design-core.md` | `design` | Contextual (high-sensitivity) | public | Universal pattern philosophy: SSoT, Rule of Three, SRP "and"-test, OCP, composition, module boundaries, name-by-role, anti-patch. Sharpens RULE-coding; applies to every project type — load eagerly on any structural/decomposition decision |
+| `RULE-docs.md` | `docs` | Contextual | public | Docs structure (incl. mandatory `docs/biz/` backbone), plan lifecycle, doc-sync behavior |
+| `RULE-content-write.md` | `content` | Contextual | public | UI copy, semantic stability, writing style, i18n |
+| `RULE-stack-akiNuxtCf.md` | `stack` | Contextual | **mixed** — group C is ⟨Aki⟩ | Nuxt/Vue/Cloudflare Pages/Workers, Tailwind, i18n, canonical component names, state (useState-first), build & TypeScript, admin layout isolation, dev workflow scripts (killport/D1), layout chrome (breadcrumb/scroll-to-top), layout width (single source of truth in the layout, pages/apps never redeclare max-w), deploy verification after push |
+| `RULE-stack-tauri.md` | `tauri` | Contextual | public | Tauri v2 + Rust: absolute never-block-the-UI rule for any command running a subprocess/network call (`spawn_blocking`), titlebar boundary, version SSOT, IPC capability silent-fail, serde default for persisted JSON, cfg(target_os) scoping, subprocess PATH-resolution cold-start race |
+| `RULE-ui-pattern.md` | `ui` | Contextual | public | Frontend enforcement of design-core: 4-tier class taxonomy, design tokens, arbitrary-value policy, atomic structure, variant API, UI audit/refactor playbook |
+| `RULE-seo.md` | `seo` | Contextual | **mixed** — group C is ⟨Aki⟩ | Meta limits, schema.org matrix, robots, sitemap, OG, AI visibility, entity linking |
+| `RULE-release.md` | `release` | Contextual | **mixed** — group C is ⟨Aki⟩ | CHANGELOG.md mandatory in every project, release notes vs changelog split, releases.json (web-only), release vs deploy boundary, cold-start version reconstruction, severity-driven bump, audit mode |
+| `RULE-db-design.md` | `db` | Contextual | public | Immutability & Event Sourcing, 1NF, Bounded Context (DDD), flat-query discipline — load when designing schema/migration/DB refactor |
+| `METHOD-flow-audit.md` | `flow` | Analytical | public | Flow integrity audit method |
+| `METHOD-deep-think.md` | `think` | Analytical | public | Deep-think brain: goal excavation, first principles, critique, conditional techbiz lens; passive via akirule, active via /akithink |
 
 Routing logic (which file loads when) is defined in `~/.claude/skills/akirule/SKILL.md`.
+
+## Addressing scheme — `topic.A1`
+
+Every file is internally organized into groups **A/B/C** (a topic's broad themes) and numbered
+items **1/2/3…** within each group — e.g. `coding.B2` (Changing existing code), `stack.C1`
+(Canonical component names). `topic` is the filename with its `RULE-`/`METHOD-` prefix dropped.
+This is purely a recall/reference convention — it does not change routing (still governed by
+`akirule/SKILL.md`) and does not rename any file.
+
+**`⟨Aki⟩`** marks a group (always the last group in its file) that is specific to Aki's own
+AkiNuxtCf ecosystem rather than universal — currently `seo.C`, `release.C`, `stack.C`. These groups
+stay in this public repo (auto-load is more useful to Aki, the heaviest user, than a clean public/
+private split), but are logically separable if a stripped public export is ever needed. Everything
+outside a `⟨Aki⟩` group is universal and applies to any project on the matching stack.
+
+| Topic | Groups |
+|---|---|
+| `agent` | A Giao tiếp · B Kỷ luật phạm vi & quyết định · C File & bộ nhớ |
+| `coding` | A Triết lý & nguồn sự thật · B Chất lượng & sửa code · C An toàn runtime |
+| `design` | A 8 định luật · B Phân rã & quét rừng · C Chốt |
+| `db` | A Nguyên tắc dữ liệu · B Unicode |
+| `docs` | A Cấu trúc topic · B Vòng đời & đồng bộ |
+| `content` | A Nguyên tắc nội dung · B Văn phong & pattern · C Tách bạch |
+| `seo` | A Meta & cấu trúc · B Hiển thị AI & entity · **C ⟨Aki⟩ API & tooling stack** |
+| `release` | A Versioning core · B Xác định & audit · **C ⟨Aki⟩ Web release artifacts** |
+| `stack` | A Cloudflare & TypeScript nền · B Render · i18n · Vue patterns · **C ⟨Aki⟩ Quy ước hệ sinh thái** |
+| `tauri` | A Không block UI · B Boundary & config |
+| `ui` | A Taxonomy & tokens · B Cấu trúc component · C Audit playbook |
+| `think` | A Khung quyết định · B 5 Modules · C Radar |
+| `flow` | A Tư duy flow · B 8 câu hỏi first-principles · C Chốt & output |
+
+Full item-level breakdown: `docs/research/2026-07-19-public-private-abc-restructure.md`.
 
 ## Precedence
 When rules conflict, use this order:

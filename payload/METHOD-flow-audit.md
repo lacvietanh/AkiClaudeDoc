@@ -1,5 +1,7 @@
 # Aki Skill — Flow Audit
 
+<!-- Address map: flow.A1-2 · flow.B1-8 · flow.C1-3 -->
+
 ## Purpose
 Use this skill to inspect a system, feature, user journey, or internal process through the lens of flow integrity.
 
@@ -9,21 +11,9 @@ The goal is not to add more controls around a weak flow. The goal is to redesign
 
 ---
 
-## When to use
-Use this skill when any trigger appears:
+## A. Tư duy flow
 
-- A feature works, but feels fragile
-- Many guards, checks, fallbacks, or exceptions keep being added
-- A user journey has friction, repetition, or too many steps
-- A workflow relies on people remembering what should happen next
-- Different parts of the system disagree about state, ownership, or timing
-- A process stalls, forks unexpectedly, or needs repeated recovery logic
-- Bugs keep appearing around the same transition points
-- The architecture looks organized, but the real flow still feels awkward
-
----
-
-## Core mindset
+### A1. Core mindset
 A good flow does not depend on constant enforcement.
 A good flow makes the correct behavior natural.
 
@@ -40,35 +30,47 @@ Ask first:
 A patch may be necessary sometimes.
 But repeated patches usually mean the flow itself is not well-formed.
 
+### A2. When to use
+Use this skill when any trigger appears:
+
+- A feature works, but feels fragile
+- Many guards, checks, fallbacks, or exceptions keep being added
+- A user journey has friction, repetition, or too many steps
+- A workflow relies on people remembering what should happen next
+- Different parts of the system disagree about state, ownership, or timing
+- A process stalls, forks unexpectedly, or needs repeated recovery logic
+- Bugs keep appearing around the same transition points
+- The architecture looks organized, but the real flow still feels awkward
+
 ---
 
-## First-principles questions
+## B. 8 câu hỏi first-principles
 
-### 1. Define the flow
+### B1. Define the flow
 - What is the exact start point?
 - What is the exact end point?
 - What are the major transitions in between?
 - Who or what owns each transition?
 
-### 2. Trace the real path
+### B2. Trace the real path
 - What actually happens step by step?
 - Which steps are automatic, and which depend on human memory or coordination?
 - Where do retries, forks, waits, or handoffs occur?
 - Where does the real flow differ from the intended flow?
 
-### 3. Find pressure points
+### B3. Find pressure points
 - Where does the flow break?
 - Where does it stall?
 - Where does it branch in ways that are hard to reason about?
 - Which steps create confusion about ownership, timing, or state?
 
-### 4. Identify artificial enforcement
+### B4. Identify artificial enforcement
 - Which guards exist only to protect against a badly shaped upstream step?
 - Which checks are repeated because the system cannot trust its own state?
 - Which fallbacks exist because the happy path is not truly reliable?
 - Which manual steps exist because the system flow is incomplete?
 
-### 5. Diagnose root shape problems
+### B5. Diagnose root shape problems
 - Is the sequence wrong?
 - Is ownership unclear?
 - Is state duplicated or drifting?
@@ -76,27 +78,29 @@ But repeated patches usually mean the flow itself is not well-formed.
 - Is one component making decisions that belong elsewhere?
 - Is the system trying to support too many modes in one path?
 
-### 6. Design the native flow
+### B6. Design the native flow
 - What would the simplest end-to-end path look like?
 - What should become automatic instead of manually enforced?
 - What should become impossible instead of repeatedly checked?
 - What should happen earlier so later guards become unnecessary?
 - What can be removed if the flow shape is corrected?
 
-### 7. Evaluate leverage
+### B7. Evaluate leverage
 - Which change removes the most downstream complexity?
 - Which redesign removes the most recurring friction?
 - Which fix improves the flow instead of only hiding symptoms?
 - What is the smallest structural change with the biggest effect?
 
-### 8. Validate
+### B8. Validate
 - What is the fastest way to prove the improved flow works?
 - What observable signal would show the flow is now healthier?
 - Which old checks or patches should become unnecessary if the redesign is correct?
 
 ---
 
-## Decision test
+## C. Chốt & output
+
+### C1. Decision test
 Before recommending fixes, check:
 
 - Does the recommendation improve the flow itself, not just add protection around it?
@@ -108,9 +112,7 @@ Before recommending fixes, check:
 
 If not, the recommendation may still be patching symptoms.
 
----
-
-## Red flags
+### C2. Red flags
 Stop and rethink when you see these patterns:
 
 - "Just add another guard"
@@ -124,34 +126,17 @@ Stop and rethink when you see these patterns:
 
 These may sometimes be necessary, but if they accumulate, they usually signal a flow problem.
 
----
-
-## Output format
+### C3. Output format
 When using this skill, produce output in this structure:
 
-### 1. Flow target
-What flow is being audited.
-
-### 2. Intended flow
-The ideal or claimed path.
-
-### 3. Actual flow
-The real observed path.
-
-### 4. Breakpoints
-Where the flow breaks, stalls, forks, drifts, or needs coordination.
-
-### 5. Artificial enforcement
-Guards, checks, fallbacks, retries, or manual steps that exist because the flow is weak.
-
-### 6. Root shape problems
-What is structurally wrong in sequence, ownership, state, validation, or control.
-
-### 7. Native-flow redesign
-The simplest better shape that makes the correct path more automatic.
-
-### 8. Fastest validation
-The smallest credible way to prove the redesigned flow is better.
+1. **Flow target** — what flow is being audited.
+2. **Intended flow** — the ideal or claimed path.
+3. **Actual flow** — the real observed path.
+4. **Breakpoints** — where the flow breaks, stalls, forks, drifts, or needs coordination.
+5. **Artificial enforcement** — guards, checks, fallbacks, retries, or manual steps that exist because the flow is weak.
+6. **Root shape problems** — what is structurally wrong in sequence, ownership, state, validation, or control.
+7. **Native-flow redesign** — the simplest better shape that makes the correct path more automatic.
+8. **Fastest validation** — the smallest credible way to prove the redesigned flow is better.
 
 ---
 

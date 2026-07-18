@@ -4,6 +4,13 @@ description: Aki's unified rule router. Loads core rules on every task; signal-t
 user-invocable: false
 ---
 
+## Addressing scheme (recall only — does not affect routing)
+
+Every rule file is internally organized into groups `A`/`B`/`C` and numbered items `1`/`2`/`3…`
+(e.g. `coding.B2`, `stack.C1`). `topic` = filename minus its `RULE-`/`METHOD-` prefix. This is a
+naming convention for referring to a specific rule precisely — it has no effect on which files
+load or when; that is still governed entirely by the tiers below. Full map: `~/.aki/claudedoc/index.md`.
+
 ## Tier 1 — Core (harness-guaranteed)
 
 @~/.aki/claudedoc/index.md

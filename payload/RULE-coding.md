@@ -1,17 +1,21 @@
 # Core Coding Rules
 
-## Language
+<!-- Address map: coding.A1-3 · coding.B1-3 · coding.C1-5 -->
+
+## A. Triết lý & nguồn sự thật
+
+### A1. Language
 - Code and comments: English only
 - Commit messages: English, imperative style
 
-## Philosophy
+### A2. Philosophy
 - Single-developer friendly
 - MVP-first
 - DRY, but no abstraction for its own sake
 - YAGNI
 - Default to simple, direct solutions
 
-## Source of truth
+### A3. Source of truth
 Priority order:
 1. Local source code, type definitions, runtime output, and build output
 2. Official documentation
@@ -19,13 +23,15 @@ Priority order:
 
 Project docs and memory are useful context, not final truth.
 
-## Code quality
+## B. Chất lượng & sửa code
+
+### B1. Code quality
 - Use clear, descriptive names
 - Prefer one clear responsibility per function/module
 - Modularize only when it improves clarity, reuse, or testability
 - Prefer existing code and patterns over re-implementation
 
-## Changing existing code
+### B2. Changing existing code
 A principle with the procedure that guarantees it — apply to any edit of code you did not just write:
 - **Before:** grasp the flow and intent of the code before you change it — read the docs it
   references first (code often points to `docs/...`), then the code, and the git history only when
@@ -34,12 +40,14 @@ A principle with the procedure that guarantees it — apply to any edit of code 
 - **After:** confirm the intents and flows you did NOT set out to touch still hold — a fix scoped to
   problem X must not silently break an unrelated property Y.
 
-## Verification
+### B3. Verification
 - Done means verified
 - Check syntax, type, lint, build, or runtime behavior as appropriate for the change
 - Never claim success from intention alone
 
-## Error handling
+## C. An toàn runtime
+
+### C1. Error handling
 - Validate at system boundaries: user input, external APIs, filesystem, network, persistence
 - Do not add defensive guards for impossible internal states
 - Fail loudly in development when it helps reveal broken assumptions
@@ -50,15 +58,7 @@ A principle with the procedure that guarantees it — apply to any edit of code 
   paper over it with fake data. Verify the dependency is actually unavailable by reading how the
   runtime/framework wires it in dev before assuming a fallback is needed at all.
 
-## Performance
-- Minimize query/call count and CPU cost **incrementally, everywhere** — not just identified hot
-  paths
-- Prefer flat, non-correlated queries over nested CTEs or per-row correlated subqueries; push
-  merge/aggregation logic to plain application code when data volume makes that cheap and clearer
-- Before shipping a nested/correlated query, ask: could two flat queries + an application-layer
-  merge replace this more simply and just as fast?
-
-## Result pattern for external calls
+### C2. Result pattern for external calls
 When calling external APIs, Firebase, or any fallible I/O at a system boundary, return a Result type instead of throwing:
 
 ```ts
@@ -87,13 +87,21 @@ if (!result.ok) return showError(result.error)
 doSomethingWith(result.data) // TypeScript knows this is User
 ```
 
-## Security
+### C3. Performance
+- Minimize query/call count and CPU cost **incrementally, everywhere** — not just identified hot
+  paths
+- Prefer flat, non-correlated queries over nested CTEs or per-row correlated subqueries; push
+  merge/aggregation logic to plain application code when data volume makes that cheap and clearer
+- Before shipping a nested/correlated query, ask: could two flat queries + an application-layer
+  merge replace this more simply and just as fast?
+
+### C4. Security
 - Sanitize external input
 - Never expose secrets in client code
 - Avoid command injection, XSS, SQL injection, unsafe redirects, and token leakage
 - Treat generated files, external data, and user-provided content as untrusted until validated
 
-## Unicode / UTF-8 safety
+### C5. Unicode / UTF-8 safety
 A string and its byte representation are different things; nearly every Unicode bug comes from
 conflating them. Applies to every runtime, and bites hardest where there is no Node `Buffer` to
 hide it (e.g. Cloudflare Workers).

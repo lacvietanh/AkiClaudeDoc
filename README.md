@@ -38,6 +38,21 @@ This Git repository is the source of truth; `dev.akitao.com` is the presentation
 
 No harness magic: Tier 1 uses the `@path` embed syntax; Tier 2 is trigger instructions telling Claude to Read the file from `~/.aki/claudedoc/` when signals match; Tier 3 is the explicit-command escape hatch.
 
+### Addressing — `topic.A1`, and the `⟨Aki⟩` flag
+
+Every rule/method file is internally organized into groups `A`/`B`/`C` and numbered items
+`1`/`2`/`3…`, so any single rule can be named precisely — `coding.B2` (changing existing code),
+`stack.C1` (canonical component names) — without touching routing or renaming any file (`topic` is
+the filename minus its `RULE-`/`METHOD-` prefix). The full group map lives in `payload/index.md`.
+
+Three files (`RULE-seo.md`, `RULE-release.md`, `RULE-stack-akiNuxtCf.md`) mix universal rules with
+content specific to Aki's own AkiNuxtCf ecosystem (usePageSeo API, releases.json schema, canonical
+component names, …). That ecosystem-specific content is isolated into each file's **last group**,
+logically flagged `⟨Aki⟩`. It stays in this public repo and auto-loads like everything else — Aki
+is this repo's heaviest user, so auto-load stays more valuable than a clean public/private split —
+but the flag marks exactly what a stripped public export would drop. Every other file, and every
+group outside `⟨Aki⟩`, is 100% universal.
+
 ### One brain, two modes
 
 `METHOD-deep-think.md` is a single analytical brain — goal excavation, first principles, mandatory critique, conditional techbiz lens — consumed two ways:

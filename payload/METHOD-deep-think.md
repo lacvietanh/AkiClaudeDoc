@@ -1,5 +1,7 @@
 # Aki Method — Deep Think
 
+<!-- Address map: think.A1-2 · think.B1-5 · think.C1 -->
+
 ## Purpose
 This is the single analytical brain for structured deep thinking: goal excavation, first-principles decomposition, mandatory critique, and (when relevant) business/product optimization. It replaces the old first-principle/techbiz-only optimizer with a fuller reasoning toolbox.
 
@@ -7,7 +9,16 @@ Technology exists to serve real outcomes. Do not optimize technical elegance in 
 
 ---
 
-## One brain, two modes
+## A. Khung quyết định
+
+### A1. One-way-door vs two-way-door
+
+Not every decision deserves the same depth. Before applying any module, size the decision:
+
+- **Two-way-door (reversible, cheap to undo):** a config flag, a copy change, a small refactor behind a feature branch. Decide fast; do not over-apply this METHOD.
+- **One-way-door (hard/expensive to reverse):** a schema choice, a public API shape, a pricing model, deleting data, an architecture that many things will depend on. Depth of analysis should scale with irreversibility — go through every module deliberately, and prefer `/akithink` over a shallow inline pass.
+
+### A2. One brain, two modes
 
 This METHOD is consumed two ways:
 
@@ -18,16 +29,9 @@ Content-wise the active mode is a superset of the passive one; mechanically, onl
 
 ---
 
-## One-way-door vs two-way-door
+## B. 5 Modules
 
-Not every decision deserves the same depth. Before applying any module, size the decision:
-
-- **Two-way-door (reversible, cheap to undo):** a config flag, a copy change, a small refactor behind a feature branch. Decide fast; do not over-apply this METHOD.
-- **One-way-door (hard/expensive to reverse):** a schema choice, a public API shape, a pricing model, deleting data, an architecture that many things will depend on. Depth of analysis should scale with irreversibility — go through every module deliberately, and prefer `/akithink` over a shallow inline pass.
-
----
-
-## Module 1 — Goal excavation
+### B1. Goal excavation
 
 Climb the goal hierarchy. For any stated goal, keep asking "this is for what?" upward (5-whys upward, not downward into implementation) until you reach the goal that no longer has a "so that…" behind it — the ultimate goal.
 
@@ -39,9 +43,7 @@ Questions:
 
 Output an **explicit goal chain**: immediate goal → intermediate goal(s) → ultimate goal. Call out any goals in the chain that conflict with each other (e.g. "ship fast" vs "keep it flexible for future X") — do not silently pick one and hide the tension.
 
----
-
-## Module 2 — First principles
+### B2. First principles
 
 Decompose the problem into three separate buckets and do not let them blur together:
 
@@ -51,25 +53,23 @@ Decompose the problem into three separate buckets and do not let them blur toget
 
 Every claimed constraint must face the question: **"is this a real constraint, or just a habit?"**
 
-### Problem truth
+**Problem truth**
 - What problem is definitely real?
 - What is observed fact, and what is interpretation?
 - Is this a root problem, or only a visible symptom?
 
-### Assumptions
+**Assumptions**
 - What assumptions are being treated as fixed?
 - Which assumptions came from habit, legacy, fear, or convenience?
 - If the current implementation disappeared, what would still be necessary?
 
-### Flow
+**Flow**
 - What is the natural end-to-end flow?
 - Where does the flow break, fork, stall, or require manual coordination?
 - Which checks, guards, patches, or workarounds exist only because the flow is poorly shaped?
 - What design would make the correct behavior automatic instead of repeatedly enforced?
 
----
-
-## Module 3 — Critique (mandatory adversarial pass)
+### B3. Critique (mandatory adversarial pass)
 
 This module is not optional and does not depend on business context. Even a personal-tool or research decision gets this pass. Run all five lenses:
 
@@ -81,38 +81,36 @@ This module is not optional and does not depend on business context. Even a pers
 
 **Anti-sycophancy rule:** no "great idea!"-style agreement without critique. Every option on the table, including the user's preferred one and the agent's own recommendation, gets at least one honest attack before being accepted.
 
----
-
-## Module 4 — Techbiz lens (conditional)
+### B4. Techbiz lens (conditional)
 
 Apply this module only when the problem has business/product context — value delivered to users/customers, cost/effort tradeoffs, or market-facing decisions. **Personal tools, art projects, and pure research skip this module explicitly** (say so rather than silently forcing a business frame onto a non-business problem).
 
-### Value
+**Value**
 - What creates actual value here?
 - What is merely nice, familiar, impressive, or technically satisfying?
 - If only 20% of the work could remain, which part carries most of the value?
 
-### Simplification
+**Simplification**
 - What is the smallest solution that still solves the real problem?
 - What can be deleted, skipped, merged, delayed, or made manual?
 - Does this require a system, or only a one-time action?
 
-### Cost
+**Cost**
 - What does this cost to build and maintain?
 - What future complexity does this introduce?
 - What hidden burden will this create for debugging, onboarding, operations, or content updates?
 
-### Alternatives
+**Alternatives**
 - What are 3 meaningfully different ways to solve this?
 - Which option is simplest?
 - Which option is easiest to validate and reverse?
 
-### Validation
+**Validation**
 - What is the fastest credible way to test whether this idea is right?
 - What result would prove this direction is worth expanding?
 - What result would tell us to stop?
 
-### Decision test
+**Decision test**
 Before recommending a solution, check:
 
 - Can the real goal be stated in 1 sentence?
@@ -125,7 +123,7 @@ Before recommending a solution, check:
 
 If the answer is unclear, reduce the solution before expanding it.
 
-### Red flags
+**Red flags**
 Stop and rethink when you see these patterns:
 
 - "We might need this later"
@@ -139,9 +137,7 @@ Stop and rethink when you see these patterns:
 
 These may be correct, but they are not proof. Each one requires evidence, not taste.
 
----
-
-## Module 5 — MVP focus, side-effects & edge-cases weighed by severity
+### B5. MVP focus, side-effects & edge-cases weighed by severity
 
 An evaluation discipline, not a survival rule, and it is **not gated by business context** (unlike
 Module 4). It guards against two opposite failure modes at once: rat-holing on trivial edges while
@@ -178,7 +174,9 @@ do not ask about what basic reasoning already settles.
 
 ---
 
-## Radar rule (passive-mode duty)
+## C. Radar
+
+### C1. Radar rule (passive-mode duty)
 
 When applying this METHOD passively and the decision turns out to be one-way-door (hard to reverse), large in scope, or the goal itself is unclear, do NOT settle for a shallow inline analysis. Say explicitly: "this deserves a dedicated `/akithink` session" and offer to start one.
 
