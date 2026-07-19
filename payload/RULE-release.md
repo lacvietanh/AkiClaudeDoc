@@ -1,6 +1,6 @@
 # Release & Versioning Rule
 
-<!-- Address map: release.A1-4 · release.B1-5 · release.C1-4 (⟨Aki⟩) -->
+<!-- Address map: release.A1-5 · release.B1-5 · release.C1-4 (⟨Aki⟩) -->
 
 ## A. Versioning core
 
@@ -34,6 +34,14 @@ Unsure between two levels → choose the smaller, state the reason.
 
 A jump like `1.4.2 → 2.0.0` is a correct single major step if the accumulation contains a breaking change. A jump like `1.4.2 → 1.6.0` remains invalid because it skips the minor version `1.5.0` (minor must only increment by 1).
 
+### A5. A version is minted at the release event, never at work-completion (ABSOLUTE)
+Finishing a piece of work does not earn a version number. Only shipping does — a production deploy, a published tag, a distributed build. Between releases, the accumulation lives under `## [Unreleased]` at the top of `CHANGELOG.md` with **no version number and no manifest bump**. When the release actually happens, rename that one `[Unreleased]` heading to the new version and bump the manifest once. This makes the drift structurally impossible: local version == production version at all times, and everything not yet shipped sits in a single unnumbered bucket no matter how many sessions it took.
+
+- **Never bump the manifest `version` field in the same task as the code change.** The bump belongs to the release task alone. A task that ends with "bumped to 0.2.0" but nothing deployed is the bug.
+- **Many sessions collapse into one version, not one version per session.** Three or four rounds of local improvement on top of a `0.1.0` production release ship as `0.2.0` (or `0.1.1`, or `1.0.0` — whatever A4's severity rule gives), **never** as `0.3.4`.
+- **Materiality test before minting.** A version the user sees must be worth seeing. If the whole `[Unreleased]` accumulation is one or two trivial internal lines, do not mint it — leave it in the bucket and let it ride with the next real change. A release with three versions of two bullets each is the symptom this rule exists to prevent; those should have been one version.
+- **Recovery when drift already happened.** Versions that were never published to production are not public, so they are **not protected by B3's "never renumber public versions"**. Squash them: collapse every unpublished version's entries into one `[Unreleased]` section, reset the manifest to the last *actually released* version, then mint one version. Only versions with a real deploy/tag/build behind them are frozen. If it is unclear whether a version ever shipped, treat it as shipped and ask the user.
+
 ## B. Xác định & audit
 
 ### B1. Identify the current version — cold-start, not session-memory
@@ -50,8 +58,10 @@ the correct state from the repo alone.
 
 | State | Condition | Action |
 |-------|-----------|--------|
-| **Pre-bump** | `package.json` == CHANGELOG top version | Reconstruct the accumulation (steps 4–5), then bump exactly once |
+| **Unreleased open** | `CHANGELOG.md` has an `## [Unreleased]` section on top | Normal working state (A5) — append the entry there, do NOT bump anything |
+| **Pre-bump** | `package.json` == CHANGELOG top version | Nothing pending. Recording a change → open a new `## [Unreleased]`; releasing now → reconstruct the accumulation (steps 4–5) and mint exactly once |
 | **Mid-release** | `package.json` > CHANGELOG top version | Already bumped, version still open — append to it, do NOT bump again |
+| **Drifted** | manifest version > last version actually deployed/tagged | Unpublished versions accumulated — apply A5's recovery (squash back, mint once) before doing anything else |
 | **Mismatch** | any other disagreement | Warn the user, do not auto-fix |
 
 4. Find the boundary commit for `<last-version>` using this sequence:

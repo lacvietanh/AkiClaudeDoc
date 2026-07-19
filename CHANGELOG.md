@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-07-19 (2)
+
+### Added
+- `payload/RULE-release.md`: new `A5` — a version number is minted at the **release event** (production deploy / published tag / distributed build), never when a piece of work is finished. Between releases the accumulation lives under `## [Unreleased]` with no version number and no manifest bump; the release task renames that heading and bumps once. Closes a real gap: `B1` only guaranteed *one bump per cycle*, so several sessions of local improvement each bumped legitimately and the local version drifted far ahead of what was actually shipped — production on `0.1.0` while local sat at `0.3.4`, then a deploy dumped a stack of thin versions on users at once. Adds a materiality test (don't mint a version for one or two trivial internal lines) and a recovery path: versions never published are **not** covered by `B3`'s "never renumber public versions", so they can be squashed back and re-minted as one. `B1`'s state table gains an `Unreleased open` row (normal working state) and a `Drifted` row (manifest ahead of last deployed version → run the A5 recovery first).
+- `payload/index.md`: `RULE-release.md` manifest description extended to mention the release-event minting rule.
+
 ## 2026-07-19
 
 ### Changed
