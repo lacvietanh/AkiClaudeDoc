@@ -1,6 +1,6 @@
 # AkiClaudeDoc
 
-One install command turns a fresh Claude Code environment into Aki's full working baseline: a shared rule corpus that loads itself at the right moment, plus a small set of sharp, single-purpose skills.
+One install command turns a fresh environment into Aki's full working baseline — for **both Claude Code and Antigravity/Gemini**, generated from one agent-neutral source: a shared rule corpus that loads itself at the right moment, plus a small set of sharp, single-purpose skills.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/lacvietanh/AkiClaudeDoc/master/install.sh | bash
@@ -26,14 +26,14 @@ This Git repository is the source of truth; `dev.akitao.com` is the presentation
 
 `payload/` files follow a strict naming convention:
 
-- `RULE-*.md` — constraints: what Claude must or must not do (behavior, coding, design/patterns, docs, content, stack, UI, SEO, release, DB design).
+- `RULE-*.md` — constraints: what the agent must or must not do (behavior, coding, design/patterns, docs, content, stacks — Nuxt/Cloudflare + Tauri, UI, SEO, release, DB design).
 - `METHOD-*.md` — analytical frameworks: how to reason through a specific class of problem. Heavy, loaded only when the task is genuinely analytical.
 - `index.md` — file manifest, precedence order, project-binding policy.
 
 `akirule` routes them in three tiers, with deliberately high sensitivity (err toward loading — a false positive costs a few tokens, a false negative causes wrong behavior):
 
 - **Tier 1 — Core, hard-embedded every conversation:** `index.md`, `RULE-agent-behavior.md`, `RULE-coding.md`.
-- **Tier 2 — Contextual, read on signal match:** the constraint rules `RULE-design-core.md` (loaded high-sensitivity — any structural/decomposition decision), `RULE-docs.md`, `RULE-content-write.md`, `RULE-stack-akiNuxtCf.md`, `RULE-ui-pattern.md`, `RULE-seo.md`, `RULE-release.md`, `RULE-db-design.md` — plus the analytical methods (tagged `Analytical` in `index.md`, but mechanically signal-loaded like the rest of Tier 2): `METHOD-flow-audit.md` (refactors, multi-file bugs, fragile flows) and `METHOD-deep-think.md` (scope/architecture/value decisions, first-principles and critique-style thinking).
+- **Tier 2 — Contextual, read on signal match:** the constraint rules `RULE-design-core.md` (loaded high-sensitivity — any structural/decomposition decision), `RULE-docs.md`, `RULE-content-write.md`, `RULE-stack-akiNuxtCf.md`, `RULE-stack-tauri.md` (Tauri v2 + Rust: never-block-the-UI, version SSOT, target context), `RULE-ui-pattern.md`, `RULE-seo.md`, `RULE-release.md`, `RULE-db-design.md` — plus the analytical methods (tagged `Analytical` in `index.md`, but mechanically signal-loaded like the rest of Tier 2): `METHOD-flow-audit.md` (refactors, multi-file bugs, fragile flows) and `METHOD-deep-think.md` (scope/architecture/value decisions, first-principles and critique-style thinking).
 - **Tier 3 — Full load on explicit command:** `nạp full` / `load all rules` reads every `RULE-*`/`METHOD-*` file at once.
 
 No harness magic: Tier 1 uses the `@path` embed syntax; Tier 2 is trigger instructions telling Claude to Read the file from `~/.aki/claudedoc/` when signals match; Tier 3 is the explicit-command escape hatch.
@@ -68,6 +68,7 @@ payload/                          → installed to ~/.aki/claudedoc/
   RULE-docs.md
   RULE-content-write.md
   RULE-stack-akiNuxtCf.md
+  RULE-stack-tauri.md
   RULE-ui-pattern.md
   RULE-seo.md
   RULE-release.md
