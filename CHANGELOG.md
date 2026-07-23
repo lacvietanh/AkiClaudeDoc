@@ -2,6 +2,13 @@
 
 ## 2026-07-23
 
+### Added — External-action completeness (migration-execution gap)
+- `payload/RULE-coding.md` B3: generalized the verification principle to cover changes that require a **separate action against an external system** to take effect (migrations, remote config, env vars, cache purges, cron/schedule registration) — writing the file describing the action is not the same event as the target system reflecting it, and neither git diff nor a green build detects the gap.
+- `payload/RULE-release.md` new B5 (renumbered old B5 Content discipline → B6): a CHANGELOG/`releases.json` entry describing a DB schema or infra-dependent change is not truthful until (1) the migration/infra action actually succeeded against the real (remote/production) target with its postconditions checked, and (2) the script is moved to its done location (`scripts/done/` or the project's equivalent marker) — a file still in the pending location is itself evidence step 1 hasn't happened. A plan/release/deploy cannot be reported complete with either condition outstanding.
+- `payload/RULE-stack-akiNuxtCf.md` C8: appended the concrete D1 execution checklist — a green Cloudflare build proves nothing about the database; run `wrangler d1 execute <db> --remote --file=...`, verify postconditions against remote, then move the file to `scripts/done/`.
+- `payload/index.md` Cross-cutting lens: added "External-action completeness" row (root `coding.B3`, domain applications `release.B5` and `stack.C8`).
+- Root cause: a real production incident (kinhdich.akinet.me, 2026-07-23) — a D1 migration script was written and shipped in CHANGELOG v2.10.1 as "Added", but never executed against production. The database stayed on the old schema while deployed code queried the new columns, causing a live 500 on an admin endpoint for a full day before caught. No existing rule checked for this: `coding.B3` only covered runtime-behavior verification, `stack.C8` only checked Cloudflare build status — neither touches whether a required external-system action actually ran.
+
 ### Fixed
 - `claude/skills/akigitcommit/SKILL.md`, `akihelp/SKILL.md`, `akihtmlreport/SKILL.md`, `akithink/SKILL.md`: YAML frontmatter had been silently collapsed onto one line (`name: x description: y` instead of separate `name:`/`description:` keys) by an earlier line-unwrap pass that didn't distinguish wrapped prose from structurally atomic content. This is invalid frontmatter — `description` and (for `akirule`) `user-invocable` stopped existing as their own keys. Restored to multi-line.
 - `claude/skills/akirule/SKILL.md`: same frontmatter collapse, plus its three `@~/.aki/claudedoc/...` Tier-1 import lines had been merged onto a single line. Restored to one import per line.

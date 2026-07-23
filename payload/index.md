@@ -56,8 +56,9 @@ Some subjects legitimately live in several files: one **root rule** stating the 
 | Subject | Root | Domain applications |
 |---|---|---|
 | **Naming** | `design.A7` — name by role, never by concrete value | `agent.C1` file names · `ui.A` design tokens · `stack.C1` ⟨Aki⟩ canonical component names · `release.A3` version/tag format · `content.A3` semantic stability (renaming an existing concept) |
+| **External-action completeness** ("done" needs the outside world to move, not just the file) | `coding.B3` — a change requiring a separate action against an external system isn't done when the file describing it is written | `release.B5` ⟨Aki⟩ CHANGELOG/release entry not truthful until a migration/infra step actually ran · `stack.C8` ⟨Aki⟩ D1 migration must run `--remote` and move to `scripts/done/`, a green build alone proves nothing about the database |
 
-Add a second lens row only when a subject has actually caused a miss — `design.A2` (Rule of Three) applies to this rule corpus too.
+Add a second lens row only when a subject has actually caused a miss — `design.A2` (Rule of Three) applies to this rule corpus too, and so did a real production incident where a migration script shipped in CHANGELOG but was never executed against remote D1 (2026-07-23).
 
 ## Precedence
 When rules conflict, use this order:

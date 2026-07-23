@@ -163,5 +163,12 @@ After every push, watch the newest build/deployment (general `cloudflare` MCP if
 - **success** → report "✅ deployed" with the version/deployment id, then stop. Never fetch logs for a successful build.
 - **failed** → fetch the build log, isolate the failing lines, fix the cause in the working tree, and report. Do NOT commit or push the fix — the user decides.
 
+**D1 migrations do not run themselves — a green Cloudflare build proves nothing about the database.** A build only compiles/deploys application code; it never executes a `scripts/migrate-*.sql` file. If a task ships a new migration script, closing that task requires, in order:
+1. Run it against the real target: `wrangler d1 execute <db-name> --remote --file=scripts/migrate-*.sql` (never claim done from a `--local` run alone — local and remote are separate SQLite files).
+2. Check the postconditions the migration itself states (row counts, `PRAGMA table_info`) against remote, not assumed from the script having no errors.
+3. Move the file into `scripts/done/` — a migration file left in `scripts/` is itself a visible signal, to the next person or the next session, that step 1 may not have happened.
+
+See [[RULE-release]] B5 — the CHANGELOG/release entry for this change is not truthful until all three steps above are done, not just written.
+
 ## SEO
 See `RULE-seo.md` for all SEO rules (meta limits, schema matrix, robots, sitemap, OG image, AI visibility, entity linking).

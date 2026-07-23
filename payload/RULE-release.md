@@ -1,6 +1,6 @@
 # Release & Versioning Rule
 
-<!-- Address map: release.A1-5 · release.B1-5 · release.C1-4 (⟨Aki⟩) -->
+<!-- Address map: release.A1-5 · release.B1-6 · release.C1-4 (⟨Aki⟩) -->
 
 ## A. Versioning core
 
@@ -105,7 +105,16 @@ After updating CHANGELOG and version bump, automatically output a copy-ready Git
 
 **Body:** same `#### Fixed` / `#### Changed` / `#### Added` sections as CHANGELOG, but each bullet trimmed to one short sentence — symptom first, no file paths, no internal jargon.
 
-### B5. Content discipline
+### B5. Migration/infra completeness gate — a schema or infra change is not "released" until it ran
+
+A CHANGELOG or `releases.json` entry that describes a database schema change or any other infra-dependent change (migration, remote config, env var, cron/schedule registration — see [[RULE-coding]] B3) is a claim that the change is live. That claim is only true once two things both hold, not one:
+
+1. **The migration/infra action actually succeeded against the real target** — for a DB change, the migration ran against the production database (not just local/dev), and its own stated postconditions were checked (row counts, expected columns/tables), not assumed.
+2. **The script is marked complete in the repo's own convention** — e.g. moved out of a pending location (`scripts/`) into its done location (`scripts/done/`), or whatever equivalent completion marker the project uses. A migration file still sitting in the pending location is itself the signal that step 1 has not been confirmed, regardless of what the CHANGELOG says.
+
+Do not report a plan, task, or release/deploy as complete when a migration/infra step it depends on has not cleared **both** conditions. A written migration script plus a "Added" changelog line with the actual execution still outstanding is exactly the failure this gate exists to catch — the code shipped, the database did not, and nothing else in the release checklist would have noticed.
+
+### B6. Content discipline
 - Release note copy: no em/en dash (`—` `–`); short user-facing sentences, benefit first. See [[RULE-content-write]].
 - Keep terminology stable across versions (e.g. always "Release Notes", not mixed synonyms). See [[RULE-content-write]] semantic stability.
 - Doc/version moves are part of the change, not an afterthought. See [[RULE-docs]].
