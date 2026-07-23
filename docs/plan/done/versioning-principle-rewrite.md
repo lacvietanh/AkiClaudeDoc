@@ -1,7 +1,6 @@
 # RULE-release.md — Versioning Principle Rewrite (Proposal)
 
-Status: proposal — chờ review, CHƯA áp dụng vào RULE-release.md
-Scope: `payload/RULE-release.md`, mục "Versioning — semver `major.minor.patch`" và "Identify the current version before bumping" (dòng ~23-53)
+Status: ✅ Đã áp dụng (2026-07-23) — thực thi vào `payload/RULE-release.md` A4 (severity-driven bump), B1 (cold-start reconstruction), B2 (anti-skip invariant), B3 (audit mode). Scope: `payload/RULE-release.md`, mục "Versioning — semver `major.minor.patch`" và "Identify the current version before bumping" (dòng ~23-53)
 
 ---
 
@@ -109,4 +108,4 @@ project inception (imported project, messy history, disorganized entries):
 
 ---
 
-Đây là bản plan đề xuất — chưa chỉnh sửa `payload/RULE-release.md`. Quay lại yêu cầu áp dụng khi đã cân nhắc xong.
+Bản plan đề xuất này đã được duyệt và thực thi vào `payload/RULE-release.md` (xem status ở đầu file).

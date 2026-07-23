@@ -4,13 +4,13 @@
 - **Date:** 2026-07-11
 - **Participants:** Antigravity (AI) & Aki (Owner)
 - **Topic:** Improving versioning and release rule robustness in `RULE-release.md` to prevent skipped versions.
-- **Reference Proposal:** [versioning-principle-rewrite.md](file:///Volumes/DEV/AkiClaudeDoc/docs/plan/versioning-principle-rewrite.md)
+- **Reference Proposal:** [versioning-principle-rewrite.md](../plan/versioning-principle-rewrite.md)
 
 ---
 
 ## Phase 1 — Problem Restatement
 
-The current release rule set in [RULE-release.md](file:///Volumes/DEV/AkiClaudeDoc/payload/RULE-release.md) suffers from three core weaknesses:
+The current release rule set in [RULE-release.md](../../payload/RULE-release.md) suffers from three core weaknesses:
 1. **Cold-Start Fragility:** Capping the git log scan at `git log --oneline -3` causes agents to miss accumulated changes if the release process is spread over multiple days or sessions.
 2. **Incorrect Definition of "Skips":** The rule defines "skipping" by the step-increment of the version number (e.g. forbidding `1.4.2 -> 2.0.0` or `1.4.2 -> 1.5.0` directly without justification), rather than by content severity or real gaps in the historical record (missing entries for tags or published releases).
 3. **Lack of Legacy Support:** No transition/audit path exists for applying these rules to pre-existing projects with messy historical changelogs.
@@ -46,7 +46,7 @@ The current release rule set in [RULE-release.md](file:///Volumes/DEV/AkiClaudeD
 * **Why keep `git log -3`?** It is simple, deterministic, fast, and uses negligible tokens. It works well if releases are strictly linear and made after every single task.
 * **Why restrict large jumps?** Forbidding jumps like `1.4.2 -> 1.6.0` prevents agents from accidentally skipping a minor version. (For example, jumping over `1.5.0` to `1.6.0` when no `1.5.0` ever existed is a violation of semver). The constraint was meant to prevent double-bumping.
 
-### 2. Attack the Proposed Rewrite (from [versioning-principle-rewrite.md](file:///Volumes/DEV/AkiClaudeDoc/docs/plan/versioning-principle-rewrite.md))
+### 2. Attack the Proposed Rewrite (from [versioning-principle-rewrite.md](../plan/versioning-principle-rewrite.md))
 * **Vulnerability in finding the "Last Version's Commit":** The proposal assumes we can magically find "the commit tied to the last CHANGELOG version". But if there is no matching git tag, and the commit message is messy (e.g. no `release: v1.4.2` message), how does the agent find the start commit?
 * **Unbounded git log risk:** If the start commit cannot be found, and we do not cap the search, the agent will scan the entire history of the repository, hitting token limits in large projects.
 * **Over-complication:** Running a multi-step audit on every single minor change is slow and wastes tokens.
@@ -69,22 +69,18 @@ We accept the proposal but harden it with **concrete, robust fallback mechanisms
 
 ### Hardened Version Lookup Protocol
 To find the commit of the last version (`<last-version>`):
-1. **Search Git Log by Message:** Run a grep in git log for version tags in messages:
-   `git log --grep="<last-version>" --grep="v<last-version>" -n 1 --format="%H"`
-2. **Search Git Tags:** If step 1 returns empty, search tags:
-   `git rev-parse "v<last-version>" || git rev-parse "<last-version>"`
-3. **Graceful Fallback:** If both fail (e.g. no tag, no clear release commit message), **do not scan the entire history**. Fall back to checking the last 20 commits:
-   `git log --oneline -20`
-   Analyze the recent commits manually and ask the user to confirm the boundary if there is any ambiguity.
+1. **Search Git Log by Message:** Run a grep in git log for version tags in messages: `git log --grep="<last-version>" --grep="v<last-version>" -n 1 --format="%H"`
+2. **Search Git Tags:** If step 1 returns empty, search tags: `git rev-parse "v<last-version>" || git rev-parse "<last-version>"`
+3. **Graceful Fallback:** If both fail (e.g. no tag, no clear release commit message), **do not scan the entire history**. Fall back to checking the last 20 commits: `git log --oneline -20` Analyze the recent commits manually and ask the user to confirm the boundary if there is any ambiguity.
 4. **Fresh Repo Case:** If the repository has fewer than 5 commits or no versions recorded yet, treat the entire history as the current accumulation.
 
 ---
 
 ## Proposed Changes to the Rule Files
 
-### [MODIFY] [RULE-release.md](file:///Volumes/DEV/AkiClaudeDoc/payload/RULE-release.md)
+### [MODIFY] [RULE-release.md](../../payload/RULE-release.md)
 
-Replace lines 29–53 in [RULE-release.md](file:///Volumes/DEV/AkiClaudeDoc/payload/RULE-release.md) with:
+Replace lines 29–53 in [RULE-release.md](../../payload/RULE-release.md) with:
 
 ```markdown
 ## Identify the current version — cold-start, not session-memory
@@ -133,7 +129,6 @@ Run once when `CHANGELOG.md` was not produced under this rule from project incep
 4. Report mismatches and propose retroactive entries for any gaps. Never renumber or delete public versions.
 ```
 
-### [MODIFY] [index.md](file:///Volumes/DEV/AkiClaudeDoc/payload/index.md)
+### [MODIFY] [index.md](../../payload/index.md)
 
-Update the description of `RULE-release.md` to:
-`Release & Versioning | Contextual | Cold-start version reconstruction, severity-driven bump, audit mode for legacy changelogs.`
+Update the description of `RULE-release.md` to: `Release & Versioning | Contextual | Cold-start version reconstruction, severity-driven bump, audit mode for legacy changelogs.`

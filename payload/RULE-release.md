@@ -17,6 +17,7 @@ Every Aki project, any stack (Nuxt web — see `RULE-stack-akiNuxtCf.md` — Tau
 
 ### A3. Version string format (ABSOLUTE — never violate)
 The version *attribute itself* is always bare semver, **never prefixed with `v`**: `package.json`/`Cargo.toml`/equivalent manifest `"version"` field, and every git tag, are `1.10.1` — not `v1.10.1`. This is a real bug class, not a style nit: an inconsistent prefix across tags silently breaks semver comparisons and diffing tools (`git describe`, `hasUpdate()`-style JS comparisons against a fetched tag name), and produces doubled-up UI text when display code does `` `v${version}` `` against a value that already contains `v` (rendered as `vv1.10.1`).
+- Tag only if the project already tags: `git tag -l` empty → skip tag creation; CHANGELOG/releases.json/GitHub Release stay authoritative.
 - Create tags bare: `git tag 1.10.1`, never `git tag v1.10.1`.
 - Before cutting any release, check the existing tag convention with `git tag -l | sort -V | tail -5` — if a project's history has drifted to `v`-prefixed tags partway through, treat that drift as the bug being corrected (go back to bare), not as the precedent to keep following.
 - Human-facing display **may** prepend `v` at render time only — a GitHub Release title (`v{version} — …`, see below), a UI badge ("Update Available — v1.10.1"). That is a presentation concern, separate from and does not violate this rule. The forbidden thing is `v` baked into the stored/compared value itself.
@@ -35,22 +36,24 @@ Unsure between two levels → choose the smaller, state the reason.
 A jump like `1.4.2 → 2.0.0` is a correct single major step if the accumulation contains a breaking change. A jump like `1.4.2 → 1.6.0` remains invalid because it skips the minor version `1.5.0` (minor must only increment by 1).
 
 ### A5. A version is minted at the release event, never at work-completion (ABSOLUTE)
-Finishing a piece of work does not earn a version number. Only shipping does — a production deploy, a published tag, a distributed build. Between releases, the accumulation lives under `## [Unreleased]` at the top of `CHANGELOG.md` with **no version number and no manifest bump**. When the release actually happens, rename that one `[Unreleased]` heading to the new version and bump the manifest once. This makes the drift structurally impossible: local version == production version at all times, and everything not yet shipped sits in a single unnumbered bucket no matter how many sessions it took.
 
-- **Never bump the manifest `version` field in the same task as the code change.** The bump belongs to the release task alone. A task that ends with "bumped to 0.2.0" but nothing deployed is the bug.
+Finishing a piece of work does not earn a version number. Only shipping does — a production deploy, a published tag, a distributed build.
+
+- **Continuously-deployed Web / Service Apps**: Between releases, the accumulation lives under `## [Unreleased]` at the top of `CHANGELOG.md` with **no version number and no manifest bump**. When the release actually happens, rename that `[Unreleased]` heading to the new version and bump the manifest once. Local version == production version at all times.
+- **Distributed Artifact Apps (Tauri Desktop App, CLI Binaries, compiled packages)**:
+  - Atomic bump + tag + build in the same release task is **PERMITTED** (because the version string is baked into the compiled binary artifact at build time).
+  - **Mandatory Pre-Bump Guard (ABSOLUTE)**: Before bumping to a new version, you **MUST** verify that the current manifest version already has a matching git tag/release build (`git tag -l "<current_manifest_version>"`). If the manifest version has no matching tag (state: **Drifted**), **STOP AND BLOCK THE BUMP** — resolve the pending untagged version (cut tag/build or rollback) before minting any new version.
+
+- **Never bump the manifest `version` field in the same task as a routine code change (Web apps)**. The bump belongs to the release task alone. A task that ends with "bumped to 0.2.0" but nothing deployed is the bug for web apps.
 - **Many sessions collapse into one version, not one version per session.** Three or four rounds of local improvement on top of a `0.1.0` production release ship as `0.2.0` (or `0.1.1`, or `1.0.0` — whatever A4's severity rule gives), **never** as `0.3.4`.
-- **Materiality test before minting.** A version the user sees must be worth seeing. If the whole `[Unreleased]` accumulation is one or two trivial internal lines, do not mint it — leave it in the bucket and let it ride with the next real change. A release with three versions of two bullets each is the symptom this rule exists to prevent; those should have been one version.
-- **Recovery when drift already happened.** Versions that were never published to production are not public, so they are **not protected by B3's "never renumber public versions"**. Squash them: collapse every unpublished version's entries into one `[Unreleased]` section, reset the manifest to the last *actually released* version, then mint one version. Only versions with a real deploy/tag/build behind them are frozen. If it is unclear whether a version ever shipped, treat it as shipped and ask the user.
+- **Materiality test before minting.** A version the user sees must be worth seeing. If the whole accumulation is one or two trivial internal lines, do not mint it — leave it in the bucket and let it ride with the next real change. A release with three versions of two bullets each is the symptom this rule exists to prevent; those should have been one version.
+- **Recovery when drift already happened.** Versions that were never published to production/tagged are not public, so they are **not protected by B3's "never renumber public versions"**. Squash them: collapse every unpublished version's entries into one `[Unreleased]` section, reset the manifest to the last *actually released* version, then mint one version. Only versions with a real deploy/tag/build behind them are frozen. If it is unclear whether a version ever shipped, treat it as shipped and ask the user.
 
 ## B. Xác định & audit
 
 ### B1. Identify the current version — cold-start, not session-memory
 
-Run this check **each time a problem is closed and about to be recorded** — not
-once at the end of a session. It answers "does this entry go into a new version
-or the one already open?" Never rely on remembering a prior session: every time
-this step runs — 5 minutes or 5 months since the last run — it must re-derive
-the correct state from the repo alone.
+Run this check **each time a problem is closed and about to be recorded** — not once at the end of a session. It answers "does this entry go into a new version or the one already open?" Never rely on remembering a prior session: every time this step runs — 5 minutes or 5 months since the last run — it must re-derive the correct state from the repo alone.
 
 1. Read `package.json` (or equivalent) for the recorded version.
 2. Read `CHANGELOG.md` to identify the last documented version (`<last-version>`).
@@ -65,21 +68,14 @@ the correct state from the repo alone.
 | **Mismatch** | any other disagreement | Warn the user, do not auto-fix |
 
 4. Find the boundary commit for `<last-version>` using this sequence:
-   a. The commit that wrote the CHANGELOG entry — the strongest anchor, since the
-      entry itself marks the release boundary:
-      `git log -1 --format=%H -S "[<last-version>]" -- CHANGELOG.md`
-   b. Git tags: `git rev-parse "v<last-version>"` or `git rev-parse "<last-version>"`
-   c. A release commit message — use fixed strings (`.` is a regex wildcard):
-      `git log --fixed-strings --grep="<last-version>" -n 1 --format="%H"`
-      A later commit that merely *mentions* the version (e.g. "fix regression
-      from 1.4.2") is NOT the boundary — inspect the hit before trusting it.
-   d. If no boundary is found, **do not scan the entire history**. Fall back to
-      `git log --oneline -20`, analyze manually, and ask the user to confirm the
-      boundary if there is any ambiguity.
-5. Run `git log <boundary-commit>..HEAD --oneline` to get the complete, unbounded
-   list of accumulated changes since the last release.
-6. Fresh repo: fewer than ~5 commits, or no version recorded anywhere yet →
-   treat the entire history as the current accumulation.
+   a. The commit that wrote the CHANGELOG entry — the strongest anchor, since the entry itself marks the release boundary: `git log -1 --format=%H -S "[<last-version>]" -- CHANGELOG.md`
+   b. Production baseline verification (stack-specific, strictly remote):
+      - **App (Tauri/Desktop/CLI):** Check remote git tags (`git ls-remote --tags origin`) and GitHub Releases.
+      - **Web (Nuxt Cloudflare / AkiNuxtCf):** Check remote GitHub state (published `app/data/releases.json` / remote GitHub tags).
+   c. A release commit message — use fixed strings (`.` is a regex wildcard): `git log --fixed-strings --grep="<last-version>" -n 1 --format="%H"` (A later commit that merely *mentions* the version, e.g. "fix regression from 1.4.2", is NOT the boundary — inspect the hit before trusting it.)
+   d. If no boundary is found, **do not scan the entire history**. Fall back to `git log --oneline -20`, analyze manually, and ask the user to confirm the boundary if there is any ambiguity.
+5. Run `git log <boundary-commit>..HEAD --oneline` to get the complete, unbounded list of accumulated changes since the last release.
+6. Fresh repo: fewer than ~5 commits, or no version recorded anywhere yet → treat the entire history as the current accumulation.
 
 ### B2. The real anti-skip invariant
 
