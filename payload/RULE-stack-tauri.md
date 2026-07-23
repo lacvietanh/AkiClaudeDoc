@@ -1,6 +1,6 @@
 # Tauri v2 + Rust Stack Rule
 
-<!-- Address map: tauri.A1-2 · tauri.B1-5 -->
+<!-- Address map: tauri.A1-2 · tauri.B1-6 -->
 
 ## Scope — when this applies
 Every Aki desktop project built on Tauri v2 + Rust (backend commands) + any JS frontend framework. Generic lessons only — project-specific facts (titlebar height, bundle naming, etc.) stay in that project's own `CLAUDE.md`.
@@ -39,3 +39,6 @@ Declare variables **inside** the cfg block. Declared outside but used only insid
 
 ### B5. Version SSOT
 `package.json` only. `tauri.conf.json` → `"version": "../package.json"`. Never hardcode version in `tauri.conf.json`. `Cargo.toml` has its own crate version (separate concern) and **must always be bumped to the same number in the same commit** — a mismatch between `package.json` and `Cargo.toml` is the same class of bug as a bad tag. See [[RULE-release]] § Version string format for the absolute no-`v`-prefix rule that governs both fields and every git tag.
+
+### B6. Salient target context up front in the project CLAUDE.md
+State the few decision-shaping target facts the agent must grasp without inferring — first of them the platform(s) the app actually ships to (drives shortcut glyphs ⌘ vs Ctrl, path shapes, packaging, the A2 candidate list). Surface the load-bearing few, not an inventory; when a platform-specific string is needed and the target is undeclared, ask — don't guess.

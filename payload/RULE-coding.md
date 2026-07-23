@@ -37,9 +37,9 @@ A principle with the procedure that guarantees it — apply to any edit of code 
 - **After:** confirm the intents and flows you did NOT set out to touch still hold — a fix scoped to problem X must not silently break an unrelated property Y.
 
 ### B3. Verification
-- Done means verified
-- Check syntax, type, lint, build, or runtime behavior as appropriate for the change
-- Never claim success from intention alone
+- Done means verified — never claim success from intention alone.
+- Verify by the **narrowest tool that actually settles the doubt**: static reading and type/lint/unit checks first. Never spin up a full build or dev server just to catch a typo a typecheck would catch.
+- **Running the app is not a default verification step — but not running it does not let you claim "Done".** Starting a dev server, making live network calls, or driving a full build/headless screenshot is **user-triggered**, not self-authorized (cost and side effects are the user's call). When a change's real risk lives **only at runtime** — hydration, layout/z-index, route/auth flow, a dynamically-built class a build step may purge — and you cannot settle it statically, you may **not** report "Done": halt and report the state as **"unverified — needs a runtime check"**, propose the exact command, and hand it to the user (see [[RULE-agent-behavior]] A3). "Done" for logic you only compiled is not done.
 
 ## C. An toàn runtime
 
