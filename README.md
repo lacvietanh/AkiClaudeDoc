@@ -40,18 +40,9 @@ No harness magic: Tier 1 uses the `@path` embed syntax; Tier 2 is trigger instru
 
 ### Addressing — `topic.A1`, and the `⟨Aki⟩` flag
 
-Every rule/method file is internally organized into groups `A`/`B`/`C` and numbered items
-`1`/`2`/`3…`, so any single rule can be named precisely — `coding.B2` (changing existing code),
-`stack.C1` (canonical component names) — without touching routing or renaming any file (`topic` is
-the filename minus its `RULE-`/`METHOD-` prefix). The full group map lives in `payload/index.md`.
+Every rule/method file is internally organized into groups `A`/`B`/`C` and numbered items `1`/`2`/`3…`, so any single rule can be named precisely — `coding.B2` (changing existing code), `stack.C1` (canonical component names) — without touching routing or renaming any file (`topic` is the filename minus its `RULE-`/`METHOD-` prefix). The full group map lives in `payload/index.md`.
 
-Three files (`RULE-seo.md`, `RULE-release.md`, `RULE-stack-akiNuxtCf.md`) mix universal rules with
-content specific to Aki's own AkiNuxtCf ecosystem (usePageSeo API, releases.json schema, canonical
-component names, …). That ecosystem-specific content is isolated into each file's **last group**,
-logically flagged `⟨Aki⟩`. It stays in this public repo and auto-loads like everything else — Aki
-is this repo's heaviest user, so auto-load stays more valuable than a clean public/private split —
-but the flag marks exactly what a stripped public export would drop. Every other file, and every
-group outside `⟨Aki⟩`, is 100% universal.
+Three files (`RULE-seo.md`, `RULE-release.md`, `RULE-stack-akiNuxtCf.md`) mix universal rules with content specific to Aki's own AkiNuxtCf ecosystem (usePageSeo API, releases.json schema, canonical component names, …). That ecosystem-specific content is isolated into each file's **last group**, logically flagged `⟨Aki⟩`. It stays in this public repo and auto-loads like everything else — Aki is this repo's heaviest user, so auto-load stays more valuable than a clean public/private split — but the flag marks exactly what a stripped public export would drop. Every other file, and every group outside `⟨Aki⟩`, is 100% universal.
 
 ### One brain, two modes
 
@@ -83,6 +74,7 @@ payload/                          → installed to ~/.aki/claudedoc/
   RULE-db-design.md
   METHOD-flow-audit.md
   METHOD-deep-think.md
+  GEMINI.md                       → installed to ~/.gemini/GEMINI.md (NOT a rule file)
 
 claude/                           → installed to ~/.claude/
   CLAUDE.md
@@ -99,14 +91,62 @@ install.sh
 
 ## What the installer does
 
-1. Syncs `payload/*` into `~/.aki/claudedoc/` (rsync, excludes `ref-ECC/`), removing stale files left by renames.
+```mermaid
+flowchart TD
+    subgraph SRC["📦 Source: AkiClaudeDoc Repo"]
+        PAYLOAD["payload/ (13 raw rule files)"]
+        PGEMINI["payload/GEMINI.md (template)"]
+        CSKILLS["claude/skills/ (5 skills)"]
+        CCLAUDE["claude/CLAUDE.md (template)"]
+        CHOOKS["claude/hooks/aki-update-check.py"]
+    end
+
+    INSTALL["⚙️ install.sh"]
+    SRC --> INSTALL
+
+    %% TARGET 1: ~/.aki/claudedoc/
+    subgraph T1["📂 1. Shared SSOT Rule Corpus (~/.aki/claudedoc/)"]
+        R_CORPUS["*.md (Raw payload rules)"]
+        R_AGSKILLS["agskills/ (Shared skill tree for AG)"]
+        R_META[".source-repo & .version"]
+    end
+
+    %% TARGET 2: ~/.claude/
+    subgraph T2["🤖 2. Claude Code Agent (~/.claude/)"]
+        C_MD["CLAUDE.md (Managed prompt)"]
+        C_LOCAL["CLAUDE.local.md (Machine local)"]
+        C_SKILLS["skills/<skill_name>/SKILL.md"]
+        C_HOOKS["hooks/aki-update-check.py"]
+        C_SET["settings.json (Permissions + Skill Overrides)"]
+    end
+
+    %% TARGET 3: ~/.gemini/
+    subgraph T3["🚀 3. Antigravity Engine (~/.gemini/)"]
+        G_MD["GEMINI.md (Managed prompt global)"]
+        G_LOCAL["GEMINI.local.md (Machine local)"]
+        G_RULES["config/rules/akirule-*.md (13 rules with YAML trigger)"]
+        G_SKILLS["config/skills/ (5 skills, native auto-discovery)"]
+        G_SJSON["config/skills.json (Inherits agskills, absolute path)"]
+    end
+
+    INSTALL -->|"rsync --delete"| T1
+    INSTALL -->|"deploy & settings setup"| T2
+    INSTALL -->|"deploy native rules, skills & skills.json"| T3
+```
+
+1. Syncs `payload/*` into `~/.aki/claudedoc/` (rsync, excludes `ref-ECC/`), removing stale files left by renames, and syncs `agskills/` for Antigravity skill inheritance.
 2. Copies every skill under `claude/skills/*/` into `~/.claude/skills/`, removing old/renamed skill directories (`akidoc-*`, `akiadvise`).
 3. Replaces `~/.claude/CLAUDE.md` with the packaged guidance (timestamped backup first), appending this machine's source-repo path and an `@~/.claude/CLAUDE.local.md` import.
 4. Creates `~/.claude/CLAUDE.local.md` **only if missing** — never overwritten afterward. Put per-machine rules there (build constraints, IDE paths, remote flags); they survive every reinstall.
 5. Updates `~/.claude/settings.json` (timestamped backup first): read permission for `~/.aki/claudedoc/**`, `skillOverrides.akirule = "on"`, idempotent registration of the `SessionStart` update-check hook.
 6. Installs `~/.claude/hooks/aki-update-check.py` and records the source-repo path in `~/.aki/claudedoc/.source-repo`.
+7. Installs `payload/GEMINI.md` to `~/.gemini/GEMINI.md` — Antigravity global behavior overrides, stamped with a version marker (`[AKIRULE-AG-OVERRIDES-…]`) on line 1. Generates 13 native rule files under `~/.gemini/config/rules/` with YAML `trigger` frontmatter. Deploys 5 skills directly to `~/.gemini/config/skills/` for native auto-discovery, and configures `~/.gemini/config/skills.json` with absolute paths as secondary.
 
 Re-running the installer updates the same managed files cleanly.
+
+### Gemini / Antigravity model
+
+Claude Code loads the rule corpus automatically (harness-guaranteed `@`-imports via the `akirule` skill). Antigravity/Gemini has no such loader, so the split is: `~/.gemini/GEMINI.md` carries **hard-loaded behavior overrides** that patch Antigravity's weak spots (unrequested artifacts, over-engineering, verbosity), and a tiny per-project `GEMINI.md` bootstrap points the agent at that project's `CLAUDE.md` as its single source of truth. The per-project bootstrap is copied into a project by hand (it is not distributed by the installer).
 
 ## What is excluded
 
@@ -124,6 +164,7 @@ No sudo, user-local, easy to inspect and delete, consistent with the Aki ecosyst
 rm -rf ~/.aki/claudedoc
 rm -rf ~/.claude/skills/{akirule,akithink,akihtmlreport,akihelp,akigitcommit}
 rm -f  ~/.claude/hooks/aki-update-check.py
+rm -f  ~/.gemini/GEMINI.md          # restore from a *.akiclaudedoc-backup-* if needed; GEMINI.local.md is left untouched
 ```
 
 Then remove the AkiClaudeDoc block from `~/.claude/CLAUDE.md` and its entries (permission, skillOverrides, SessionStart hook) from `~/.claude/settings.json` if desired.

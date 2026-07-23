@@ -153,7 +153,9 @@ fi
 echo "Installing..."
 
 mkdir -p "$INSTALL_ROOT" "$CLAUDE_DIR/skills"
-rsync -a --delete --exclude 'ref-ECC/' --exclude '.DS_Store' "$REPO_ROOT/payload/" "$INSTALL_ROOT/"
+# GEMINI.md is the source for ~/.gemini/GEMINI.md (handled below), not a payload
+# rule file — keep it out of the installed rule corpus.
+rsync -a --delete --exclude 'ref-ECC/' --exclude '.DS_Store' --exclude 'GEMINI.md' "$REPO_ROOT/payload/" "$INSTALL_ROOT/"
 
 # Copy changelog so any machine knows what's installed without the repo
 cp "$REPO_ROOT/CHANGELOG.md" "$INSTALL_ROOT/CHANGELOG.md"
@@ -221,6 +223,175 @@ Add any per-machine rules here (e.g. build constraints, IDE paths, remote flags)
 LOCAL_TEMPLATE
   echo -e "📝 Created $CLAUDE_DIR/CLAUDE.local.md (machine-local template)"
 fi
+
+# --- Global Antigravity / Gemini overrides -> ~/.gemini/GEMINI.md ---
+# Mirrors the CLAUDE.md pattern: payload is the managed source, machine-local
+# facts live in a sibling .local.md that installs never overwrite.
+GEMINI_DIR="$HOME/.gemini"
+GEMINI_FILE="$GEMINI_DIR/GEMINI.md"
+GEMINI_LOCAL="$GEMINI_DIR/GEMINI.local.md"
+GEMINI_MARKER="[AKIRULE-AG-OVERRIDES-"
+mkdir -p "$GEMINI_DIR"
+
+# An existing GEMINI.md with no marker is unmanaged (hand-written, or created by
+# Antigravity's "+ Global"). It is backed up below, then replaced. We deliberately
+# do NOT parse it: there is no universal way to know where a given user's
+# machine-local section begins, so we never guess by heading name. The user moves
+# whatever they want to keep from the backup into GEMINI.local.md themselves.
+had_unmanaged_gemini=false
+if [ -f "$GEMINI_FILE" ] && ! grep -qF "$GEMINI_MARKER" "$GEMINI_FILE"; then
+  had_unmanaged_gemini=true
+fi
+
+# Create an empty machine-local template on first install (never overwrite).
+if [ ! -f "$GEMINI_LOCAL" ]; then
+  cat > "$GEMINI_LOCAL" << 'GEMINI_LOCAL_TEMPLATE'
+# Machine-local GEMINI instructions
+
+This file is machine-specific and never touched by AkiClaudeDoc installs.
+Add machine-specific paths, CLIs, and emulator commands here.
+GEMINI_LOCAL_TEMPLATE
+  echo -e "📝 Created $GEMINI_LOCAL (machine-local template)"
+fi
+
+backup "$GEMINI_FILE"
+echo -e "🧹 Pruning GEMINI.md backups (keeping the 2 most recent):"
+prune_backups "$GEMINI_FILE"
+
+# Copy payload + stamp the version marker in one pass (portable, no in-place sed).
+GEMINI_VERSION="V$(date +%Y%m%d)"
+sed "s/__VERSION__/$GEMINI_VERSION/" "$REPO_ROOT/payload/GEMINI.md" > "$GEMINI_FILE"
+
+# Inject this machine's real paths, mirroring the CLAUDE.md block. AG has no
+# reliable soft-import, so the paths are written in literally.
+cat >> "$GEMINI_FILE" << GEMINI_SOURCE_BLOCK
+
+## 9. Shared rule source — edit source, not deployed copy (ABSOLUTE)
+
+The deployed rule corpus at \`$INSTALL_ROOT\` is **overwritten on every install**.
+To change any shared rule:
+1. Edit in the **source repo**: \`$REPO_ROOT/payload/\` (rules) or \`$REPO_ROOT/claude/\` (runtime assets).
+2. Read \`$REPO_ROOT/CLAUDE.md\` first — it lists which files must be updated together.
+3. Run \`bash $REPO_ROOT/install.sh\` to propagate.
+
+**NEVER edit files under \`$INSTALL_ROOT\` directly** — changes are silently lost on the next install.
+GEMINI_SOURCE_BLOCK
+
+# Hard-load the machine-local config by appending it directly to the end
+echo -e "\n---\n" >> "$GEMINI_FILE"
+cat "$GEMINI_LOCAL" >> "$GEMINI_FILE"
+
+echo -e "🤖 Installed $GEMINI_FILE (marker $GEMINI_MARKER$GEMINI_VERSION])"
+
+if [ "$had_unmanaged_gemini" = true ]; then
+  echo -e "  ⚠️  Your previous ~/.gemini/GEMINI.md was replaced (saved as *.akiclaudedoc-backup-*)."
+  echo -e "      Move any machine-local lines from that backup into $GEMINI_LOCAL."
+fi
+
+# --- Rule corpus -> ~/.gemini/config/rules/ (Antigravity native rules) ---
+#
+# `~/.gemini/config/` is the ONE customizations root all three Antigravity
+# surfaces read (AG desktop, AG IDE, AGY CLI). Verified 2026-07-22 by canary:
+# a rule placed here was quoted back by `agy` launched from an unrelated empty
+# directory, alongside the ~/.gemini/GEMINI.md marker.
+#
+# Antigravity rules carry a frontmatter `trigger`. The full enum is
+# always_on | glob | model_decision | manual. We generate the frontmatter here
+# rather than storing it in payload/, because the same rule text also has to
+# serve Claude Code, which has no such concept — the payload files stay
+# agent-neutral and each installer adapts them.
+#
+# Budget note: Antigravity silently truncates customizations past an internal
+# budget, so `always_on` is spent on behavior rules only. Everything else is
+# model_decision or glob, retrieved when matched.
+GEMINI_RULES_DIR="$GEMINI_DIR/config/rules"
+mkdir -p "$GEMINI_RULES_DIR"
+
+# file|trigger|description|globs  (description ignored for always_on; globs optional)
+AG_RULE_MAP="RULE-agent-behavior.md|always_on||
+RULE-coding.md|model_decision|Coding philosophy, source-of-truth discipline, error handling and security. Load when writing, reviewing or refactoring code.|
+RULE-design-core.md|model_decision|Universal design laws: single source of truth, Rule of Three, single-responsibility \"and\"-test, composition over inheritance, naming by role. Load on any structural or decomposition decision.|
+RULE-docs.md|model_decision|Documentation structure, plan lifecycle and doc-sync behavior. Load when writing or reorganizing docs and plans.|
+RULE-content-write.md|model_decision|UI copy, semantic stability, writing style and i18n. Load when writing user-facing text.|
+RULE-stack-akiNuxtCf.md|glob|Nuxt, Vue, Cloudflare Pages and Workers, Tailwind, i18n, state and build conventions. Load when working in a Nuxt or Cloudflare project.|[\"**/*.vue\", \"**/*.ts\", \"nuxt.config.*\", \"server/**/*.ts\"]
+RULE-stack-tauri.md|glob|Tauri v2 and Rust conventions, including the never-block-the-UI rule for subprocess and network commands. Load when working in a Tauri project.|[\"src-tauri/**\", \"**/*.rs\", \"tauri.conf.json\"]
+RULE-ui-pattern.md|model_decision|Frontend class taxonomy, design tokens, arbitrary-value policy, atomic structure and variant APIs. Load when building or auditing UI components.|
+RULE-seo.md|model_decision|Meta limits, schema.org, robots, sitemap, Open Graph and AI visibility. Load when working on SEO or page metadata.|
+RULE-release.md|model_decision|CHANGELOG discipline, release versus deploy boundary, severity-driven version bumps. Load when preparing a release or writing a changelog.|
+RULE-db-design.md|model_decision|Immutability and event sourcing, normalization, bounded contexts, flat-query discipline. Load when designing a schema, migration or database refactor.|
+METHOD-flow-audit.md|model_decision|Method for auditing end-to-end flow integrity. Load when guards and checks keep accumulating around a flow.|
+METHOD-deep-think.md|model_decision|Deep-think method: goal excavation, first principles, mandatory critique. Load for big, hard-to-reverse or goal-ambiguous decisions.|"
+
+ag_rules_written=0
+# Remove rules from a previous install so renamed/dropped files do not linger.
+rm -f "$GEMINI_RULES_DIR"/akirule-*.md
+
+while IFS='|' read -r rule_file rule_trigger rule_desc rule_globs; do
+  [ -z "$rule_file" ] && continue
+  src="$REPO_ROOT/payload/$rule_file"
+  [ -f "$src" ] || { echo -e "  ⚠️  $rule_file listed in AG_RULE_MAP but missing from payload/"; continue; }
+  # akirule- prefix namespaces our files so they never collide with the user's own rules.
+  dest="$GEMINI_RULES_DIR/akirule-$(echo "$rule_file" | sed -e 's/^RULE-//' -e 's/^METHOD-//' -e 's/\.md$//' | tr '[:upper:]' '[:lower:]').md"
+  
+  # Safely encode description for YAML frontmatter to handle colons and quotes cleanly
+  safe_desc=""
+  if [ "$rule_trigger" != "always_on" ] && [ -n "$rule_desc" ]; then
+    safe_desc=$(python3 -c "import json, sys; print(json.dumps(sys.argv[1]))" "$rule_desc")
+  fi
+
+  {
+    echo "---"
+    echo "trigger: $rule_trigger"
+    [ -n "$rule_globs" ] && echo "globs: $rule_globs"
+    [ -n "$safe_desc" ] && echo "description: $safe_desc"
+    echo "---"
+    echo ""
+    echo "<!-- Generated by AkiClaudeDoc install.sh from payload/$rule_file. Do not edit here. -->"
+    echo ""
+    cat "$src"
+  } > "$dest"
+  ag_rules_written=$((ag_rules_written + 1))
+done <<< "$AG_RULE_MAP"
+
+echo -e "🧭 Installed $ag_rules_written rule(s) to $GEMINI_RULES_DIR (read by AG, AG IDE and AGY)"
+
+# --- Antigravity skills deployment & inheritance ---
+# 1. Primary: sync directly to ~/.gemini/config/skills/ (standard Global Customizations Root for 100% native auto-discovery)
+GEMINI_SKILLS_DIR="$GEMINI_DIR/config/skills"
+mkdir -p "$GEMINI_SKILLS_DIR"
+rsync -a --delete "$REPO_ROOT/claude/skills/" "$GEMINI_SKILLS_DIR/"
+
+# 2. Secondary: sync to ~/.aki/claudedoc/agskills & register both absolute and tilde paths in skills.json
+mkdir -p "$INSTALL_ROOT/agskills"
+rsync -a --delete "$REPO_ROOT/claude/skills/" "$INSTALL_ROOT/agskills/"
+
+python3 - <<'PY'
+import json, pathlib
+skills_json = pathlib.Path.home() / ".gemini" / "config" / "skills.json"
+skills_json.parent.mkdir(parents=True, exist_ok=True)
+data = {}
+if skills_json.exists():
+    try:
+        with open(skills_json, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception:
+        data = {}
+
+if not isinstance(data.get('entries'), list):
+    data['entries'] = []
+
+abs_path = str(pathlib.Path.home() / ".aki" / "claudedoc" / "agskills")
+tilde_path = "~/.aki/claudedoc/agskills"
+
+for p in [abs_path, tilde_path]:
+    if not any(isinstance(e, dict) and e.get('path') == p for e in data['entries']):
+        data['entries'].append({"path": p})
+
+with open(skills_json, 'w', encoding='utf-8') as f:
+    json.dump(data, f, indent=2)
+PY
+echo -e "💡 Deployed skills to $GEMINI_SKILLS_DIR & updated ~/.gemini/config/skills.json"
+echo -e "  ℹ️  Antigravity discovers rules and skills at startup — restart the app or start a new agy session."
 
 if [ ! -f "$CLAUDE_DIR/settings.json" ]; then
   printf '{}\n' > "$CLAUDE_DIR/settings.json"
