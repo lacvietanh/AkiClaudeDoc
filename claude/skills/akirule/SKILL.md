@@ -6,10 +6,7 @@ user-invocable: false
 
 ## Addressing scheme (recall only — does not affect routing)
 
-Every rule file is internally organized into groups `A`/`B`/`C` and numbered items `1`/`2`/`3…`
-(e.g. `coding.B2`, `stack.C1`). `topic` = filename minus its `RULE-`/`METHOD-` prefix. This is a
-naming convention for referring to a specific rule precisely — it has no effect on which files
-load or when; that is still governed entirely by the tiers below. Full map: `~/.aki/claudedoc/index.md`.
+Every rule file is internally organized into groups `A`/`B`/`C` and numbered items `1`/`2`/`3…` (e.g. `coding.B2`, `stack.C1`). `topic` = filename minus its `RULE-`/`METHOD-` prefix. This is a naming convention for referring to a specific rule precisely — it has no effect on which files load or when; that is still governed entirely by the tiers below. Full map: `~/.aki/claudedoc/index.md`.
 
 ## Tier 1 — Core (harness-guaranteed)
 
@@ -27,13 +24,8 @@ Before responding, scan the user message and any file paths mentioned. For each 
 
 ### RULE-design-core.md
 Load if message or file path contains any of:
-- **Keywords:** `design pattern`, `pattern design`, `nguyên tắc thiết kế`, `DRY`, `SOLID`, `SRP`,
-  `OCP`, `single responsibility`, `single source of truth`, `SSoT`, `module`, `tách module`,
-  `decomposition`, `phân rã`, `tái sử dụng`, `reuse`, `abstraction`, `trừu tượng hoá`,
-  `pattern lặp`, `duplicate logic`, `rule of three`, `bounded context`, `clean code`
-- **Context:** designing/splitting a module, extracting shared code, refactoring for reuse,
-  hunting duplication, or any "how should this be structured" decision — any stack (backend,
-  Tauri, CLI, library, DB, UI)
+- **Keywords:** `design pattern`, `pattern design`, `nguyên tắc thiết kế`, `DRY`, `SOLID`, `SRP`, `OCP`, `single responsibility`, `single source of truth`, `SSoT`, `module`, `tách module`, `decomposition`, `phân rã`, `tái sử dụng`, `reuse`, `abstraction`, `trừu tượng hoá`, `pattern lặp`, `duplicate logic`, `rule of three`, `bounded context`, `clean code`
+- **Context:** designing/splitting a module, extracting shared code, refactoring for reuse, hunting duplication, or any "how should this be structured" decision — any stack (backend, Tauri, CLI, library, DB, UI)
 
 ### RULE-docs.md
 Load if message or file path contains any of:
@@ -48,21 +40,16 @@ Load if message or file path contains any of:
 - **Actions:** renaming a concept or term used across the product
 
 ### RULE-stack-akiNuxtCf.md
-**Default ON for any Aki project context.** Skip only when the task is provably stack-independent (plain markdown, isolated script, config unrelated to the Aki frontend stack).
-Load if message or file path contains any of:
+**Default ON for any Aki project context.** Skip only when the task is provably stack-independent (plain markdown, isolated script, config unrelated to the Aki frontend stack). Load if message or file path contains any of:
 - **Keywords:** `nuxt`, `vue`, `cloudflare`, `workers`, `pages`, `wrangler`, `tailwind`, `composable`, `middleware`, `layout`, `plugin`, `component`, `useRoute`, `useFetch`, `definePageMeta`, `nitro`, `vite`, `breadcrumb`, `scroll-to-top`, `back-to-home`, `layout chrome`, `useBreadcrumb`
 - **Paths:** `components/**`, `pages/**`, `composables/**`, `layouts/**`, `middleware/**`, `wrangler.toml`, `nuxt.config.*`, `tailwind.config.*`, `app.vue`
 
 ### RULE-ui-pattern.md
 Load if message or file path contains any of:
-- **Keywords (enforcement):** `component`, `vue`, `nuxt`, `tailwind`, `css`, `class`, `style`,
-  `design token`, `token`, `variant`, `design system`, `atomic design`, `pattern class`, `@apply`,
-  `@layer`, `BaseButton`, `c-btn`, `c-card`
-- **Keywords (audit):** `dọn dẹp`, `class trùng`, `duplicate class`, `duplicate CSS`, `trùng lặp`,
-  `audit CSS`, `refactor CSS`, `refactor UI`, `arbitrary value`, `quét class`, `w-[`, `text-[`
+- **Keywords (enforcement):** `component`, `vue`, `nuxt`, `tailwind`, `css`, `class`, `style`, `design token`, `token`, `variant`, `design system`, `atomic design`, `pattern class`, `@apply`, `@layer`, `BaseButton`, `c-btn`, `c-card`
+- **Keywords (audit):** `dọn dẹp`, `class trùng`, `duplicate class`, `duplicate CSS`, `trùng lặp`, `audit CSS`, `refactor CSS`, `refactor UI`, `arbitrary value`, `quét class`, `w-[`, `text-[`
 - **Paths:** `components/**`, `assets/css/**`, `tailwind.config.*`, `**/*.vue`
-- **Actions:** writing/refactoring any component or style; auditing a frontend codebase for
-  DRY/SOLID violations
+- **Actions:** writing/refactoring any component or style; auditing a frontend codebase for DRY/SOLID violations
 
 ### RULE-seo.md
 Load if message or file path contains any of:
@@ -77,20 +64,16 @@ Load if message or file path contains any of:
 - **Actions:** shipping a change that should be recorded for users or maintainers; bumping a version
 
 ### RULE-stack-tauri.md
-**Default ON for any Tauri project context.** Skip only when the task is provably unrelated to the Tauri/Rust backend (pure frontend copy change with no `src-tauri` involvement, isolated doc edit).
-Load if message or file path contains any of:
+**Default ON for any Tauri project context.** Skip only when the task is provably unrelated to the Tauri/Rust backend (pure frontend copy change with no `src-tauri` involvement, isolated doc edit). Load if message or file path contains any of:
 - **Keywords:** `tauri`, `#[tauri::command]`, `invoke(`, `spawn_blocking`, `async_runtime`, `Cargo.toml`, `tauri.conf.json`, `capabilities`, `IPC`, `blocking UI`, `freeze`, `treo app`, `đứng app`, `block UI`
 - **Paths:** `src-tauri/**`, `tauri.conf.json`, `Cargo.toml`, `capabilities/*.json`
 - **Actions:** adding/editing any `#[tauri::command]`, touching window/IPC code, bumping app version, diagnosing an app freeze/hang
 
 ### RULE-db-design.md
 Load if message or file path contains any of:
-- **Keywords:** `schema`, `migration`, `D1`, `SQL`, `database design`, `ERD`, `refactor DB`,
-  `event sourcing`, `bounded context`, `normalization`, `1NF`, `table design`, `thiết kế db`,
-  `thiết kế database`, `migration DB`
+- **Keywords:** `schema`, `migration`, `D1`, `SQL`, `database design`, `ERD`, `refactor DB`, `event sourcing`, `bounded context`, `normalization`, `1NF`, `table design`, `thiết kế db`, `thiết kế database`, `migration DB`
 - **Paths:** `migrations/**`, `schema.sql`, `**/d1/**`
-- **Actions:** designing a new table/schema, writing a DB migration, refactoring how data is
-  stored
+- **Actions:** designing a new table/schema, writing a DB migration, refactoring how data is stored
 
 ### METHOD-flow-audit.md
 Load if message contains any of:
@@ -106,8 +89,7 @@ Load if message contains any of:
 
 ## Tier 3 — Full load
 
-**Trigger** — match any of the following (case-insensitive):
-`nạp full`, `load full`, `full load`, `nạp tất cả rule`, `load all rules`, `full akirule`, `nạp hết rule`
+**Trigger** — match any of the following (case-insensitive): `nạp full`, `load full`, `full load`, `nạp tất cả rule`, `load all rules`, `full akirule`, `nạp hết rule`
 
 **Protocol — execute in order:**
 1. Run `ls ~/.aki/claudedoc/RULE-*.md ~/.aki/claudedoc/METHOD-*.md` to discover the actual file list
