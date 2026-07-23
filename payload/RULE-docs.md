@@ -31,10 +31,12 @@ Do not create new top-level doc topics unless the existing set clearly fails.
 
 ## B. Vòng đời & đồng bộ
 
-### B1. Plan lifecycle
-- Active plans live in `docs/plan/`
+### B1. Plan lifecycle & Filename Rules
+- Active plans live in `docs/plan/` (or `plan/`)
 - Completed plans move to `docs/plan/done/`
 - Use `done`, not `archived`, for completed plans
+- **No Date Prefixes in Filenames**: DO NOT prefix document filenames with dates (e.g. use `feature-name.md` instead of `2026-07-22-feature-name.md`). Record creation/modification dates inside document metadata instead.
+- **Prioritize Creating Plans (`docs/plan/`)**: Always prioritize creating a plan document in `docs/plan/` (or `plan/`) for any code/architectural changes. If execution is needed immediately, name the plan file with the target/next version increment (e.g. `v2-feature-name.md` or `v1.1-update.md`).
 
 ### B2. Documentation behavior
 - Keep docs synchronized with code. Code does not auto-generate docs unless complex/requested; when editing code derived from `feat|arch` docs, proactively sync the doc or comment the reference path.

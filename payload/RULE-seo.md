@@ -3,8 +3,7 @@
 <!-- Address map: seo.A1-5 · seo.B1-4 · seo.C1-3 (⟨Aki⟩) -->
 
 ## Scope
-Cross-project rules for all Nuxt 4 + Cloudflare Pages sites.
-For project-specific keyword strategy and schema values, see the project's own `docs/ref/seo.md` or equivalent.
+Cross-project rules for all Nuxt 4 + Cloudflare Pages sites. For project-specific keyword strategy and schema values, see the project's own `docs/ref/seo.md` or equivalent.
 
 ---
 
@@ -30,6 +29,12 @@ For project-specific keyword strategy and schema values, see the project's own `
 | About | `AboutPage` + `Organization` + `Person` | |
 | Contact | `ContactPage` + `Organization` | |
 
+> ⚠️ **`FAQPage` is inert schema as of 2026 — keep it, but never count it as an SEO deliverable.** Google retired FAQ rich results entirely (display stopped 7 May 2026; Search Console report and Rich Results Test support removed June 2026; API data removed August 2026). Outside Google, **no consumer is confirmed**: Bing's own docs can't be verified for FAQPage, OpenAI's official community thread is contradictory and inconclusive, Perplexity's "structured output" docs describe an API feature and say nothing about crawler parsing, and Claude/Gemini have made no statement. Google's own AI-features guidance says plainly there is *no special schema.org structured data you need to add*.
+>
+> **Rule:** leave existing `FAQPage` markup in place (it is not deprecated at the schema.org level, Google still parses it, and unused structured data causes no harm). But do **not** add an FAQ block to a page merely to emit schema, and do **not** list FAQPage as an SEO task in any plan.
+>
+> What actually earns citations is the **question format in the rendered HTML headings**, not the JSON-LD: passages cited by AI answers are roughly twice as likely to contain a question mark, and 78% of those question marks sit in headings. Write question-shaped `<h2>`s; the schema is a side effect.
+
 **Organization — required fields across all projects**
 ```ts
 defineOrganization({
@@ -44,8 +49,7 @@ defineOrganization({
 
 ### A3. Trailing slash — SEO-critical for Cloudflare Pages
 
-All internal links, canonical tags, `og:url`, sitemap entries, and JSON-LD `url` fields **must end with `/`**.
-Configured in `nuxt.config.ts`:
+All internal links, canonical tags, `og:url`, sitemap entries, and JSON-LD `url` fields **must end with `/`**. Configured in `nuxt.config.ts`:
 ```ts
 site: { trailingSlash: true }
 ```
@@ -87,6 +91,8 @@ These rules help content appear in AI-generated answers (Perplexity, ChatGPT, Ge
 - **alternateName in Organization/WebSite schema**: include all brand spelling variants (accented + unaccented + lowercase + domain form) so AI can resolve them to a single entity
 - **knowsAbout**: list the topics the brand covers — helps AI cite the site as a relevant source
 
+> ⚠️ **`llms.txt` is not an AI-visibility strategy (2026).** A log study across 137,000 domains found **97% of `llms.txt` files received zero requests over a full month**; no major LLM vendor has committed to reading the format, and Google's John Mueller has compared it to the meta keywords tag — a standard proposed by publishers that no consumer agreed to honour. Keep the file if it already exists (it costs nothing and is genuinely useful for *internal* agents reading the site), but never list it as an SEO/GEO deliverable and never let it substitute for the thing that does work: getting the content into the server-rendered HTML (B4).
+
 ### B2. Entity & ecosystem linking
 
 For sites that belong to a multi-site ecosystem or brand family:
@@ -95,8 +101,7 @@ For sites that belong to a multi-site ecosystem or brand family:
 - Footer cross-links to ecosystem sibling sites reinforce entity co-occurrence for crawlers
 - `Person` (Founder): link `worksFor` and `sameAs` to founder profiles and project pages
 
-Keep the concrete domain list (parent org URL, sibling sites) in the project's own docs — one
-source of truth per ecosystem, not hardcoded in shared rules.
+Keep the concrete domain list (parent org URL, sibling sites) in the project's own docs — one source of truth per ecosystem, not hardcoded in shared rules.
 
 ### B3. Vietnamese keyword handling (vi locale)
 
@@ -109,7 +114,7 @@ Google treats accented and unaccented Vietnamese as different queries (`vst là 
 
 ### B4. Prerendering & SSR
 
-- SEO-critical content must be in the HTML at crawl time — not injected by client-side JS
+- SEO-critical content must be in the HTML at crawl time — not injected by client-side JS. **This is the single highest-evidence rule in this file for AI visibility**: roughly 69% of AI crawlers (GPTBot, OAI-SearchBot, ClaudeBot, Claude-SearchBot, PerplexityBot) do **not** execute JavaScript, so a client-only SPA is simply invisible to them. Googlebot and Gemini do render; ChatGPT, Claude and Perplexity do not. Prerendering beats every schema tweak combined.
 - Public pages: prerender/SSG preferred
 - Dynamic SEO content (live prices, user-specific data): SSR, never defer to client
 - `zeroRuntime: true` in sitemap config for static deployments

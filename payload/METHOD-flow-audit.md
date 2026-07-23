@@ -14,8 +14,7 @@ The goal is not to add more controls around a weak flow. The goal is to redesign
 ## A. Tư duy flow
 
 ### A1. Core mindset
-A good flow does not depend on constant enforcement.
-A good flow makes the correct behavior natural.
+A good flow does not depend on constant enforcement. A good flow makes the correct behavior natural.
 
 Do not ask first:
 - "What guard should we add?"
@@ -27,8 +26,7 @@ Ask first:
 - "Where is the shape of the flow wrong?"
 - "What redesign would make the desired path self-aligning?"
 
-A patch may be necessary sometimes.
-But repeated patches usually mean the flow itself is not well-formed.
+A patch may be necessary sometimes. But repeated patches usually mean the flow itself is not well-formed.
 
 ### A2. When to use
 Use this skill when any trigger appears:
@@ -141,8 +139,7 @@ When using this skill, produce output in this structure:
 ---
 
 ## Next step
-If the flow problem is local, move to implementation planning.
-If the flow problem is architectural, move to a broader design pass before patching symptoms.
+If the flow problem is local, move to implementation planning. If the flow problem is architectural, move to a broader design pass before patching symptoms.
 
 ---
 

@@ -1,19 +1,14 @@
 # Chuẩn hoá AkiClaudeDoc — tách chung/riêng + tái cấu trúc A/B/C
 
-**Ngày**: 2026-07-19 · **Trạng thái**: ✅ Đã thực thi lên `payload/` + `claude/` + propagate
-**Loại**: decision record + execution tracker (bản md này để agent tự dõi theo khi thực thi).
+**Ngày**: 2026-07-19 · **Trạng thái**: ✅ Đã thực thi lên `payload/` + `claude/` + propagate **Loại**: decision record + execution tracker (bản md này để agent tự dõi theo khi thực thi).
 
-> Đây là bản quyết định + kế hoạch. HTML trực quan: `REPORT.html` ở gốc repo (bản đọc nhanh).
-> Nguồn sự thật là file này, không phải HTML.
+> Đây là bản quyết định + kế hoạch. HTML trực quan: `REPORT.html` ở gốc repo (bản đọc nhanh). Nguồn sự thật là file này, không phải HTML.
 
 ---
 
 ## 1. Vấn đề (restate)
 
-AkiClaudeDoc là repo **public** (đã share, auto-load qua `akirule`). Nó ra đời **trước** khi
-`AkiNuxtCf/UNIDOC` tồn tại, nên một phần nội dung thực chất là **đặc thù riêng hệ sinh thái Aki**
-(canonical component names, `aki-info-detect`, `usePageSeo`, `releases.json`…) — thứ giờ đã có nhà
-riêng là UNIDOC. Ba việc:
+AkiClaudeDoc là repo **public** (đã share, auto-load qua `akirule`). Nó ra đời **trước** khi `AkiNuxtCf/UNIDOC` tồn tại, nên một phần nội dung thực chất là **đặc thù riêng hệ sinh thái Aki** (canonical component names, `aki-info-detect`, `usePageSeo`, `releases.json`…) — thứ giờ đã có nhà riêng là UNIDOC. Ba việc:
 
 1. Tách bạch cái **chung** (auto, public, mọi người) khỏi cái **riêng** (đặc thù Aki).
 2. Sau khi tách, **tinh gọn** phần còn lại thành nhóm rõ ràng.
@@ -21,23 +16,15 @@ riêng là UNIDOC. Ba việc:
 
 ## 2. Chuỗi mục tiêu (goal chain)
 
-Gọn context khi context-switch cao (user làm ~20 dự án) → mỗi rule dễ định vị/nhắc đích danh →
-ranh giới public/private rõ để lỡ share không lộ tài sản riêng → **mục tiêu tối thượng: rule corpus
-vừa tiện cho user chính, vừa an toàn để public, không tăng gánh bảo trì.**
+Gọn context khi context-switch cao (user làm ~20 dự án) → mỗi rule dễ định vị/nhắc đích danh → ranh giới public/private rõ để lỡ share không lộ tài sản riêng → **mục tiêu tối thượng: rule corpus vừa tiện cho user chính, vừa an toàn để public, không tăng gánh bảo trì.**
 
-Xung đột mục tiêu đã nhận diện: **"sạch để public" ↔ "tiện cho user chính"**. User là người dùng
-chính → **ưu tiên tiện** (giữ auto-load), "sạch public" hạ xuống thành *nhãn logic* thay vì tách
-vật lý.
+Xung đột mục tiêu đã nhận diện: **"sạch để public" ↔ "tiện cho user chính"**. User là người dùng chính → **ưu tiên tiện** (giữ auto-load), "sạch public" hạ xuống thành *nhãn logic* thay vì tách vật lý.
 
 ## 3. Phát hiện gốc (first principles)
 
-- **Doctrine tách public/private ĐÃ tồn tại**: `UNIDOC/arch/knowledge-governance.md §3` +
-  `UNIDOC/plan/done/2026-07-05-standard-public-allocation.md`. Luật: AkiClaudeDoc = public, tự đứng
-  được, không nhắc UNIDOC/site nào. → Đây là **audit tuân thủ**, không phải bài toán mới.
-- **Rò rỉ chỉ ở 3 file lai**, không phải cả 14: `RULE-seo`, `RULE-release`, `RULE-stack-akiNuxtCf`.
-  11 file còn lại đã universal đúng chuẩn.
-- **Phần Aki-private trong `stack` gần như đã mirror sẵn** trong STANDARD qua `(mirror:)`. Đây vừa
-  là gánh nặng đồng bộ 2 chiều thủ công (drift-prone), vừa là cơ hội: cô lập được rõ ràng.
+- **Doctrine tách public/private ĐÃ tồn tại**: `UNIDOC/arch/knowledge-governance.md §3` + `UNIDOC/plan/done/2026-07-05-standard-public-allocation.md`. Luật: AkiClaudeDoc = public, tự đứng được, không nhắc UNIDOC/site nào. → Đây là **audit tuân thủ**, không phải bài toán mới.
+- **Rò rỉ chỉ ở 3 file lai**, không phải cả 14: `RULE-seo`, `RULE-release`, `RULE-stack-akiNuxtCf`. 11 file còn lại đã universal đúng chuẩn.
+- **Phần Aki-private trong `stack` gần như đã mirror sẵn** trong STANDARD qua `(mirror:)`. Đây vừa là gánh nặng đồng bộ 2 chiều thủ công (drift-prone), vừa là cơ hội: cô lập được rõ ràng.
 
 ## 4. Quyết định (đã chốt — tự quyết để giảm tải cho user)
 
@@ -52,15 +39,11 @@ vật lý.
 
 ## 5. Phản biện (rejected alternatives)
 
-- **Dời hẳn sang UNIDOC** (bị loại): sạch nhất về lý thuyết, khớp doctrine, diệt `(mirror:)`. Loại
-  vì mất auto-load tiện cho user chính — chính điều user nói "sẽ mệt".
-- **Gate bằng trigger "UNIDOC"** (bị loại): file ở lại repo nhưng chỉ nạp khi gõ "UNIDOC". Loại vì
-  (a) vẫn ship nội dung riêng trong bản install public; (b) user không muốn phải gọi tay.
+- **Dời hẳn sang UNIDOC** (bị loại): sạch nhất về lý thuyết, khớp doctrine, diệt `(mirror:)`. Loại vì mất auto-load tiện cho user chính — chính điều user nói "sẽ mệt".
+- **Gate bằng trigger "UNIDOC"** (bị loại): file ở lại repo nhưng chỉ nạp khi gõ "UNIDOC". Loại vì (a) vẫn ship nội dung riêng trong bản install public; (b) user không muốn phải gọi tay.
 - **Đổi tên file sang mã A1.md…** (bị loại): xem D3 — chi phí phá tham chiếu > lợi ích.
 
-**Pre-mortem** (điều cần canh, mục 8): ranh giới general/private *bên trong* `seo`/`release` mờ →
-nguy cơ nhét đặc thù Aki lại vào nhóm A/B universal vì tiện tay. Cờ `⟨Aki⟩` + "nhóm cuối" là hàng
-rào chống việc đó.
+**Pre-mortem** (điều cần canh, mục 8): ranh giới general/private *bên trong* `seo`/`release` mờ → nguy cơ nhét đặc thù Aki lại vào nhóm A/B universal vì tiện tay. Cờ `⟨Aki⟩` + "nhóm cuối" là hàng rào chống việc đó.
 
 ## 6. Sơ đồ tái cấu trúc A/B/C (bản thực thi tham chiếu)
 
@@ -146,21 +129,14 @@ Quy ước: **`⟨Aki⟩`** = nhóm đặc thù hệ Aki (strip được khi pub
 - [x] Soát `(mirror:)` trong STANDARD vẫn trỏ đúng — `grep` xác nhận mọi marker vẫn trỏ tên file cũ (`RULE-stack`, `RULE-db-design`), không có gì vỡ vì không đổi tên file.
 
 **Lệch nhỏ so với sơ đồ gốc (mục 6), ghi nhận để tránh nhầm lẫn khi tra cứu:**
-- `content`: sơ đồ gốc bỏ sót mục "Interface text" (UI language) → thêm làm `content.A2`, đẩy Semantic
-  stability thành `content.A3` (thay vì A1–2 như dự kiến ban đầu).
+- `content`: sơ đồ gốc bỏ sót mục "Interface text" (UI language) → thêm làm `content.A2`, đẩy Semantic stability thành `content.A3` (thay vì A1–2 như dự kiến ban đầu).
 
 ## 8. Giả định cần canh (assumptions to monitor)
 
-- **A1** — Các web project của Aki lấy stack-rule qua `akirule` auto-load, KHÔNG hardcode đường dẫn
-  `RULE-stack-akiNuxtCf.md`. *(Cần verify trước khi thực thi; nếu có project ref cứng thì không sao
-  vì ta không đổi tên/vị trí — chỉ cấu trúc nội bộ đổi.)*
+- **A1** — Các web project của Aki lấy stack-rule qua `akirule` auto-load, KHÔNG hardcode đường dẫn `RULE-stack-akiNuxtCf.md`. *(Cần verify trước khi thực thi; nếu có project ref cứng thì không sao vì ta không đổi tên/vị trí — chỉ cấu trúc nội bộ đổi.)*
 - **A2** — Không đổi tên file ⇒ `(mirror:)` markers + `akitao.com` FAQ + install.sh vẫn đúng.
-- **A3** — Cờ `⟨Aki⟩` đủ làm hàng rào chống rò rỉ ngược; nếu vẫn thấy đặc thù Aki lọt vào nhóm A/B
-  universal, cân nhắc nâng lên cơ chế strip tự động (D5 revisit).
+- **A3** — Cờ `⟨Aki⟩` đủ làm hàng rào chống rò rỉ ngược; nếu vẫn thấy đặc thù Aki lọt vào nhóm A/B universal, cân nhắc nâng lên cơ chế strip tự động (D5 revisit).
 
 ## 9. Bottom line
 
-Giữ nguyên repo + auto-load (tiện cho user chính). Tách chung/riêng bằng **nhãn logic `⟨Aki⟩`** cô
-lập vào nhóm cuối của đúng **3 file lai** (`seo`/`release`/`stack`). Tái cấu trúc **mọi file** thành
-**nhóm A/B/C + điều 1/2/3**, gọi bằng `topic.A2`. Không đổi tên file, không dời sang UNIDOC. Báo
-cáo này là bản kế hoạch để dõi theo; thực thi lên `payload/` là bước sau khi user duyệt.
+Giữ nguyên repo + auto-load (tiện cho user chính). Tách chung/riêng bằng **nhãn logic `⟨Aki⟩`** cô lập vào nhóm cuối của đúng **3 file lai** (`seo`/`release`/`stack`). Tái cấu trúc **mọi file** thành **nhóm A/B/C + điều 1/2/3**, gọi bằng `topic.A2`. Không đổi tên file, không dời sang UNIDOC. Báo cáo này là bản kế hoạch để dõi theo; thực thi lên `payload/` là bước sau khi user duyệt.

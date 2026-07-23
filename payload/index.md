@@ -3,14 +3,13 @@
 Shared source-of-truth rules for Aki projects.
 
 ## Purpose
-Provides reusable rules for agent behavior, coding, content, docs, and stack-specific work.
-Project `CLAUDE.md` files bind these shared rules to a specific project.
+Provides reusable rules for agent behavior, coding, content, docs, and stack-specific work. Project `CLAUDE.md` files bind these shared rules to a specific project.
 
 ## File manifest
 
 | File | Topic | Tier | Loại | Purpose |
 |------|-------|------|------|---------|
-| `RULE-agent-behavior.md` | `agent` | Core | public | Response language, scope discipline, verification, decision boundaries |
+| `RULE-agent-behavior.md` | `agent` | Core | public | Response language, communication-vs-task discrimination (a question is not a request), scope discipline, verification, decision boundaries, no model-credit trailers in git artifacts |
 | `RULE-coding.md` | `coding` | Core | public | Philosophy, source-of-truth, error handling, security |
 | `RULE-design-core.md` | `design` | Contextual (high-sensitivity) | public | Universal pattern philosophy: SSoT, Rule of Three, SRP "and"-test, OCP, composition, module boundaries, name-by-role, anti-patch. Sharpens RULE-coding; applies to every project type — load eagerly on any structural/decomposition decision |
 | `RULE-docs.md` | `docs` | Contextual | public | Docs structure (incl. mandatory `docs/biz/` backbone), plan lifecycle, doc-sync behavior |
@@ -28,17 +27,9 @@ Routing logic (which file loads when) is defined in `~/.claude/skills/akirule/SK
 
 ## Addressing scheme — `topic.A1`
 
-Every file is internally organized into groups **A/B/C** (a topic's broad themes) and numbered
-items **1/2/3…** within each group — e.g. `coding.B2` (Changing existing code), `stack.C1`
-(Canonical component names). `topic` is the filename with its `RULE-`/`METHOD-` prefix dropped.
-This is purely a recall/reference convention — it does not change routing (still governed by
-`akirule/SKILL.md`) and does not rename any file.
+Every file is internally organized into groups **A/B/C** (a topic's broad themes) and numbered items **1/2/3…** within each group — e.g. `coding.B2` (Changing existing code), `stack.C1` (Canonical component names). `topic` is the filename with its `RULE-`/`METHOD-` prefix dropped. This is purely a recall/reference convention — it does not change routing (still governed by `akirule/SKILL.md`) and does not rename any file.
 
-**`⟨Aki⟩`** marks a group (always the last group in its file) that is specific to Aki's own
-AkiNuxtCf ecosystem rather than universal — currently `seo.C`, `release.C`, `stack.C`. These groups
-stay in this public repo (auto-load is more useful to Aki, the heaviest user, than a clean public/
-private split), but are logically separable if a stripped public export is ever needed. Everything
-outside a `⟨Aki⟩` group is universal and applies to any project on the matching stack.
+**`⟨Aki⟩`** marks a group (always the last group in its file) that is specific to Aki's own AkiNuxtCf ecosystem rather than universal — currently `seo.C`, `release.C`, `stack.C`. These groups stay in this public repo (auto-load is more useful to Aki, the heaviest user, than a clean public/ private split), but are logically separable if a stripped public export is ever needed. Everything outside a `⟨Aki⟩` group is universal and applies to any project on the matching stack.
 
 | Topic | Groups |
 |---|---|
@@ -56,7 +47,17 @@ outside a `⟨Aki⟩` group is universal and applies to any project on the match
 | `think` | A Khung quyết định · B 5 Modules · C Radar |
 | `flow` | A Tư duy flow · B 8 câu hỏi first-principles · C Chốt & output |
 
-Full item-level breakdown: `docs/research/2026-07-19-public-private-abc-restructure.md`.
+Full item-level breakdown: `docs/research/public-private-abc-restructure.md`.
+
+## Cross-cutting lens
+
+Some subjects legitimately live in several files: one **root rule** stating the principle, plus **domain applications** that must stay inside their domain (moving them would strip the context where they are actually read). This section is an **address map only — never rule text** — so it stays a pointer, not a duplicate.
+
+| Subject | Root | Domain applications |
+|---|---|---|
+| **Naming** | `design.A7` — name by role, never by concrete value | `agent.C1` file names · `ui.A` design tokens · `stack.C1` ⟨Aki⟩ canonical component names · `release.A3` version/tag format · `content.A3` semantic stability (renaming an existing concept) |
+
+Add a second lens row only when a subject has actually caused a miss — `design.A2` (Rule of Three) applies to this rule corpus too.
 
 ## Precedence
 When rules conflict, use this order:
@@ -66,8 +67,7 @@ When rules conflict, use this order:
 4. Aki-RULE shared files
 5. Older docs, memory, or prior conversation context
 
-Project `CLAUDE.md` may add project facts and stricter constraints.
-It must not silently weaken core safety, verification, or source-of-truth rules.
+Project `CLAUDE.md` may add project facts and stricter constraints. It must not silently weaken core safety, verification, or source-of-truth rules.
 
 ## Project binding
 Each project should keep a root `CLAUDE.md` that:
@@ -77,5 +77,4 @@ Each project should keep a root `CLAUDE.md` that:
 - avoids duplicating shared rules
 
 ## Change policy
-Aki-RULE changes affect many projects.
-Before changing these files, clarify the intended rule, scope, and tradeoff unless the user explicitly requests the exact change.
+Aki-RULE changes affect many projects. Before changing these files, clarify the intended rule, scope, and tradeoff unless the user explicitly requests the exact change.

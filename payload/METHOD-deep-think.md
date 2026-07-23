@@ -110,8 +110,7 @@ Apply this module only when the problem has business/product context — value d
 - What result would prove this direction is worth expanding?
 - What result would tell us to stop?
 
-**Decision test**
-Before recommending a solution, check:
+**Decision test** Before recommending a solution, check:
 
 - Can the real goal be stated in 1 sentence?
 - Does the solution solve the root problem, not just the symptom?
@@ -123,8 +122,7 @@ Before recommending a solution, check:
 
 If the answer is unclear, reduce the solution before expanding it.
 
-**Red flags**
-Stop and rethink when you see these patterns:
+**Red flags** Stop and rethink when you see these patterns:
 
 - "We might need this later"
 - "This is cleaner architecturally"
@@ -139,9 +137,7 @@ These may be correct, but they are not proof. Each one requires evidence, not ta
 
 ### B5. MVP focus, side-effects & edge-cases weighed by severity
 
-An evaluation discipline, not a survival rule, and it is **not gated by business context** (unlike
-Module 4). It guards against two opposite failure modes at once: rat-holing on trivial edges while
-the main solution goes unbuilt, and hiding a serious risk behind "MVP first".
+An evaluation discipline, not a survival rule, and it is **not gated by business context** (unlike Module 4). It guards against two opposite failure modes at once: rat-holing on trivial edges while the main solution goes unbuilt, and hiding a serious risk behind "MVP first".
 
 **When this applies** — whenever you are *discussing or evaluating* something, not merely executing it:
 - a refactor,
@@ -150,27 +146,15 @@ the main solution goes unbuilt, and hiding a serious risk behind "MVP first".
 - an idea or proposal.
 
 **Weigh by severity, not by sequence:**
-- Keep the MVP / main work as the focus of your energy; do not let trivial edge-cases or cosmetic
-  side-effects drain the effort that belongs to the core solution.
-- But SFX/EC are **not automatically subordinate to the MVP**. This is a loop, not a one-way
-  pipeline: a material one can feed back and reshape the MVP itself — an edge-case that is really a
-  serious correctness bug, or a side-effect that breaks another flow, can send the main
-  recommendation back for rework. Do not defer it just because "MVP comes first".
-- So surface each in proportion to its severity: trivial → name it out-of-scope and move on;
-  material → state it with its handling; severe enough to threaten the MVP's correctness or
-  viability → raise it immediately and let it override the MVP.
-  - **SFX:** what does this ripple into — other flows, callers, stored data, future maintainers,
-    incentives? (Draws on Module 3, second-order effects.)
-  - **EC:** where does it break at the boundaries — empty/null, limits, concurrency, first/last
-    item, non-ASCII, failure paths? (Draws on Module 3, inversion / pre-mortem.)
+- Keep the MVP / main work as the focus of your energy; do not let trivial edge-cases or cosmetic side-effects drain the effort that belongs to the core solution.
+- But SFX/EC are **not automatically subordinate to the MVP**. This is a loop, not a one-way pipeline: a material one can feed back and reshape the MVP itself — an edge-case that is really a serious correctness bug, or a side-effect that breaks another flow, can send the main recommendation back for rework. Do not defer it just because "MVP comes first".
+- So surface each in proportion to its severity: trivial → name it out-of-scope and move on; material → state it with its handling; severe enough to threaten the MVP's correctness or viability → raise it immediately and let it override the MVP.
+  - **SFX:** what does this ripple into — other flows, callers, stored data, future maintainers, incentives? (Draws on Module 3, second-order effects.)
+  - **EC:** where does it break at the boundaries — empty/null, limits, concurrency, first/last item, non-ASCII, failure paths? (Draws on Module 3, inversion / pre-mortem.)
 
-In one line: **the MVP gets the focus, but severity — not ordering — decides when an SFX/EC is
-promoted, up to and including reopening the MVP.**
+In one line: **the MVP gets the focus, but severity — not ordering — decides when an SFX/EC is promoted, up to and including reopening the MVP.**
 
-**Decide vs ask (once promoted):** first try to resolve it yourself with first-principles and
-critical thinking — then decide and report. Escalate to the owner only when it is genuinely their
-call per RULE-agent-behavior Decision boundaries (irreversible, cross-boundary, or unverifiable);
-do not ask about what basic reasoning already settles.
+**Decide vs ask (once promoted):** first try to resolve it yourself with first-principles and critical thinking — then decide and report. Escalate to the owner only when it is genuinely their call per RULE-agent-behavior Decision boundaries (irreversible, cross-boundary, or unverifiable); do not ask about what basic reasoning already settles.
 
 ---
 

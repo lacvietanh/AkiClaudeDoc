@@ -1,23 +1,17 @@
 # UI Pattern — Frontend Enforcement (Nuxt / Vue / Tailwind)
 
-<!-- Address map: ui.A1-3 · ui.B1-4 · ui.C1-5 -->
+<!-- Address map: ui.A1-4 · ui.B1-4 · ui.C1-5 -->
 
-**Tier: Contextual.** Load on any UI authoring/refactor signal, or on an audit signal (see the
-Audit section). This file is the **UI-specific enforcement** of the universal laws in
-`RULE-design-core.md` — it does not redefine them. Nuxt/Cloudflare stack mechanics (rendering,
-i18n, layout chrome, deploy) live in `RULE-stack-akiNuxtCf.md`; this file owns the design-system
-layer: tokens, class taxonomy, variant API, and UI audit.
+**Tier: Contextual.** Load on any UI authoring/refactor signal, or on an audit signal (see the Audit section). This file is the **UI-specific enforcement** of the universal laws in `RULE-design-core.md` — it does not redefine them. Nuxt/Cloudflare stack mechanics (rendering, i18n, layout chrome, deploy) live in `RULE-stack-akiNuxtCf.md`; this file owns the design-system layer: tokens, class taxonomy, variant API, and UI audit.
 
 ## Map to RULE-design-core (which universal law each rule enforces)
 
 - **SSoT (Law 1)** → design tokens are the single source for every visual value.
 - **Evidence-based abstraction (Law 2)** → Rule of Three before a pattern class or base component.
-- **Composition over duplication (Law 5)** → slots / dynamic components / `v-for`, never hand-copied
-  markup.
+- **Composition over duplication (Law 5)** → slots / dynamic components / `v-for`, never hand-copied markup.
 - **OCP (Law 4)** → extend a component via props / variant / slot, never fork a copy.
 - **Name by role (Law 7)** → semantic tokens and variants, never value-names.
-- **Documentation** → every global pattern is recorded (below), so the next agent reuses instead of
-  rewriting.
+- **Documentation** → every global pattern is recorded (below), so the next agent reuses instead of rewriting.
 
 ---
 
@@ -38,30 +32,30 @@ Every style belongs to exactly one tier — there is no fifth tier.
 Rules between tiers:
 - Tier 1 is the default first reach for any styling need.
 - Climb to tier 2 only when Rule of Three (Law 2) fires — never pre-extract a pattern class.
-- Tier 3 in Vue is **always prop-driven** (a computed class-map). Loose CSS modifiers are only for
-  markup Vue does not render — Markdown/CMS output, static email templates.
-- Tier 4 is the destination: once a pattern has variants, package it as a base component so callers
-  never hand-assemble class strings.
+- Tier 3 in Vue is **always prop-driven** (a computed class-map). Loose CSS modifiers are only for markup Vue does not render — Markdown/CMS output, static email templates.
+- Tier 4 is the destination: once a pattern has variants, package it as a base component so callers never hand-assemble class strings.
 
-**Mandatory order:** Utility → Pattern class → Component variant → hand-written CSS. Hand-written CSS
-is the last resort, never the first reflex.
+**Mandatory order:** Utility → Pattern class → Component variant → hand-written CSS. Hand-written CSS is the last resort, never the first reflex.
 
 ### A2. Design tokens = the single visual source (Law 1)
 
-- Every visual value — color, spacing, radius, shadow, font, breakpoint, z-index, easing, duration —
-  exists **once**: a token in `tailwind.config` + a CSS variable. Never rewrite a hex / px / ms
-  value anywhere else.
-- Name tokens by **role**, not by hue/value: `primary`, `surface`, `danger`, `on-surface` — never
-  `bg-blue-500` sprinkled across code. Rebrand = edit one place, not hundreds.
-- Reuse the scientific scales required by `RULE-stack-akiNuxtCf.md`: z-index via `--z-index`
-  variables, radius via `radius-sm | md | lg | xl | pill`.
+- Every visual value — color, spacing, radius, shadow, font, breakpoint, z-index, easing, duration — exists **once**: a token in `tailwind.config` + a CSS variable. Never rewrite a hex / px / ms value anywhere else.
+- Name tokens by **role**, not by hue/value: `primary`, `surface`, `danger`, `on-surface` — never `bg-blue-500` sprinkled across code. Rebrand = edit one place, not hundreds.
+- Reuse the scientific scales required by `RULE-stack-akiNuxtCf.md`: z-index via `--z-index` variables, radius via `radius-sm | md | lg | xl | pill`.
 
 ### A3. Arbitrary-value policy (Law 1 + Law 7)
 
-`w-[123px]`, `text-[#3b82f6]`, `top-[13px]` are forbidden unless **all three** hold:
-(a) no existing token in the scale fits, (b) the value provably appears exactly once system-wide,
-(c) an inline comment explains why it is a one-off. A value likely to repeat → add a token first,
-use the token second.
+`w-[123px]`, `text-[#3b82f6]`, `top-[13px]` are forbidden unless **all three** hold: (a) no existing token in the scale fits, (b) the value provably appears exactly once system-wide, (c) an inline comment explains why it is a one-off. A value likely to repeat → add a token first, use the token second.
+
+### A4. Framework-native scale first (Law 1 + Law 7)
+
+Before adding **any** custom token — font-size, spacing, radius, shadow, whatever the framework already ships a scale for — check the framework's own default scale first. A custom token is only justified for the part of the range the framework genuinely does not cover.
+
+- **Order of preference:** framework default utility (`text-sm`, `text-base`, `rounded-lg`, …) > project token that extends the framework's scale for a gap it doesn't cover > one-off arbitrary value (§A3).
+- Never invent a parallel scale that duplicates what the framework already provides "for consistency" — that is the opposite of consistency; it is a second source of truth (Law 1 violation) and the exact drift this rule exists to prevent.
+- When cleaning up scattered ad-hoc values (see §C), snap each value to the **nearest existing step** (framework or already-established project token) by midpoint, not the raw value — a cluster of `0.78rem / 0.8rem / 0.82rem` is drift around one intended size, not three intended sizes. Do not mint a new token per raw value found in the wild; that fossilizes noise instead of correcting it.
+- Prefer **fewer, framework-aligned steps** over a deep bespoke scale. If a redesign of the scale is on the table, count how many genuine semantic roles exist (not how many raw values exist) — they are almost always far fewer than the raw-value count suggests.
+- This is a stack-wide UI hygiene issue, not a one-page fix: when the same drift pattern (e.g. a near-continuous spread of hardcoded font-sizes) shows up on more than one page/component, treat it as a systemic gap in the token set, not N independent one-off violations — fix the pattern once at the token layer, then sweep every call site.
 
 ## B. Cấu trúc component
 
@@ -76,39 +70,26 @@ components/
 composables/  # All data + business logic lives here — never duplicated in components
 ```
 
-- Data and side effects live in composables (the boundary — see `RULE-stack-akiNuxtCf.md`
-  External integrations), never duplicated across components.
-- For the fixed layout roles (footer, top nav, sidebar, breadcrumb, admin sidebar…), reuse the
-  **canonical component names** defined in `RULE-stack-akiNuxtCf.md`. Do not invent new names for
-  those roles.
+- Data and side effects live in composables (the boundary — see `RULE-stack-akiNuxtCf.md` External integrations), never duplicated across components.
+- For the fixed layout roles (footer, top nav, sidebar, breadcrumb, admin sidebar…), reuse the **canonical component names** defined in `RULE-stack-akiNuxtCf.md`. Do not invent new names for those roles.
 
 ### B2. Variant API (CVA-style) (Law 4)
 
-A base component exposes a **finite enum** of variants/sizes; a `computed` class-map resolves
-`prop → classes`. A new visual need is a **new entry in the same map**, never a forked
-`BaseButtonRed.vue`. Props / slots / emits are a stable contract — extend it, do not mutate it for
-one caller.
+A base component exposes a **finite enum** of variants/sizes; a `computed` class-map resolves `prop → classes`. A new visual need is a **new entry in the same map**, never a forked `BaseButtonRed.vue`. Props / slots / emits are a stable contract — extend it, do not mutate it for one caller.
 
 ### B3. Composition, not hand-copied markup (Law 5)
 
-Never duplicate a markup + logic block across components "for speed." Use slots, dynamic
-components (`<component :is>`), a composable, or `v-for` over data instead of writing N near-identical
-templates by hand.
+Never duplicate a markup + logic block across components "for speed." Use slots, dynamic components (`<component :is>`), a composable, or `v-for` over data instead of writing N near-identical templates by hand.
 
 ### B4. Documentation duty (Law 1 for knowledge)
 
-A new **global** pattern class or variant must be recorded in the project's pattern library the
-moment it is created. An undocumented pattern does not exist — the next person or agent will rewrite
-it and the duplication returns.
+A new **global** pattern class or variant must be recorded in the project's pattern library the moment it is created. An undocumented pattern does not exist — the next person or agent will rewrite it and the duplication returns.
 
 ---
 
 ## C. Audit playbook — cleaning existing code
 
-**Triggers for this section:** `dọn dẹp`, `class trùng`, `duplicate class/CSS`, `trùng lặp`,
-`audit CSS`, `refactor CSS/UI`, `arbitrary value`, `quét class`. Pair with `METHOD-flow-audit.md`
-for the flow-level mindset; this section is the concrete UI grep layer. Run the steps in order — do
-not skip.
+**Triggers for this section:** `dọn dẹp`, `class trùng`, `duplicate class/CSS`, `trùng lặp`, `audit CSS`, `refactor CSS/UI`, `arbitrary value`, `quét class`. Pair with `METHOD-flow-audit.md` for the flow-level mindset; this section is the concrete UI grep layer. Run the steps in order — do not skip.
 
 ### C1. Inventory by scan (quantify before refactoring by feel)
 
@@ -128,25 +109,19 @@ Hand-written `px`/`ms` in `<style>` or inline `style=` — same treatment.
 
 ### C2. Classify severity
 
-SSoT breach (hardcoded value that should be a token) **>** duplicated business/logic **>** duplicated
-presentation style. Fix in that order of danger.
+SSoT breach (hardcoded value that should be a token) **>** duplicated business/logic **>** duplicated presentation style. Fix in that order of danger.
 
 ### C3. Priority matrix (impact × effort)
 
-Plot each finding on impact × effort. Do high-impact / low-effort first. Do not start a large
-refactor by feel before this matrix exists.
+Plot each finding on impact × effort. Do high-impact / low-effort first. Do not start a large refactor by feel before this matrix exists.
 
 ### C4. Safe refactor loop
 
-One pattern at a time: extract the token / pattern class / variant → replace every call site →
-verify build + type + visual → commit. Follow `RULE-release.md` for CHANGELOG/version; never push
-unasked (`RULE-agent-behavior.md`).
+One pattern at a time: extract the token / pattern class / variant → replace every call site → verify build + type + visual → commit. Follow `RULE-release.md` for CHANGELOG/version; never push unasked (`RULE-agent-behavior.md`).
 
 ### C5. Compliance scorecard
 
-Score the codebase against `RULE-design-core.md` Definition of Done and the four-tier taxonomy: any
-tier-0 breach (hardcoded value), any un-evidenced abstraction, any forked component, any
-value-named token is a fail to record.
+Score the codebase against `RULE-design-core.md` Definition of Done and the four-tier taxonomy: any tier-0 breach (hardcoded value), any un-evidenced abstraction, any forked component, any value-named token is a fail to record.
 
 **Report template**
 
@@ -161,5 +136,4 @@ UI Pattern Audit — <project> — <date>
 
 ## One-line reminder
 
-Diversity of UI comes from a controlled variant system, not from ad-hoc class strings — one source
-per value, one pattern per repeated problem.
+Diversity of UI comes from a controlled variant system, not from ad-hoc class strings — one source per value, one pattern per repeated problem.
