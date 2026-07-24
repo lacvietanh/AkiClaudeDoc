@@ -155,3 +155,7 @@ grep -E '^## \[' CHANGELOG.md
 ```
 
 Confirm every CHANGELOG version has a matching entry in releases.json and the order (newest-first in releases.json, newest-first in CHANGELOG) is consistent. Fix any gap before the task is done.
+
+### C5. Live production verification
+Never trust a deployment CLI's success status alone. A web deploy is only verified when the live production URL explicitly returns the new version data.
+Wait ~3 minutes after a successful push/build, then fetch the live release artifact (e.g., `curl -s -H "Cache-Control: no-cache" https://<production-domain>/releases.json`) to confirm the new version is genuinely serving to the public.

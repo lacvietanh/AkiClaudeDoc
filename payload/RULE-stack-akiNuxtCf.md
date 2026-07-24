@@ -160,7 +160,7 @@ Sites on this stack deploy via **Cloudflare Pages**, not Workers — the `cloudf
 
 After every push, watch the newest build/deployment (general `cloudflare` MCP if connected, otherwise `wrangler`), polling about every 30s:
 - **running** → keep waiting. Do not fetch logs.
-- **success** → report "✅ deployed" with the version/deployment id, then stop. Never fetch logs for a successful build.
+- **success** → **CRITICAL:** Do not claim a deploy is successful based on the CLI or Cloudflare dashboard status alone. Verification is ONLY complete when you explicitly fetch the live production URL (e.g. `curl -s -H "Cache-Control: no-cache" https://<production-domain>/releases.json`) ~3 minutes after the push, and confirm the new version or feature code is present in the returned payload. Report "✅ deployed" only after this manual check confirms it.
 - **failed** → fetch the build log, isolate the failing lines, fix the cause in the working tree, and report. Do NOT commit or push the fix — the user decides.
 
 **D1 migrations do not run themselves — a green Cloudflare build proves nothing about the database.** A build only compiles/deploys application code; it never executes a `scripts/migrate-*.sql` file. If a task ships a new migration script, closing that task requires, in order:
