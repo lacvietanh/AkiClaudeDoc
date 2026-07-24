@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-07-24
+
+### Added
+- `payload/GEMINI.md` Rule 12: Enforced mandatory pre-action scope verification checklist inside the hidden `<thought>` block to counter Gemini's RLHF helpfulness bias without polluting user chat UX.
+- `docs/research/gemini-helpfulness-bias-enforcement.md`: Created research doc detailing root cause analysis, prompt-engineering solution, and empirical verification results (100% pass across 3 isolated `agy -p` test cases).
+
 ## 2026-07-23
 
 ### Added — External-action completeness (migration-execution gap)

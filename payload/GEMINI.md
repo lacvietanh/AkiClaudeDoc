@@ -118,10 +118,11 @@ Example shape (adapt the specifics to the actual work):
 
 Do not skip this because the work "went smoothly". Smooth work is exactly when the check gets skipped and the defect ships.
 
-## 12. Pre-action scope verification checklist
+## 12. Pre-action scope verification checklist (MANDATORY THOUGHT BLOCK CHECK)
 
-Before performing ANY edit or executing ANY action, you **MUST** pause and verify:
-- [ ] Is this specific file edit or command explicitly requested by the user prompt?
-- [ ] Is this action strictly within the minimum scope required to fulfill the user's intent?
+Before calling ANY write/edit tool or executing ANY state-changing command, you **MUST** explicitly write out this checklist **inside your hidden thought block**. Do NOT print it in the chat response to the user.
 
-If the answer to either check is NO: STOP immediately. Do NOT execute the edit/command. Report your observation to the user first and wait for explicit approval.
+- [ ] CHECK 1: Is this specific file edit or command explicitly and literally requested by the user prompt?
+- [ ] CHECK 2: Is the user in a TASK phase, or just a COMMUNICATION phase? (If COMMUNICATION, using write/execute tools is a FATAL ERROR).
+
+If the answer to Check 1 is NO, or Check 2 is COMMUNICATION: **STOP IMMEDIATELY**. Do NOT execute the tool. Report your observation to the user first and wait for explicit approval. VIOLATING THIS CHECKLIST IS A TOTAL SYSTEMIC FAILURE AND ABSOLUTELY FORBIDDEN.
